@@ -1,7 +1,5 @@
-remote_theme: pages-themes/hacker@v0.2.0
-plugins:
-  - jekyll-remote-theme
 title: Nhan_laptop Blog
-description: Welcome to my blog! I'm glad to see you! 
-author: Nguyen Trong Nhan 
-
+description: Welcome to my blog! I'm glad to see you!
+author: Nguyen Trong Nhan
+show_downloads: true
+google_analytics: "UA‑XXXXXX‑X"
