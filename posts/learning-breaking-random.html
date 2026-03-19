@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breaking Random - Nhan's Security Log</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
+    <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="../index.html">Nhan's Security Log</a>
+            <nav class="main-nav">
+                <a href="../index.html">Home</a>
+                <a href="../categories/index.html">Categories</a>
+                <a href="../tags/index.html">Tags</a>
+                <a class="is-active" href="writeup-template.html">Template</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="article-wrap">
+        <section class="hero article-hero reveal is-visible">
+            <div class="breadcrumb">
+                <a href="../index.html">Home</a>
+                <span>/</span>
+                <span>Template</span>
+            </div>
+            <h1>Breaking Random</h1>
+            <div class="post-meta" style="margin-top: 10px;">
+                <span>YYYY-MM-DD</span>
+                <a href="../categories/writeup.html">Writeup</a>
+                <a href="../tags/index.html">tag-1</a>
+                <a href="../tags/index.html">tag-2</a>
+            </div>
+            <p class="lead">Tom tat challenge trong 2-3 cau: de bai, dau moi, va huong giai.</p>
+        </section>
+
+        <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
+<h1>Breaking Random</h1>
+<blockquote>
+<h2>Nhan_laptop |</h2>
+</blockquote>
+<blockquote>
+<p>Có bao giờ bạn nghĩ mình sẽ đoán được số sẽ được xổ vào ngày mai không ???, hay đơn giản chỉ là đoán được số sẽ được random từ một thư viện ._. ????</p>
+<p>Blog này sẽ giới thiệu bạn một số cách để rack random trong một vài thư viện.
+Implement: <a href="https://github.com/Nhan-Laptop/Break-random">https://github.com/Nhan-Laptop/Break-random</a></p>
+</blockquote>
+<h2>Mở Đầu</h2>
+<p>Chúng ta sẽ bắt đầu với hàm <code>random</code> trong Python trước.
+Python ngẫu nhiên sử dụng <a href="https://en.wikipedia.org/wiki/Mersenne_Twister">Mersenne Twister</a>. Nếu như có đủ 624 output 32-bit ta sẽ giải quyết được vấn đề!!???</p>
+<h3>Mersenne Twister</h3>
+<blockquote>
+<p>Main resource:</p>
+<ul>
+<li><a href="https://rbtree.blog/posts/2021-05-18-breaking-python-random-module/">https://rbtree.blog/posts/2021-05-18-breaking-python-random-module/</a></li>
+</ul>
+</blockquote>
+<p>Mersenne Twister có 624 số nguyên 32 bit dưới dạng trạng thái và mỗi lần nó xuất ra một số nguyên 32 bit dưới dạng đầu ra và thay đổi trạng thái. <a href="https://github.com/python/cpython/blob/23362f8c301f72bbf261b56e1af93e8c52f5b6cf/Modules/_randommodule.c">Here</a> miêu tả chi tiết cách hoạt động của MT.</p>
+<p>Nếu có 624 đầu ra 32-bit đầy đủ, bạn có thể khôi phục toàn bộ trạng thái -&gt; dự đoán hoàn hảo các số tiếp theo.</p>
+<p>Nếu chỉ có đầu ra bị cắt bớt bit (ví dụ <code>getrandbits(30)</code>), vẫn có thể khôi phục gần như toàn bộ bằng cách mô hình hóa tuyến tính trên GF(2); đôi khi sẽ còn một vài bit “tự do” không thể suy ra từ các quan sát đó.</p>
+<pre><code class="hljs language-c"><span class="hljs-comment">/* Period parameters -- These are all magic.  Don&#x27;t change. */</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> N 624</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> M 397</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> MATRIX_A 0x9908b0dfU    <span class="hljs-comment">/* constant vector a */</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> UPPER_MASK 0x80000000U  <span class="hljs-comment">/* most significant w-r bits */</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> LOWER_MASK 0x7fffffffU  <span class="hljs-comment">/* least significant r bits */</span></span>
+
+<span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span>
+<span class="hljs-title function_">genrand_uint32</span><span class="hljs-params">(RandomObject *self)</span>
+{
+    <span class="hljs-type">uint32_t</span> y;
+    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">uint32_t</span> mag01[<span class="hljs-number">2</span>] = {<span class="hljs-number">0x0U</span>, MATRIX_A};
+    <span class="hljs-comment">/* mag01[x] = x * MATRIX_A  for x=0,1 */</span>
+    <span class="hljs-type">uint32_t</span> *mt;
+
+    mt = self-&gt;state;
+    <span class="hljs-keyword">if</span> (self-&gt;index &gt;= N) { <span class="hljs-comment">/* generate N words at one time */</span>
+        <span class="hljs-type">int</span> kk;
+
+        <span class="hljs-keyword">for</span> (kk=<span class="hljs-number">0</span>;kk&lt;N-M;kk++) {
+            y = (mt[kk]&amp;UPPER_MASK)|(mt[kk+<span class="hljs-number">1</span>]&amp;LOWER_MASK);
+            mt[kk] = mt[kk+M] ^ (y &gt;&gt; <span class="hljs-number">1</span>) ^ mag01[y &amp; <span class="hljs-number">0x1U</span>];
+        }
+        <span class="hljs-keyword">for</span> (;kk&lt;N<span class="hljs-number">-1</span>;kk++) {
+            y = (mt[kk]&amp;UPPER_MASK)|(mt[kk+<span class="hljs-number">1</span>]&amp;LOWER_MASK);
+            mt[kk] = mt[kk+(M-N)] ^ (y &gt;&gt; <span class="hljs-number">1</span>) ^ mag01[y &amp; <span class="hljs-number">0x1U</span>];
+        }
+        y = (mt[N<span class="hljs-number">-1</span>]&amp;UPPER_MASK)|(mt[<span class="hljs-number">0</span>]&amp;LOWER_MASK);
+        mt[N<span class="hljs-number">-1</span>] = mt[M<span class="hljs-number">-1</span>] ^ (y &gt;&gt; <span class="hljs-number">1</span>) ^ mag01[y &amp; <span class="hljs-number">0x1U</span>];
+
+        self-&gt;index = <span class="hljs-number">0</span>;
+    }
+
+    y = mt[self-&gt;index++];
+    y ^= (y &gt;&gt; <span class="hljs-number">11</span>);
+    y ^= (y &lt;&lt; <span class="hljs-number">7</span>) &amp; <span class="hljs-number">0x9d2c5680U</span>;
+    y ^= (y &lt;&lt; <span class="hljs-number">15</span>) &amp; <span class="hljs-number">0xefc60000U</span>;
+    y ^= (y &gt;&gt; <span class="hljs-number">18</span>);
+    <span class="hljs-keyword">return</span> y;
+}
+</code></pre><p><strong>Remarks:</strong></p>
+<ul>
+<li><code>self-&gt;index</code> được tăng thêm 1 mỗi khi nó được gọi. Nếu nó lớn hơn, nó sẽ thay đổi trạng thái hiện tại sang trạng thái tiếp theo: <code>self-&gt;index &gt;= N</code>.</li>
+<li><code>mt[self-&gt;index++]</code> để xuất ra nó.</li>
+<li>Quá trình thay đổi trạng thái: mỗi <code>kk</code> tương ứng lấy
+<code>y = (mt[kk] &amp; UPPER_MASK) | (mt[(kk + 1) % N] &amp; LOWER_MASK)</code>
+<code>mt[kk] = mt[(kk + M) % N] ^ (y &gt;&gt; 1) ^ mag01[y &amp; 0x1U]</code>.</li>
+<li>Ta thấy <code>y</code> bị biến đổi khá là nhiều.</li>
+</ul>
+<pre><code class="hljs language-c">Temper:
+ y = mt[self-&gt;index++];
+    y ^= (y &gt;&gt; <span class="hljs-number">11</span>);
+    y ^= (y &lt;&lt; <span class="hljs-number">7</span>) &amp; <span class="hljs-number">0x9d2c5680U</span>;
+    y ^= (y &lt;&lt; <span class="hljs-number">15</span>) &amp; <span class="hljs-number">0xefc60000U</span>;
+    y ^= (y &gt;&gt; <span class="hljs-number">18</span>);
+</code></pre><p>Nhưng bản chất vẫn chỉ là các phép biến đổi Temper, nếu ta recover được state từ bước này thì hiển nhiên ta sẽ đoán được phía sau mà thôi.</p>
+<h3>Khôi phục từ đầu ra đầy đủ 32 bit</h3>
+<pre><code class="hljs language-c"><span class="hljs-comment">// https://rbtree.blog/posts/2021-05-18-breaking-python-random-module/</span>
+
+TemperingMaskB = <span class="hljs-number">0x9d2c5680</span>
+TemperingMaskC = <span class="hljs-number">0xefc60000</span>
+
+def untemper(y):
+    y = undoTemperShiftL(y)
+    y = undoTemperShiftT(y)
+    y = undoTemperShiftS(y)
+    y = undoTemperShiftU(y)
+    <span class="hljs-keyword">return</span> y
+
+def undoTemperShiftL(y):
+    last14 = y &gt;&gt; <span class="hljs-number">18</span>
+    final = y ^ last14
+    <span class="hljs-keyword">return</span> final
+
+def undoTemperShiftT(y):
+    first17 = y &lt;&lt; <span class="hljs-number">15</span>
+    final = y ^ (first17 &amp; TemperingMaskC)
+    <span class="hljs-keyword">return</span> final
+
+def undoTemperShiftS(y):
+    a = y &lt;&lt; <span class="hljs-number">7</span>
+    b = y ^ (a &amp; TemperingMaskB)
+    c = b &lt;&lt; <span class="hljs-number">7</span>
+    d = y ^ (c &amp; TemperingMaskB)
+    e = d &lt;&lt; <span class="hljs-number">7</span>
+    f = y ^ (e &amp; TemperingMaskB)
+    g = f &lt;&lt; <span class="hljs-number">7</span>
+    h = y ^ (g &amp; TemperingMaskB)
+    i = h &lt;&lt; <span class="hljs-number">7</span>
+    final = y ^ (i &amp; TemperingMaskB)
+    <span class="hljs-keyword">return</span> final
+
+def undoTemperShiftU(y):
+    a = y &gt;&gt; <span class="hljs-number">11</span>
+    b = y ^ a
+    c = b &gt;&gt; <span class="hljs-number">11</span>
+    final = y ^ c
+    <span class="hljs-keyword">return</span> final
+</code></pre><p>Temper là chuỗi phép dịch bit và XOR (có thêm AND với mặt nạ ở bước trái). Các phép này có thể đảo (un-temper) từng bước nếu làm theo đúng thứ tự và hướng bit phù hợp.</p>
+<p>Khi đã “un-temper” đủ 624 giá trị 32-bit liên tiếp, ta thu lại đúng 624 phần tử trạng thái (với <code>index=0</code>), rồi nạp lại vào Python qua <code>random.setstate(...)</code>.</p>
+<p>Bạn có thể kiểm chứng:</p>
+<pre><code class="hljs language-python"><span class="hljs-keyword">import</span> random
+
+<span class="hljs-comment"># Lấy nhiều đầu ra 32-bit đầy đủ</span>
+outs = [random.getrandbits(<span class="hljs-number">32</span>) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1000</span>)]
+
+<span class="hljs-comment"># Dựng lại state từ 624 đầu ra đầu tiên</span>
+state_words = [untemper(v) <span class="hljs-keyword">for</span> v <span class="hljs-keyword">in</span> outs[:<span class="hljs-number">624</span>]]
+restored = (<span class="hljs-number">3</span>, <span class="hljs-built_in">tuple</span>(state_words + [<span class="hljs-number">0</span>]), <span class="hljs-literal">None</span>)
+
+random.setstate(restored)
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1000</span>):
+    <span class="hljs-keyword">assert</span> outs[i] == random.getrandbits(<span class="hljs-number">32</span>)
+</code></pre><p>Vấn đề về thu thập đủ 32 bit gần như đã được hoàn thành.</p>
+<p>Vậy nếu các bit đầu ra không đầy đủ như điều kiện thì sao????</p>
+<h3>Khôi phục từ đầu ra một phần</h3>
+<p>Như đã đề cập ở phần cuối về bit, ví dụ: <code>python.getrandbits(30)</code>.</p>
+<p>Với <code>k &lt;= 32</code>, Python chỉ trả về k bit cao của giá trị sau temper. Vì vậy, nếu gọi <code>getrandbits(30)</code>, 2 bit thấp nhất của mỗi giá trị 32-bit không được quan sát.</p>
+<pre><code class="hljs language-c"><span class="hljs-type">static</span> PyObject *
+_random_Random_getrandbits_impl(RandomObject *self, <span class="hljs-type">int</span> k)
+<span class="hljs-comment">/*[clinic end generated code: output=b402f82a2158887f input=8c0e6396dd176fc0]*/</span>
+{
+    <span class="hljs-type">int</span> i, words;
+    <span class="hljs-type">uint32_t</span> r;
+    <span class="hljs-type">uint32_t</span> *wordarray;
+    PyObject *result;
+
+    <span class="hljs-keyword">if</span> (k &lt; <span class="hljs-number">0</span>) {
+        PyErr_SetString(PyExc_ValueError,
+                        <span class="hljs-string">&quot;number of bits must be non-negative&quot;</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;
+    }
+
+    <span class="hljs-keyword">if</span> (k == <span class="hljs-number">0</span>)
+        <span class="hljs-keyword">return</span> PyLong_FromLong(<span class="hljs-number">0</span>);
+
+    <span class="hljs-keyword">if</span> (k &lt;= <span class="hljs-number">32</span>)  <span class="hljs-comment">/* Fast path */</span>
+        <span class="hljs-keyword">return</span> PyLong_FromUnsignedLong(genrand_uint32(self) &gt;&gt; (<span class="hljs-number">32</span> - k));
+
+    words = (k - <span class="hljs-number">1</span>) / <span class="hljs-number">32</span> + <span class="hljs-number">1</span>;
+    wordarray = (<span class="hljs-type">uint32_t</span> *)PyMem_Malloc(words * <span class="hljs-number">4</span>);
+    <span class="hljs-keyword">if</span> (wordarray == <span class="hljs-literal">NULL</span>) {
+        PyErr_NoMemory();
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;
+    }
+
+    <span class="hljs-comment">/* Fill-out bits of long integer, by 32-bit words, from least significant
+       to most significant. */</span>
+<span class="hljs-meta">#<span class="hljs-keyword">if</span> PY_LITTLE_ENDIAN</span>
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; words; i++, k -= <span class="hljs-number">32</span>)
+<span class="hljs-meta">#<span class="hljs-keyword">else</span></span>
+    <span class="hljs-keyword">for</span> (i = words - <span class="hljs-number">1</span>; i &gt;= <span class="hljs-number">0</span>; i--, k -= <span class="hljs-number">32</span>)
+<span class="hljs-meta">#<span class="hljs-keyword">endif</span></span>
+    {
+        r = genrand_uint32(self);
+        <span class="hljs-keyword">if</span> (k &lt; <span class="hljs-number">32</span>)
+            r &gt;&gt;= (<span class="hljs-number">32</span> - k);  <span class="hljs-comment">/* Drop least significant bits */</span>
+        wordarray[i] = r;
+    }
+
+    result = _PyLong_FromByteArray((<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *)wordarray, words * <span class="hljs-number">4</span>,
+                                   PY_LITTLE_ENDIAN, <span class="hljs-number">0</span> <span class="hljs-comment">/* unsigned */</span>);
+    PyMem_Free(wordarray);
+    <span class="hljs-keyword">return</span> result;
+}
+</code></pre><p>Dù thu thập rất nhiều đầu ra (hàng nghìn lần gọi), sẽ có trường hợp một (vài) bit của trạng thái không ảnh hưởng đến bất kỳ bit quan sát được nào =&gt; bit “tự do” không thể suy ra.</p>
+<pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> MATRIX_A 0x9908b0dfU    <span class="hljs-comment">/* constant vector a */</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> UPPER_MASK 0x80000000U  <span class="hljs-comment">/* most significant w-r bits */</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> LOWER_MASK 0x7fffffffU  <span class="hljs-comment">/* least significant r bits */</span></span>
+</code></pre><p>MT19937 và temper là tuyến tính theo XOR (trên GF(2)).</p>
+<p>Ta có thể theo dõi lan truyền của từng bit trạng thái bằng cách thay vì giữ số nguyên, ta giữ một vector cơ sở 19968-bit (biểu diễn bằng bitmask Python int), sau đó áp dụng đúng các phép twist và temper nhưng ở dạng tuyến tính trên bitmask.</p>
+<p>Mỗi bit đầu ra quan sát được tạo thành một phương trình tuyến tính với 19968 ẩn (các bit trạng thái). Gom đủ phương trình =&gt; giải bằng khử Gauss (bitset) trên GF(2).</p>
+<h3>Implementation</h3>
+<p>Twisted.py:</p>
+<pre><code class="hljs language-python">ITW = <span class="hljs-number">32</span>
+N = <span class="hljs-number">624</span>
+M = <span class="hljs-number">397</span>
+A = <span class="hljs-number">0x9908B0DF</span>
+UPPER = <span class="hljs-number">0x80000000</span>
+LOWER = <span class="hljs-number">0x7FFFFFFF</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Twister</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Theo dõi ảnh hưởng của từng bit trạng thái dưới dạng bitmask.&quot;&quot;&quot;</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-variable language_">self</span>.state = [ [(<span class="hljs-number">1</span> &lt;&lt; (<span class="hljs-number">32</span>*i + (<span class="hljs-number">31</span>-b))) <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>)] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(N) ]
+        <span class="hljs-variable language_">self</span>.idx = <span class="hljs-number">0</span>
+
+<span class="hljs-meta">    @staticmethod</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_xor</span>(<span class="hljs-params">a, b</span>):
+        <span class="hljs-keyword">return</span> [x ^ y <span class="hljs-keyword">for</span> x, y <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(a, b)]
+
+<span class="hljs-meta">    @staticmethod</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_and_mask</span>(<span class="hljs-params">bits, mask</span>):
+        <span class="hljs-keyword">return</span> [bm <span class="hljs-keyword">if</span> ((mask &gt;&gt; (<span class="hljs-number">31</span> - i)) &amp; <span class="hljs-number">1</span>) <span class="hljs-keyword">else</span> <span class="hljs-number">0</span> <span class="hljs-keyword">for</span> i, bm <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(bits)]
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_twist_once</span>(<span class="hljs-params">self</span>):
+        mt = <span class="hljs-variable language_">self</span>.state
+        <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.idx &gt;= N:
+            <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(N):
+                k1 = (k + <span class="hljs-number">1</span>) % N
+                km = (k + M) % N
+                y = [ (mt[k][<span class="hljs-number">0</span>] &amp; UPPER) | (mt[k1][<span class="hljs-number">0</span>] &amp; LOWER) ] + mt[k][<span class="hljs-number">1</span>:]
+                y_sh = [<span class="hljs-number">0</span>] + y[:-<span class="hljs-number">1</span>]
+                mag = [<span class="hljs-number">0</span>]*<span class="hljs-number">32</span>
+                <span class="hljs-keyword">if</span> (y[-<span class="hljs-number">1</span>] &amp; <span class="hljs-number">1</span>):
+                    mag = <span class="hljs-variable language_">self</span>._and_mask([y_sh[<span class="hljs-number">0</span>]] + y_sh[<span class="hljs-number">1</span>:], A)
+                mt[k] = <span class="hljs-variable language_">self</span>._xor(mt[km], <span class="hljs-variable language_">self</span>._xor(y_sh, mag))
+            <span class="hljs-variable language_">self</span>.idx = <span class="hljs-number">0</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_temper_bits</span>(<span class="hljs-params">self, bits</span>):
+        y = bits[:]
+        y = [ y[i] ^ (y[i-<span class="hljs-number">11</span>] <span class="hljs-keyword">if</span> i&gt;=<span class="hljs-number">11</span> <span class="hljs-keyword">else</span> <span class="hljs-number">0</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>) ]
+        t = [ (y[i+<span class="hljs-number">7</span>] <span class="hljs-keyword">if</span> i&lt;=<span class="hljs-number">24</span> <span class="hljs-keyword">else</span> <span class="hljs-number">0</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>) ]
+        t = <span class="hljs-variable language_">self</span>._and_mask(t, MASK_B)
+        y = [ y[i] ^ t[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>) ]
+        t = [ (y[i+<span class="hljs-number">15</span>] <span class="hljs-keyword">if</span> i&lt;=<span class="hljs-number">16</span> <span class="hljs-keyword">else</span> <span class="hljs-number">0</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>) ]
+        t = <span class="hljs-variable language_">self</span>._and_mask(t, MASK_C)
+        y = [ y[i] ^ t[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>) ]
+        y = [ y[i] ^ (y[i-<span class="hljs-number">18</span>] <span class="hljs-keyword">if</span> i&gt;=<span class="hljs-number">18</span> <span class="hljs-keyword">else</span> <span class="hljs-number">0</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>) ]
+        <span class="hljs-keyword">return</span> y
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">gen_word_masks</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-variable language_">self</span>._twist_once()
+        masks = <span class="hljs-variable language_">self</span>._temper_bits(<span class="hljs-variable language_">self</span>.state[<span class="hljs-variable language_">self</span>.idx])
+        <span class="hljs-variable language_">self</span>.idx += <span class="hljs-number">1</span>
+        <span class="hljs-keyword">return</span> masks
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">getrandbits_masks</span>(<span class="hljs-params">self, k</span>):
+        <span class="hljs-keyword">if</span> k &lt;= <span class="hljs-number">32</span>:
+            masks = <span class="hljs-variable language_">self</span>.gen_word_masks()
+            <span class="hljs-keyword">return</span> masks[:k]
+        bits = []
+        <span class="hljs-keyword">while</span> k &gt; <span class="hljs-number">0</span>:
+            masks = <span class="hljs-variable language_">self</span>.gen_word_masks()
+            take = <span class="hljs-built_in">min</span>(<span class="hljs-number">32</span>, k)
+            <span class="hljs-keyword">if</span> take &lt; <span class="hljs-number">32</span>:
+                masks = masks[:take]
+            bits = masks[:take] + bits
+            k -= take
+        <span class="hljs-keyword">return</span> bits
+</code></pre><p>Solver():</p>
+<pre><code class="hljs language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solver</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-variable language_">self</span>.eq = []
+        <span class="hljs-variable language_">self</span>.bs = []
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">add</span>(<span class="hljs-params">self, mask: <span class="hljs-built_in">int</span>, bit: <span class="hljs-built_in">int</span></span>):
+        m, b = mask, bit &amp; <span class="hljs-number">1</span>
+        i = <span class="hljs-number">0</span>
+        <span class="hljs-keyword">while</span> i &lt; <span class="hljs-built_in">len</span>(<span class="hljs-variable language_">self</span>.eq) <span class="hljs-keyword">and</span> m:
+            lsb = <span class="hljs-variable language_">self</span>.eq[i] &amp; -<span class="hljs-variable language_">self</span>.eq[i]
+            <span class="hljs-keyword">if</span> m &amp; lsb:
+                m ^= <span class="hljs-variable language_">self</span>.eq[i]
+                b ^= <span class="hljs-variable language_">self</span>.bs[i]
+            i += <span class="hljs-number">1</span>
+        <span class="hljs-keyword">if</span> m:
+            <span class="hljs-variable language_">self</span>.eq.append(m)
+            <span class="hljs-variable language_">self</span>.bs.append(b)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">solve_any</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">int</span>:
+        x = <span class="hljs-number">0</span>
+        <span class="hljs-keyword">for</span> m, b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(<span class="hljs-variable language_">self</span>.eq, <span class="hljs-variable language_">self</span>.bs):
+            <span class="hljs-keyword">if</span> b:
+                x ^= (m &amp; -m)
+        <span class="hljs-keyword">return</span> x
+</code></pre><p>Kết quả: với khoảng 1247 lần gọi <code>getrandbits(30)</code>, hệ phương trình đủ để phục hồi 19967/19968 bit trạng thái — tức thiếu đúng 1 bit (một biến tự do). Việc đặt biến tự do đó là 0 (hay 1) không ảnh hưởng đến chuỗi bit đã quan sát (và một đoạn đáng kể sau đó), nên bạn vẫn đồng bộ được với bộ sinh của đối phương và dự đoán tiếp.</p>
+<p>Việc này đã được tác giả trong bài viết chỉnh sửa bằng:</p>
+<pre><code class="hljs language-text">Chúng tôi đã dành rất nhiều thời gian để xác minh phần này, nhưng cuối cùng, chúng tôi có thể kết luận rằng phần được đề cập thực sự không thể được tìm thấy. Điều này có nghĩa là một bit cụ thể ở trạng thái ban đầu chỉ ảnh hưởng đến một vị trí cụ thể trong đầu ra 32 bit.
+
+Do đó, tôi phải bỏ qua biến tự do và viết lại nó bằng mã giải quyết nó.
+</code></pre><pre><code class="hljs language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Twister</span>:
+    N = <span class="hljs-number">624</span>
+    M = <span class="hljs-number">397</span>
+    A = <span class="hljs-number">0x9908b0df</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-variable language_">self</span>.state = [ [ (<span class="hljs-number">1</span> &lt;&lt; (<span class="hljs-number">32</span> * i + (<span class="hljs-number">31</span> - j))) <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>) ] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">624</span>)]
+        <span class="hljs-variable language_">self</span>.index = <span class="hljs-number">0</span>
+
+<span class="hljs-meta">    @staticmethod</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_xor</span>(<span class="hljs-params">a, b</span>):
+        <span class="hljs-keyword">return</span> [x ^ y <span class="hljs-keyword">for</span> x, y <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(a, b)]
+
+<span class="hljs-meta">    @staticmethod</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_and</span>(<span class="hljs-params">a, x</span>):
+        <span class="hljs-keyword">return</span> [ v <span class="hljs-keyword">if</span> (x &gt;&gt; (<span class="hljs-number">31</span> - i)) &amp; <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-number">0</span> <span class="hljs-keyword">for</span> i, v <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(a) ]
+
+<span class="hljs-meta">    @staticmethod</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_shiftr</span>(<span class="hljs-params">a, x</span>):
+        <span class="hljs-keyword">return</span> [<span class="hljs-number">0</span>] * x + a[:-x]
+
+<span class="hljs-meta">    @staticmethod</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_shiftl</span>(<span class="hljs-params">a, x</span>):
+        <span class="hljs-keyword">return</span> a[x:] + [<span class="hljs-number">0</span>] * x
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get32bits</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.index &gt;= <span class="hljs-variable language_">self</span>.N:
+            <span class="hljs-keyword">for</span> kk <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-variable language_">self</span>.N):
+                y = <span class="hljs-variable language_">self</span>.state[kk][:<span class="hljs-number">1</span>] + <span class="hljs-variable language_">self</span>.state[(kk + <span class="hljs-number">1</span>) % <span class="hljs-variable language_">self</span>.N][<span class="hljs-number">1</span>:]
+                z = [ y[-<span class="hljs-number">1</span>] <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">self</span>.A &gt;&gt; (<span class="hljs-number">31</span> - i)) &amp; <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> <span class="hljs-number">0</span> <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>) ]
+                <span class="hljs-variable language_">self</span>.state[kk] = <span class="hljs-variable language_">self</span>._xor(<span class="hljs-variable language_">self</span>.state[(kk + <span class="hljs-variable language_">self</span>.M) % <span class="hljs-variable language_">self</span>.N], <span class="hljs-variable language_">self</span>._shiftr(y, <span class="hljs-number">1</span>))
+                <span class="hljs-variable language_">self</span>.state[kk] = <span class="hljs-variable language_">self</span>._xor(<span class="hljs-variable language_">self</span>.state[kk], z)
+            <span class="hljs-variable language_">self</span>.index = <span class="hljs-number">0</span>
+
+        y = <span class="hljs-variable language_">self</span>.state[<span class="hljs-variable language_">self</span>.index]
+        y = <span class="hljs-variable language_">self</span>._xor(y, <span class="hljs-variable language_">self</span>._shiftr(y, <span class="hljs-number">11</span>))
+        y = <span class="hljs-variable language_">self</span>._xor(y, <span class="hljs-variable language_">self</span>._<span class="hljs-keyword">and</span>(<span class="hljs-variable language_">self</span>._shiftl(y, <span class="hljs-number">7</span>), <span class="hljs-number">0x9d2c5680</span>))
+        y = <span class="hljs-variable language_">self</span>._xor(y, <span class="hljs-variable language_">self</span>._<span class="hljs-keyword">and</span>(<span class="hljs-variable language_">self</span>._shiftl(y, <span class="hljs-number">15</span>), <span class="hljs-number">0xefc60000</span>))
+        y = <span class="hljs-variable language_">self</span>._xor(y, <span class="hljs-variable language_">self</span>._shiftr(y, <span class="hljs-number">18</span>))
+        <span class="hljs-variable language_">self</span>.index += <span class="hljs-number">1</span>
+
+        <span class="hljs-keyword">return</span> y
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">getrandbits</span>(<span class="hljs-params">self, bit</span>):
+        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">self</span>.get32bits()[:bit]
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Solver</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-variable language_">self</span>.equations = []
+        <span class="hljs-variable language_">self</span>.outputs = []
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">insert</span>(<span class="hljs-params">self, equation, output</span>):
+        <span class="hljs-keyword">for</span> eq, o <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(<span class="hljs-variable language_">self</span>.equations, <span class="hljs-variable language_">self</span>.outputs):
+            lsb = eq &amp; -eq
+            <span class="hljs-keyword">if</span> equation &amp; lsb:
+                equation ^= eq
+                output ^= o
+
+        <span class="hljs-keyword">if</span> equation == <span class="hljs-number">0</span>:
+            <span class="hljs-keyword">return</span>
+
+        lsb = equation &amp; -equation
+        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(<span class="hljs-variable language_">self</span>.equations)):
+            <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.equations[i] &amp; lsb:
+                <span class="hljs-variable language_">self</span>.equations[i] ^= equation
+                <span class="hljs-variable language_">self</span>.outputs[i] ^= output
+
+        <span class="hljs-variable language_">self</span>.equations.append(equation)
+        <span class="hljs-variable language_">self</span>.outputs.append(output)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">solve</span>(<span class="hljs-params">self</span>):
+        num = <span class="hljs-number">0</span>
+        <span class="hljs-keyword">for</span> i, eq <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(<span class="hljs-variable language_">self</span>.equations):
+            <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.outputs[i]:
+                <span class="hljs-comment"># Assume every free variable is 0</span>
+                num |= eq &amp; -eq
+
+        state = [ (num &gt;&gt; (<span class="hljs-number">32</span> * i)) &amp; <span class="hljs-number">0xFFFFFFFF</span> <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">624</span>) ]
+        <span class="hljs-keyword">return</span> state
+
+<span class="hljs-keyword">import</span> random
+
+num = <span class="hljs-number">1247</span>
+bit = <span class="hljs-number">30</span>
+twister = Twister()
+outputs = [ random.getrandbits(bit) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(num) ]
+equations = [ twister.getrandbits(bit) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(num) ]
+
+solver = Solver()
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(num):
+    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(bit):
+        <span class="hljs-built_in">print</span>(i, j)
+        solver.insert(equations[i][j], (outputs[i] &gt;&gt; (bit - <span class="hljs-number">1</span> - j)) &amp; <span class="hljs-number">1</span>)
+
+state = solver.solve()
+recovered_state = (<span class="hljs-number">3</span>, <span class="hljs-built_in">tuple</span>(state + [<span class="hljs-number">0</span>]), <span class="hljs-literal">None</span>)
+random.setstate(recovered_state)
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(num):
+    <span class="hljs-keyword">assert</span> outputs[i] == random.getrandbits(bit)
+</code></pre><p>Vậy nếu với trường hợp <code>bit truncated</code> thì phải làm sao, đây là một câu hỏi nhỏ trong đầu:
+<a href="https://github.com/icemonster/symbolic_mersenne_cracker/blob/main/README.md">https://github.com/icemonster/symbolic_mersenne_cracker/blob/main/README.md</a></p>
+<p>Với repo này thì ta có thể solve được trường hợp ở trên.</p>
+<p>Ngoài ra còn 1 số cách recover lại state thông qua <a href="https://hackmd.io/tA80GD-7R4GcmJTPmMPCag">Z3 (instructions)</a>, <a href="https://hackmd.io/@ADP/SJ4ceI3pkx?stext=7722%3A2686%3A0%3A1755526394%3AYPXZJJ">gf2bv</a>:
+đây là Z3:</p>
+<pre><code class="hljs language-python"><span class="hljs-keyword">from</span> z3 <span class="hljs-keyword">import</span> *
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Break_rand</span>:
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):
+
+        <span class="hljs-variable language_">self</span>.output = []
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">untemper</span>(<span class="hljs-params">self,output</span>):
+        y1 = BitVec(<span class="hljs-string">&#x27;y1&#x27;</span>, <span class="hljs-number">32</span>)
+        y2 = BitVec(<span class="hljs-string">&#x27;y2&#x27;</span>, <span class="hljs-number">32</span>)
+        y3 = BitVec(<span class="hljs-string">&#x27;y3&#x27;</span>, <span class="hljs-number">32</span>)
+        y4 = BitVec(<span class="hljs-string">&#x27;y4&#x27;</span>, <span class="hljs-number">32</span>)
+        y = BitVecVal(output, <span class="hljs-number">32</span>)
+
+        s = Solver()
+        equations = [
+            y2 == y1 ^ (LShR(y1, <span class="hljs-number">11</span>)),
+            y3 == y2 ^ ((y2 &lt;&lt; <span class="hljs-number">7</span>) &amp; <span class="hljs-number">0x9D2C5680</span>),
+            y4 == y3 ^ ((y3 &lt;&lt; <span class="hljs-number">15</span>) &amp; <span class="hljs-number">0xEFC60000</span>),
+            y == y4 ^ (LShR(y4, <span class="hljs-number">18</span>))
+        ]
+        s.add(equations)
+        s.check()
+        <span class="hljs-keyword">return</span> s.model()[y1].as_long()
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">recover_state_mt</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-keyword">assert</span> <span class="hljs-built_in">len</span>(<span class="hljs-variable language_">self</span>.output)&gt;= <span class="hljs-number">624</span>, <span class="hljs-string">&quot;Can not recover state!&quot;</span>
+        state = <span class="hljs-built_in">tuple</span>(<span class="hljs-variable language_">self</span>.untemper(n)&amp; <span class="hljs-number">0xffffffff</span>  <span class="hljs-keyword">for</span> n <span class="hljs-keyword">in</span> <span class="hljs-variable language_">self</span>.output[:<span class="hljs-number">624</span>])
+        <span class="hljs-keyword">return</span> (<span class="hljs-number">3</span>, state + (<span class="hljs-number">624</span>,), <span class="hljs-literal">None</span>)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">submit</span>(<span class="hljs-params">self,n</span>):
+        <span class="hljs-variable language_">self</span>.output.append(n)
+
+<span class="hljs-string">&quot;&quot;&quot;
+Test function
+&quot;&quot;&quot;</span>
+<span class="hljs-keyword">from</span> random <span class="hljs-keyword">import</span> *
+
+rng = Random()
+tmp = []
+breakrand = Break_rand()
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">624</span>):
+    breakrand.submit(rng.getrandbits(<span class="hljs-number">32</span>))
+
+Ran = Random()
+Ran.setstate(breakrand.recover_state_mt())
+
+<span class="hljs-keyword">assert</span> Ran.getrandbits(<span class="hljs-number">32</span>)==rng.getrandbits(<span class="hljs-number">32</span>)
+</code></pre><h2>js <code>Math.random()</code></h2>
+<pre><code class="hljs language-js"><span class="hljs-comment">// https://soon.haari.me/import-random/</span>
+
+uint64_t state0, state1;    <span class="hljs-comment">// the 128-bit state</span>
+
+<span class="hljs-comment">// update state and produce a double</span>
+double <span class="hljs-title class_">MathRandom</span>(<span class="hljs-keyword">void</span>) {
+  uint64_t s0 = state1;  <span class="hljs-comment">// notice the swap</span>
+  uint64_t s1 = state0;
+  s1 = s1 ^ (s1 &lt;&lt; <span class="hljs-number">23</span>);
+  s1 = s1 ^ (s1 &gt;&gt; <span class="hljs-number">17</span>) ^ (s0 &gt;&gt; <span class="hljs-number">26</span>) ^ s0;
+  state0 = s0;
+  state1 = s1;
+  <span class="hljs-keyword">if</span> (<span class="hljs-title class_">Firefox</span> || <span class="hljs-title class_">Webkit</span>) <span class="hljs-comment">// Firefox v47.0, Webkit 2019-07 thru 2020-02</span>
+    <span class="hljs-keyword">return</span> (double)( (s0+s1) &amp; (((uint64_t)<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">53</span>)-<span class="hljs-number">1</span>) ) / ((uint64_t)<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">53</span>);
+  <span class="hljs-keyword">else</span>                   <span class="hljs-comment">// ChromX V8, 2019-01 thru 2020-02</span>
+    <span class="hljs-keyword">return</span> (double)(  s0     &gt;&gt; <span class="hljs-number">12</span>                   ) / ((uint64_t)<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">52</span>);
+}
+</code></pre><p>Nhìn chung thì với <code>Math.random()</code> các biểu thức tạo nên số giả ngẫu nhiên - PRNG có đôi phần đơn giản hơn MT19937, mình có thể hoàn toàn dễ dàng đảo ngược được dựa trên: <a href="https://en.wikipedia.org/wiki/Xorshift">Xorshift128</a>.
+Nhưng với trình duyệt <code>(Firefox || Webkit)</code>, có thêm phần cộng <code>s0+s1</code> trên kiểu <code>uint64_t</code>, điều này không dựa trên bit, nên khó đảo ngược.
+Nhưng với các trường hợp còn lại - <code>v8</code> thì ta có thể đảo ngược lại quá trình này: <code>(double) s0 &gt;&gt; 12</code> - làm mất đi 12 bits LSB.
+Không hiểu sao mình lại stuck 2 tiếng :)))</p>
+<h2>c/c++ <code>rand()</code></h2>
+<blockquote>
+<p>Main resource:</p>
+<ul>
+<li><a href="https://www.mscs.dal.ca/~selinger/random/">https://www.mscs.dal.ca/~selinger/random/</a></li>
+</ul>
+</blockquote>
+<p><img src="https://hackmd.io/_uploads/H1CO-_bFxx.png" alt="image"></p>
+<pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> MAX 1000</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> seed 1</span>
+
+main() {
+  <span class="hljs-type">int</span> r[MAX];
+  <span class="hljs-type">int</span> i;
+
+  r[<span class="hljs-number">0</span>] = seed;
+  <span class="hljs-keyword">for</span> (i=<span class="hljs-number">1</span>; i&lt;<span class="hljs-number">31</span>; i++) {
+    r[i] = (<span class="hljs-number">16807LL</span> * r[i<span class="hljs-number">-1</span>]) % <span class="hljs-number">2147483647</span>;
+    <span class="hljs-keyword">if</span> (r[i] &lt; <span class="hljs-number">0</span>) {
+      r[i] += <span class="hljs-number">2147483647</span>;
+    }
+  }
+  <span class="hljs-keyword">for</span> (i=<span class="hljs-number">31</span>; i&lt;<span class="hljs-number">34</span>; i++) {
+    r[i] = r[i<span class="hljs-number">-31</span>];
+  }
+  <span class="hljs-keyword">for</span> (i=<span class="hljs-number">34</span>; i&lt;<span class="hljs-number">344</span>; i++) {
+    r[i] = r[i<span class="hljs-number">-31</span>] + r[i<span class="hljs-number">-3</span>];
+  }
+  <span class="hljs-keyword">for</span> (i=<span class="hljs-number">344</span>; i&lt;MAX; i++) {
+    r[i] = r[i<span class="hljs-number">-31</span>] + r[i<span class="hljs-number">-3</span>];
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d\n&quot;</span>, ((<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)r[i]) &gt;&gt; <span class="hljs-number">1</span>);
+  }
+}
+</code></pre><p><strong>Remarks:</strong></p>
+<ul>
+<li>Các phép toán biến đổi tuyến tính trên <code>2147483647 = 2^31 - 1</code>.</li>
+<li><code>r[0]</code> chính là seed, vì seed chỉ có 32-bit, nên ta có thể hoàn toàn bruteforce được.</li>
+<li>Phép nhân với <code>16807LL</code> có dấu được thực hiện để kết quả đủ lớn, tránh tràn trước khi modulo.</li>
+</ul>
+<p>Hoàn thành xong các bước khởi tạo:</p>
+<pre><code class="hljs language-c"><span class="hljs-keyword">for</span> (i=<span class="hljs-number">34</span>; i&lt;<span class="hljs-number">344</span>; i++) {
+    r[i] = r[i<span class="hljs-number">-31</span>] + r[i<span class="hljs-number">-3</span>];
+}
+</code></pre><p>chạy Additive large Fibonacci:</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo><mo>≡</mo><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>3</mn><mo stretchy="false">]</mo><mo>+</mo><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo>−</mo><mn>31</mn><mo stretchy="false">]</mo><mspace></mspace><mspace width="1em"/><mo stretchy="false">(</mo><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow><mspace width="0.3333em"/><msup><mn>2</mn><mn>32</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">r[i] \equiv r[i-3] + r[i-31] \pmod{2^{32}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≡</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">3</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">31</span><span class="mclose">]</span><span class="mspace allowbreak"></span><span class="mspace" style="margin-right:1em;"></span></span><span class="base"><span class="strut" style="height:1.1141em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.3333em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">32</span></span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span>
+<ul>
+<li>Giá trị trả về là 31-bit dương: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mi>u</mi><msub><mi>t</mi><mi>i</mi></msub><mo>=</mo><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo><mo>&gt;</mo><mo>&gt;</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">out_i = (r[i] &gt;&gt; 1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7651em;vertical-align:-0.15em;"></span><span class="mord mathnormal">o</span><span class="mord mathnormal">u</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span> - lấy 31 bit cao, bỏ đi LSB.</li>
+</ul>
+<h3>Phá vỡ tuyến tính</h3>
+<p>Ta cần ít nhất 63 output liên tiếp để recover lại trạng thái ban đầu: <code>r[i-3] ... r[i-31]</code> phương trình 2 ẩn (ý mình là 2 ẩn này hông liên quan, nhưng thật chất thì có thể 32 phương trình là được). Nhưng ta có được hẳn: <code>999 - 344</code> trạng thái 31-bit MSB, nên dễ dàng cho việc recover.</p>
+<p>Chiến thuật là:</p>
+<ul>
+<li>Ta cần recover lại được các bit LSB.</li>
+<li>Sau đó là lùi về trạng thái ban đầu.</li>
+</ul>
+<h3>Phase 1: Khôi phục LSB</h3>
+<p>Đầu tiên ta nên liệt kê ra các trạng thái - ở dạng đơn giản với 2 bit mỗi loại:</p>
+<pre><code class="hljs language-python">    i-<span class="hljs-number">3</span>   i-<span class="hljs-number">31</span>     i
+    <span class="hljs-number">00</span>    <span class="hljs-number">00</span>        <span class="hljs-number">00</span>
+    <span class="hljs-number">00</span>    01        01  &lt;-------
+    <span class="hljs-number">00</span>    <span class="hljs-number">10</span>        <span class="hljs-number">10</span>
+    <span class="hljs-number">00</span>    <span class="hljs-number">11</span>        <span class="hljs-number">11</span>  &lt;-------
+    01    <span class="hljs-number">00</span>        01  &lt;-------
+    01    01        <span class="hljs-number">10</span>
+    01    <span class="hljs-number">10</span>        <span class="hljs-number">11</span>  &lt;-------
+    01    <span class="hljs-number">11</span>        <span class="hljs-number">00</span>
+    <span class="hljs-number">10</span>    <span class="hljs-number">00</span>        <span class="hljs-number">10</span>
+    <span class="hljs-number">10</span>    01        <span class="hljs-number">11</span>  &lt;-------
+    <span class="hljs-number">10</span>    <span class="hljs-number">10</span>        <span class="hljs-number">00</span>
+    <span class="hljs-number">10</span>    <span class="hljs-number">11</span>        01  &lt;-------
+    <span class="hljs-number">11</span>    <span class="hljs-number">00</span>        <span class="hljs-number">11</span>  &lt;-------
+    <span class="hljs-number">11</span>    01        <span class="hljs-number">00</span>
+    <span class="hljs-number">11</span>    <span class="hljs-number">10</span>        01  &lt;-------
+    <span class="hljs-number">11</span>    <span class="hljs-number">11</span>        <span class="hljs-number">00</span>
+</code></pre><p>Mình đánh dấu lại trạng thái LSB bằng 1 của i.
+Tiếp theo là tìm điểm khác biệt:</p>
+<pre><code class="hljs language-python">    i-<span class="hljs-number">3</span>   i-<span class="hljs-number">31</span>     i
+    <span class="hljs-number">00</span>    <span class="hljs-number">00</span>        <span class="hljs-number">00</span> == <span class="hljs-number">00</span>    01        01
+    <span class="hljs-number">00</span>    01        01 == <span class="hljs-number">00</span>    <span class="hljs-number">00</span>        <span class="hljs-number">00</span> &lt;-------
+    <span class="hljs-number">00</span>    <span class="hljs-number">10</span>        <span class="hljs-number">10</span> == <span class="hljs-number">00</span>    <span class="hljs-number">11</span>        <span class="hljs-number">11</span>
+    <span class="hljs-number">00</span>    <span class="hljs-number">11</span>        <span class="hljs-number">11</span> == <span class="hljs-number">00</span>    <span class="hljs-number">10</span>        <span class="hljs-number">10</span> &lt;-------
+    01    <span class="hljs-number">00</span>        01 == <span class="hljs-number">00</span>    <span class="hljs-number">00</span>        <span class="hljs-number">00</span> &lt;-------
+    01    01        <span class="hljs-number">10</span>
+    01    <span class="hljs-number">10</span>        <span class="hljs-number">11</span> == <span class="hljs-number">00</span>    <span class="hljs-number">10</span>        <span class="hljs-number">10</span> &lt;-------
+    01    <span class="hljs-number">11</span>        <span class="hljs-number">00</span>
+    <span class="hljs-number">10</span>    <span class="hljs-number">00</span>        <span class="hljs-number">10</span> == <span class="hljs-number">10</span>    01        <span class="hljs-number">11</span>
+    <span class="hljs-number">10</span>    01        <span class="hljs-number">11</span> == <span class="hljs-number">10</span>    <span class="hljs-number">00</span>        <span class="hljs-number">10</span> &lt;-------
+    <span class="hljs-number">10</span>    <span class="hljs-number">10</span>        <span class="hljs-number">00</span> == <span class="hljs-number">10</span>    <span class="hljs-number">11</span>        01
+    <span class="hljs-number">10</span>    <span class="hljs-number">11</span>        01 == <span class="hljs-number">10</span>    <span class="hljs-number">10</span>        <span class="hljs-number">00</span> &lt;-------
+    <span class="hljs-number">11</span>    <span class="hljs-number">00</span>        <span class="hljs-number">11</span> == <span class="hljs-number">10</span>    <span class="hljs-number">00</span>        <span class="hljs-number">10</span> &lt;-------
+    <span class="hljs-number">11</span>    01        <span class="hljs-number">00</span>
+    <span class="hljs-number">11</span>    <span class="hljs-number">10</span>        01 == <span class="hljs-number">10</span>    <span class="hljs-number">10</span>        <span class="hljs-number">00</span> &lt;-------
+    <span class="hljs-number">11</span>    <span class="hljs-number">11</span>        <span class="hljs-number">00</span> == <span class="hljs-number">11</span>    <span class="hljs-number">10</span>        01
+</code></pre><p>:))) nó hum ra gì để có thể xác minh <code>LSB = 1</code>.
+Nhưng đổi lại ta có được vài trạng thái <code>LSB = 0</code>:</p>
+<pre><code class="hljs language-python">    i-<span class="hljs-number">3</span>   i-<span class="hljs-number">31</span>      i
+    01    01        <span class="hljs-number">10</span>
+    01    <span class="hljs-number">11</span>        <span class="hljs-number">00</span>
+    <span class="hljs-number">11</span>    01        <span class="hljs-number">00</span>
+</code></pre><p>Quy tắc loại của mình là: ta tập trung vào MSB của các số ví dụ, nếu có loại trùng thì ta loại ra khỏi danh sách, và cuối cùng được 3 mẫu.</p>
+<p>Sau khi mình tìm ra được 1 khoảng các số thỏa mãn rồi thì bây giờ:</p>
+<pre><code class="hljs language-python"><span class="hljs-string">&quot;&quot;&quot;
+    i-3   i-31      i
+    01    01        10
+    01    11        00
+    11    01        00
+&quot;&quot;&quot;</span>
+<span class="hljs-keyword">while</span> index -<span class="hljs-number">31</span> &gt;= <span class="hljs-number">344</span> :
+
+    <span class="hljs-keyword">if</span> fre[index] == <span class="hljs-number">0</span>:
+
+        x = output[ index - <span class="hljs-number">3</span>  ]
+        y = output[ index - <span class="hljs-number">31</span> ]
+        z = output[ index      ]
+        xbit = <span class="hljs-built_in">bin</span>(x)[-<span class="hljs-number">1</span>]
+        ybit = <span class="hljs-built_in">bin</span>(y)[-<span class="hljs-number">1</span>]
+        zbit = <span class="hljs-built_in">bin</span>(z)[-<span class="hljs-number">1</span>]
+        <span class="hljs-keyword">if</span> ( xbit == <span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-keyword">and</span> ybit == <span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-keyword">and</span> zbit ==<span class="hljs-string">&#x27;1&#x27;</span> <span class="hljs-keyword">and</span>
+            fre[index]==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> fre[index-<span class="hljs-number">3</span>]==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> fre[index - <span class="hljs-number">31</span>]==<span class="hljs-number">0</span> ):
+                    <span class="hljs-keyword">if</span> fre[index]==<span class="hljs-number">0</span>:
+                        output[index]   = (output[index] * <span class="hljs-number">2</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+                        fre[index]=<span class="hljs-number">1</span>
+
+
+                    <span class="hljs-keyword">if</span> fre[index-<span class="hljs-number">3</span>]  ==<span class="hljs-number">0</span> :
+                        output[index-<span class="hljs-number">3</span>] = (output[index - <span class="hljs-number">3</span>]* <span class="hljs-number">2</span> + <span class="hljs-number">1</span>) %<span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+                        fre[index-<span class="hljs-number">3</span>] = <span class="hljs-number">1</span>
+
+                    <span class="hljs-keyword">if</span> fre[index-<span class="hljs-number">31</span>] ==<span class="hljs-number">0</span> :
+                        output[index-<span class="hljs-number">31</span>]= (output[index - <span class="hljs-number">31</span>]* <span class="hljs-number">2</span> + <span class="hljs-number">1</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+                        fre[index-<span class="hljs-number">31</span>]= <span class="hljs-number">1</span>
+
+                    fre[index] = <span class="hljs-number">1</span>
+
+                    <span class="hljs-keyword">assert</span> output[index   ] == tmp[index]
+                    <span class="hljs-keyword">assert</span> output[index-<span class="hljs-number">3</span> ] == tmp[index-<span class="hljs-number">3</span>]
+                    <span class="hljs-keyword">assert</span> output[index-<span class="hljs-number">31</span>] == tmp[index-<span class="hljs-number">31</span>]
+
+        <span class="hljs-keyword">if</span> ( xbit == <span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-keyword">and</span> ybit == <span class="hljs-string">&#x27;1&#x27;</span> <span class="hljs-keyword">and</span> zbit ==<span class="hljs-string">&#x27;0&#x27;</span>
+            <span class="hljs-keyword">and</span> fre[index]==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> fre[index-<span class="hljs-number">3</span>]==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> fre[index - <span class="hljs-number">31</span>]==<span class="hljs-number">0</span> ):
+                    <span class="hljs-keyword">if</span> fre[index]==<span class="hljs-number">0</span>:
+                        output[index]   = (output[index] * <span class="hljs-number">2</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+                        fre[index]=<span class="hljs-number">1</span>
+
+
+                    <span class="hljs-keyword">if</span> fre[index-<span class="hljs-number">3</span>]  ==<span class="hljs-number">0</span> :
+                        output[index-<span class="hljs-number">3</span>] = (output[index - <span class="hljs-number">3</span>]* <span class="hljs-number">2</span> + <span class="hljs-number">1</span>) %<span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+                        fre[index-<span class="hljs-number">3</span>] = <span class="hljs-number">1</span>
+
+                    <span class="hljs-keyword">if</span> fre[index-<span class="hljs-number">31</span>] ==<span class="hljs-number">0</span> :
+                        output[index-<span class="hljs-number">31</span>]= (output[index - <span class="hljs-number">31</span>]* <span class="hljs-number">2</span> + <span class="hljs-number">1</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+                        fre[index-<span class="hljs-number">31</span>]= <span class="hljs-number">1</span>
+
+                    fre[index] = <span class="hljs-number">1</span>
+
+                    <span class="hljs-keyword">assert</span> output[index   ] == tmp[index]
+                    <span class="hljs-keyword">assert</span> output[index-<span class="hljs-number">3</span> ] == tmp[index-<span class="hljs-number">3</span>]
+                    <span class="hljs-keyword">assert</span> output[index-<span class="hljs-number">31</span>] == tmp[index-<span class="hljs-number">31</span>]
+
+        <span class="hljs-keyword">if</span> ( xbit == <span class="hljs-string">&#x27;1&#x27;</span> <span class="hljs-keyword">and</span> ybit == <span class="hljs-string">&#x27;0&#x27;</span> <span class="hljs-keyword">and</span> zbit ==<span class="hljs-string">&#x27;0&#x27;</span>
+            <span class="hljs-keyword">and</span> fre[index]==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> fre[index-<span class="hljs-number">3</span>]==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> fre[index - <span class="hljs-number">31</span>]==<span class="hljs-number">0</span> ):
+                    <span class="hljs-keyword">if</span> fre[index] == <span class="hljs-number">0</span>:
+                        output[index]   = (output[index] * <span class="hljs-number">2</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+                        fre[index]=<span class="hljs-number">1</span>
+
+                    <span class="hljs-keyword">if</span> fre[index-<span class="hljs-number">3</span>]  ==<span class="hljs-number">0</span> :
+                        output[index-<span class="hljs-number">3</span>] = (output[index - <span class="hljs-number">3</span>]* <span class="hljs-number">2</span> + <span class="hljs-number">1</span>) %<span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+                        fre[index-<span class="hljs-number">3</span>] = <span class="hljs-number">1</span>
+
+                    <span class="hljs-keyword">if</span> fre[index-<span class="hljs-number">31</span>] ==<span class="hljs-number">0</span> :
+                        output[index-<span class="hljs-number">31</span>]= (output[index - <span class="hljs-number">31</span>]* <span class="hljs-number">2</span> + <span class="hljs-number">1</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+                        fre[index-<span class="hljs-number">31</span>]= <span class="hljs-number">1</span>
+
+                    fre[index] = <span class="hljs-number">1</span>
+
+                    <span class="hljs-keyword">assert</span> output[index   ] == tmp[index]
+                    <span class="hljs-keyword">assert</span> output[index-<span class="hljs-number">3</span> ] == tmp[index-<span class="hljs-number">3</span>]
+                    <span class="hljs-keyword">assert</span> output[index-<span class="hljs-number">31</span>] == tmp[index-<span class="hljs-number">31</span>]
+
+    index -= <span class="hljs-number">1</span>
+
+
+check = <span class="hljs-number">1</span>
+<span class="hljs-keyword">while</span> check:
+    check = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">344</span>,MAX):
+        <span class="hljs-keyword">if</span> fre[ i - <span class="hljs-number">31</span> ] <span class="hljs-keyword">and</span> fre[ i - <span class="hljs-number">3</span> ]==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> fre[i]  :
+            fre[i - <span class="hljs-number">3</span>]= <span class="hljs-number">1</span>
+            check = <span class="hljs-number">1</span>
+            output[i-<span class="hljs-number">3</span>] = (output[i]-output[i - <span class="hljs-number">31</span>]) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+            <span class="hljs-keyword">assert</span> output[i-<span class="hljs-number">3</span>]==tmp[i-<span class="hljs-number">3</span>]
+
+        <span class="hljs-keyword">if</span> fre[ i - <span class="hljs-number">31</span> ]==<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> fre[ i - <span class="hljs-number">3</span> ] <span class="hljs-keyword">and</span> fre[i]  :
+            fre[i - <span class="hljs-number">31</span>]= <span class="hljs-number">1</span>
+            check = <span class="hljs-number">1</span>
+            output[i-<span class="hljs-number">31</span>] = (output[i]-output[i - <span class="hljs-number">3</span>]) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+            <span class="hljs-keyword">assert</span> output[i - <span class="hljs-number">31</span>]==tmp[i-<span class="hljs-number">31</span>]
+
+        <span class="hljs-keyword">if</span> fre[ i - <span class="hljs-number">31</span> ] <span class="hljs-keyword">and</span> fre[ i - <span class="hljs-number">3</span> ] <span class="hljs-keyword">and</span> fre[i] == <span class="hljs-number">0</span> :
+            fre[i] = <span class="hljs-number">1</span>
+            check = <span class="hljs-number">1</span>
+            output[i] = (output[i - <span class="hljs-number">3</span>] + output[i - <span class="hljs-number">31</span>])  % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
+            <span class="hljs-keyword">assert</span> output[i] == tmp[i]
+</code></pre><p>Hmmmmm.... tới đây thì nó đủ rồi....</p>
+<h3>Phase 2: Khôi phục seed</h3>
+<p>Hmmmm, phần này thì bạn có thể làm nhiều cách:</p>
+<ul>
+<li>Khử Gau.</li>
+<li>Sagemath.... mình không làm ra phần này.</li>
+<li>Z3 - mình làm.</li>
+</ul>
+<pre><code class="hljs language-python"><span class="hljs-keyword">from</span> z3 <span class="hljs-keyword">import</span> *
+
+x = [BitVec(<span class="hljs-string">f&#x27;x_<span class="hljs-subst">{i}</span>&#x27;</span>,<span class="hljs-number">32</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">31</span>)]
+u = x
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">31</span>,<span class="hljs-number">34</span>):
+    x.append(x[i-<span class="hljs-number">31</span>])
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">34</span>,<span class="hljs-number">344</span>):
+    x.append(x[i-<span class="hljs-number">31</span>] + x[i-<span class="hljs-number">3</span>])
+
+s = Solver()
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">344</span>,<span class="hljs-number">344</span>+<span class="hljs-number">80</span>):
+    x.append(x[i-<span class="hljs-number">31</span>] + x[i-<span class="hljs-number">3</span>])
+    s.add(x[i] == <span class="hljs-built_in">int</span>(output[i]))
+<span class="hljs-keyword">assert</span> s.check() == sat
+m = s.model()
+
+<span class="hljs-built_in">print</span>(m[u[<span class="hljs-number">0</span>]].as_long())
+</code></pre><p><strong>Remarks:</strong></p>
+<p>Các bạn sẽ khó hiểu làm sao mà mình liệt kê các trạng thái bit-sample rồi recover được LSB, mình làm trên phép toán cộng bình thường -&gt; nên chỗ này sẽ khó hiểu.
+Nhưng bản chất thì <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mspace></mspace><mspace width="0.6667em"/><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi></mrow><mtext> </mtext><mtext> </mtext><msup><mn>2</mn><mn>32</mn></msup></mrow><annotation encoding="application/x-tex">\mod 2^{32}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0em;"></span><span class="mspace allowbreak"></span><span class="mspace" style="margin-right:0.6667em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord"><span class="mord mathrm">mod</span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">32</span></span></span></span></span></span></span></span></span></span></span></span>: là <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo></mrow><annotation encoding="application/x-tex">-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">−</span></span></span></span> hoặc <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>+</mo></mrow><annotation encoding="application/x-tex">+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">+</span></span></span></span> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>⋅</mo><msup><mn>2</mn><mn>32</mn></msup></mrow><annotation encoding="application/x-tex">k\cdot 2^{32}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">32</span></span></span></span></span></span></span></span></span></span></span></span>.
+Mà <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>32</mn></msup></mrow><annotation encoding="application/x-tex">2^{32}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">32</span></span></span></span></span></span></span></span></span></span></span></span> = <code>100000000000000000000000000000000</code> -&gt; nên suy ra các phép LSB nó được bảo toàn -&gt; từ đây ta chỉ viết làm như phân tích trên.</p>
+<h2>golang <code>math/rand</code></h2>
+<p><code>Rand.go</code>: <a href="https://cs.opensource.google/go/go/+/refs/tags/go1.24.2:src/math/rand/rand.go">https://cs.opensource.google/go/go/+/refs/tags/go1.24.2:src/math/rand/rand.go</a></p>
+<p>Hmmm golang opensource code - Mình đọc <code>rand.go - API</code> một hồi thì thấy là:
+Đầu tiên ta nên đọc từ hàm rand trong rand.go:</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// Int31n returns, as an int32, a non-negative pseudo-random number in the half-open interval [0,n).</span>
+<span class="hljs-comment">// It panics if n &lt;= 0.</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Rand)</span></span> Int31n(n <span class="hljs-type">int32</span>) <span class="hljs-type">int32</span> {
+    <span class="hljs-keyword">if</span> n &lt;= <span class="hljs-number">0</span> {
+        <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;invalid argument to Int31n&quot;</span>)
+    }
+    <span class="hljs-keyword">if</span> n&amp;(n<span class="hljs-number">-1</span>) == <span class="hljs-number">0</span> { <span class="hljs-comment">// n is power of two, can mask</span>
+        <span class="hljs-keyword">return</span> r.Int31() &amp; (n - <span class="hljs-number">1</span>)
+    }
+    max := <span class="hljs-type">int32</span>((<span class="hljs-number">1</span> &lt;&lt; <span class="hljs-number">31</span>) - <span class="hljs-number">1</span> - (<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">31</span>)%<span class="hljs-type">uint32</span>(n))
+    v := r.Int31()
+    <span class="hljs-keyword">for</span> v &gt; max {
+        v = r.Int31()
+    }
+    <span class="hljs-keyword">return</span> v % n
+}
+</code></pre><p>Sau đó ta truy về hàm <code>Int31()</code>:</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// Int31 returns a non-negative pseudo-random 31-bit integer as an int32.</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Rand)</span></span> Int31() <span class="hljs-type">int32</span> { <span class="hljs-keyword">return</span> <span class="hljs-type">int32</span>(r.Int63() &gt;&gt; <span class="hljs-number">32</span>) }
+</code></pre><p>Thấy nó lấy <code>r.Int63() &gt;&gt; 32</code> tức là nó sinh ra số 64 bit rồi nó dịch còn 32 bit.</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// Int63 returns a non-negative pseudo-random 63-bit integer as an int64.</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Rand)</span></span> Int63() <span class="hljs-type">int64</span> { <span class="hljs-keyword">return</span> r.src.Int63() }
+</code></pre><pre><code class="hljs language-go"><span class="hljs-comment">// A Rand is a source of random numbers.</span>
+<span class="hljs-keyword">type</span> Rand <span class="hljs-keyword">struct</span> {
+    src Source
+    s64 Source64 <span class="hljs-comment">// non-nil if src is source64</span>
+
+    <span class="hljs-comment">// readVal contains remainder of 63-bit integer used for bytes</span>
+    <span class="hljs-comment">// generation during most recent Read call.</span>
+    <span class="hljs-comment">// It is saved so next Read call can start where the previous</span>
+    <span class="hljs-comment">// one finished.</span>
+    readVal <span class="hljs-type">int64</span>
+    <span class="hljs-comment">// readPos indicates the number of low-order bytes of readVal</span>
+    <span class="hljs-comment">// that are still valid.</span>
+    readPos <span class="hljs-type">int8</span>
+}
+</code></pre><p>Thấy nó gọi Source.</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// A Source represents a source of uniformly-distributed</span>
+<span class="hljs-comment">// pseudo-random int64 values in the range [0, 1&lt;&lt;63).</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// A Source is not safe for concurrent use by multiple goroutines.</span>
+<span class="hljs-keyword">type</span> Source <span class="hljs-keyword">interface</span> {
+    Int63() <span class="hljs-type">int64</span>
+    Seed(seed <span class="hljs-type">int64</span>)
+}
+</code></pre><p>Truy một hồi ta thấy được cái <code>Int63()</code>.</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// NewSource returns a new pseudo-random [Source] seeded with the given value.</span>
+<span class="hljs-comment">// Unlike the default [Source] used by top-level functions, this source is not</span>
+<span class="hljs-comment">// safe for concurrent use by multiple goroutines.</span>
+<span class="hljs-comment">// The returned [Source] implements [Source64].</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewSource</span><span class="hljs-params">(seed <span class="hljs-type">int64</span>)</span></span> Source {
+    <span class="hljs-keyword">return</span> newSource(seed)
+}
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">newSource</span><span class="hljs-params">(seed <span class="hljs-type">int64</span>)</span></span> *rngSource {
+    <span class="hljs-keyword">var</span> rng rngSource
+    rng.Seed(seed)
+    <span class="hljs-keyword">return</span> &amp;rng
+}
+</code></pre><p>Nhìn vào khúc này tiếp theo ta hiểu <code>Source</code> implement bằng cách gọi <code>rng.go</code> để lấy seed và hiểu thêm được toàn bộ <code>Source</code> gọi hàm từ <code>rng.go</code> để tạo ra thuật toán PRNG.</p>
+<p>rng.go: <a href="https://cs.opensource.google/go/go/+/refs/tags/go1.24.2:src/math/rand/rng.go">https://cs.opensource.google/go/go/+/refs/tags/go1.24.2:src/math/rand/rng.go</a></p>
+<pre><code class="hljs language-go"><span class="hljs-keyword">type</span> rngSource <span class="hljs-keyword">struct</span> {
+    tap  <span class="hljs-type">int</span>           <span class="hljs-comment">// index into vec</span>
+    feed <span class="hljs-type">int</span>           <span class="hljs-comment">// index into vec</span>
+    vec  [rngLen]<span class="hljs-type">int64</span> <span class="hljs-comment">// current feedback register</span>
+}
+
+<span class="hljs-comment">// seed rng x[n+1] = 48271 * x[n] mod (2**31 - 1)</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">seedrand</span><span class="hljs-params">(x <span class="hljs-type">int32</span>)</span></span> <span class="hljs-type">int32</span> {
+    <span class="hljs-keyword">const</span> (
+        A = <span class="hljs-number">48271</span>
+        Q = <span class="hljs-number">44488</span>
+        R = <span class="hljs-number">3399</span>
+    )
+
+    hi := x / Q
+    lo := x % Q
+    x = A*lo - R*hi
+    <span class="hljs-keyword">if</span> x &lt; <span class="hljs-number">0</span> {
+        x += int32max
+    }
+    <span class="hljs-keyword">return</span> x
+}
+
+<span class="hljs-comment">// Seed uses the provided seed value to initialize the generator to a deterministic state.</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rng *rngSource)</span></span> Seed(seed <span class="hljs-type">int64</span>) {
+    rng.tap = <span class="hljs-number">0</span>
+    rng.feed = rngLen - rngTap
+
+    seed = seed % int32max
+    <span class="hljs-keyword">if</span> seed &lt; <span class="hljs-number">0</span> {
+        seed += int32max
+    }
+    <span class="hljs-keyword">if</span> seed == <span class="hljs-number">0</span> {
+        seed = <span class="hljs-number">89482311</span>
+    }
+
+    x := <span class="hljs-type">int32</span>(seed)
+    <span class="hljs-keyword">for</span> i := <span class="hljs-number">-20</span>; i &lt; rngLen; i++ {
+        x = seedrand(x)
+        <span class="hljs-keyword">if</span> i &gt;= <span class="hljs-number">0</span> {
+            <span class="hljs-keyword">var</span> u <span class="hljs-type">int64</span>
+            u = <span class="hljs-type">int64</span>(x) &lt;&lt; <span class="hljs-number">40</span>
+            x = seedrand(x)
+            u ^= <span class="hljs-type">int64</span>(x) &lt;&lt; <span class="hljs-number">20</span>
+            x = seedrand(x)
+            u ^= <span class="hljs-type">int64</span>(x)
+            u ^= rngCooked[i]
+            rng.vec[i] = u
+        }
+    }
+}
+
+<span class="hljs-comment">// Int63 returns a non-negative pseudo-random 63-bit integer as an int64.</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rng *rngSource)</span></span> Int63() <span class="hljs-type">int64</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-type">int64</span>(rng.Uint64() &amp; rngMask)
+}
+
+<span class="hljs-comment">// Uint64 returns a non-negative pseudo-random 64-bit integer as a uint64.</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rng *rngSource)</span></span> Uint64() <span class="hljs-type">uint64</span> {
+    rng.tap--
+    <span class="hljs-keyword">if</span> rng.tap &lt; <span class="hljs-number">0</span> {
+        rng.tap += rngLen
+    }
+
+    rng.feed--
+    <span class="hljs-keyword">if</span> rng.feed &lt; <span class="hljs-number">0</span> {
+        rng.feed += rngLen
+    }
+
+    x := rng.vec[rng.feed] + rng.vec[rng.tap]
+    rng.vec[rng.feed] = x
+    <span class="hljs-keyword">return</span> <span class="hljs-type">uint64</span>(x)
+}
+</code></pre><p>Rồi đây là các hàm chính của <code>rng.go</code>.</p>
+<p>Bây giờ ta phân tích 2 hàm tạo seed:</p>
+<pre><code class="hljs language-go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">seedrand</span><span class="hljs-params">(x <span class="hljs-type">int32</span>)</span></span> <span class="hljs-type">int32</span> {
+    <span class="hljs-keyword">const</span> (
+        A = <span class="hljs-number">48271</span>
+        Q = <span class="hljs-number">44488</span>
+        R = <span class="hljs-number">3399</span>
+    )
+
+    hi := x / Q
+    lo := x % Q
+    x = A*lo - R*hi
+    <span class="hljs-keyword">if</span> x &lt; <span class="hljs-number">0</span> {
+        x += int32max
+    }
+    <span class="hljs-keyword">return</span> x
+}
+
+<span class="hljs-comment">// Seed uses the provided seed value to initialize the generator to a deterministic state.</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rng *rngSource)</span></span> Seed(seed <span class="hljs-type">int64</span>) {
+    rng.tap = <span class="hljs-number">0</span>
+    rng.feed = rngLen - rngTap
+
+    seed = seed % int32max
+    <span class="hljs-keyword">if</span> seed &lt; <span class="hljs-number">0</span> {
+        seed += int32max
+    }
+    <span class="hljs-keyword">if</span> seed == <span class="hljs-number">0</span> {
+        seed = <span class="hljs-number">89482311</span>
+    }
+
+    x := <span class="hljs-type">int32</span>(seed)
+    <span class="hljs-keyword">for</span> i := <span class="hljs-number">-20</span>; i &lt; rngLen; i++ {
+        x = seedrand(x)
+        <span class="hljs-keyword">if</span> i &gt;= <span class="hljs-number">0</span> {
+            <span class="hljs-keyword">var</span> u <span class="hljs-type">int64</span>
+            u = <span class="hljs-type">int64</span>(x) &lt;&lt; <span class="hljs-number">40</span>
+            x = seedrand(x)
+            u ^= <span class="hljs-type">int64</span>(x) &lt;&lt; <span class="hljs-number">20</span>
+            x = seedrand(x)
+            u ^= <span class="hljs-type">int64</span>(x)
+            u ^= rngCooked[i]
+            rng.vec[i] = u
+        }
+    }
+}
+</code></pre><p>Seed: <code>seed = seed % int32max</code> là số 32-bit, ta có thể bruteforce.
+Nhưng các phép biến đổi seed tuyến tính nên ta có thể truy ngược về được.
+Ta sẽ symbolic bằng Z3 rồi giải.
+Như flow nãy giờ ta phân tích, ta sẽ symbolic toàn bộ những thứ tạo nên seed để in ra, rồi giải bằng Z3.</p>
+<h2>Bash <code>$RANDOM</code></h2>
+<blockquote>
+<p>Main resource:</p>
+<ul>
+<li><a href="https://github.com/bminor/bash/blob/master/lib/sh/random.c">https://github.com/bminor/bash/blob/master/lib/sh/random.c</a></li>
+</ul>
+</blockquote>
+<pre><code class="hljs language-c"><span class="hljs-comment">/* Returns a 32-bit pseudo-random number. */</span>
+<span class="hljs-type">static</span> <span class="hljs-type">u_bits32_t</span>
+<span class="hljs-title function_">intrand32</span> <span class="hljs-params">(<span class="hljs-type">u_bits32_t</span> last)</span>
+{
+  <span class="hljs-comment">/* Minimal Standard generator from
+     &quot;Random number generators: good ones are hard to find&quot;,
+     Park and Miller, Communications of the ACM, vol. 31, no. 10,
+     October 1988, p. 1195. Filtered through FreeBSD.
+
+     x(n+1) = 16807 * x(n) mod (m)
+
+     where 16807 == 7^5.
+
+     We split up the calculations to avoid overflow.
+
+     h = last / q; l = last % q; t = a * l - h * r
+     m = 2147483647, a = 16807, q = 127773, r = 2836
+
+     There are lots of other combinations of constants to use; look at
+     https://www.gnu.org/software/gsl/manual/html_node/Other-random-number-generators.html#Other-random-number-generators */</span>
+
+  <span class="hljs-type">bits32_t</span> h, l, t;
+  <span class="hljs-type">u_bits32_t</span> ret;
+
+  <span class="hljs-comment">/* Can&#x27;t seed with 0. */</span>
+  ret = (last == <span class="hljs-number">0</span>) ? <span class="hljs-number">123459876</span> : last;
+  h = ret / <span class="hljs-number">127773</span>;
+  l = ret % <span class="hljs-number">127773</span>;
+  t = <span class="hljs-number">16807</span> * l - <span class="hljs-number">2836</span> * h;
+  ret = (t &lt; <span class="hljs-number">0</span>) ? t + <span class="hljs-number">0x7fffffff</span> : t;
+
+  <span class="hljs-keyword">return</span> (ret);
+}
+</code></pre><p>Hmmm cái phần này :)))) quen quen, hơi giống bước khởi tạo của <code>Crand</code>.</p>
+<pre><code class="hljs language-c">genseed (<span class="hljs-type">void</span>)
+{
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">timeval</span> <span class="hljs-title">tv</span>;</span>
+  <span class="hljs-type">u_bits32_t</span> iv;
+
+  gettimeofday (&amp;tv, <span class="hljs-literal">NULL</span>);
+  iv = (<span class="hljs-type">uintptr_t</span>)seedrand;        <span class="hljs-comment">/* let the compiler truncate */</span>
+  iv = tv.tv_sec ^ tv.tv_usec ^ getpid () ^ getppid () ^ current_user.uid ^ iv;
+  <span class="hljs-keyword">return</span> (iv);
+}
+</code></pre><p>Seed được dựa trên thời gian để tạo.</p>
+<pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> BASH_RAND_MAX    32767       <span class="hljs-comment">/* 0x7fff - 16 bits */</span></span>
+
+<span class="hljs-comment">/* Returns a pseudo-random number between 0 and 32767. */</span>
+<span class="hljs-type">int</span>
+<span class="hljs-title function_">brand</span> <span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+{
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> ret;
+
+  rseed = intrand32 (rseed);
+  <span class="hljs-keyword">if</span> (shell_compatibility_level &gt; <span class="hljs-number">50</span>)
+    ret = (rseed &gt;&gt; <span class="hljs-number">16</span>) ^ (rseed &amp; <span class="hljs-number">65535</span>);
+  <span class="hljs-keyword">else</span>
+    ret = rseed;
+  <span class="hljs-keyword">return</span> (ret &amp; BASH_RAND_MAX);
+}
+</code></pre><p>Hàm chính để cho ra giá trị random khi gọi <code>$RANDOM</code>.
+Vẫn tuyến tính không gì.</p>
+<pre><code class="hljs language-c"><span class="hljs-comment">/* Set the random number generator seed to SEED. */</span>
+<span class="hljs-type">void</span>
+<span class="hljs-title function_">sbrand</span> <span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> seed)</span>
+{
+  rseed = seed;
+  last_random_value = <span class="hljs-number">0</span>;
+}
+
+<span class="hljs-type">void</span>
+<span class="hljs-title function_">seedrand</span> <span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+{
+  <span class="hljs-type">u_bits32_t</span> iv;
+
+  iv = genseed ();
+  sbrand (iv);
+}
+</code></pre><p>Nó chỉ là tạo lại seed thôi.</p>
+<pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> BASH_RAND32_MAX    0x7fffffff    <span class="hljs-comment">/* 32 bits */</span></span>
+
+<span class="hljs-comment">/* Returns a 32-bit pseudo-random number between 0 and 4294967295. */</span>
+<span class="hljs-type">static</span> <span class="hljs-type">u_bits32_t</span>
+<span class="hljs-title function_">brand32</span> <span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+{
+  <span class="hljs-type">u_bits32_t</span> ret;
+
+  rseed32 = intrand32 (rseed32);
+  <span class="hljs-keyword">return</span> (rseed32 &amp; BASH_RAND32_MAX);
+}
+</code></pre><p>Tóm lại là ta chỉ thấy nó chỉ là các phép biến đổi tuyến tính, nếu ta có từ 2-3 output thì sẽ khôi phục được.</p>
+<h2>References</h2>
+<p>[0] <a href="https://github.com/tvdat20004?tab=repositories">https://github.com/tvdat20004?tab=repositories</a>
+[1] <a href="https://hackmd.io/@ADP/SJ4ceI3pkx?stext=7722%3A2686%3A0%3A1755526394%3AYPXZJJ">https://hackmd.io/@ADP/SJ4ceI3pkx?stext=7722%3A2686%3A0%3A1755526394%3AYPXZJJ</a>
+[2] <a href="https://github.com/TACIXAT/XorShift128Plus/blob/master/README">https://github.com/TACIXAT/XorShift128Plus/blob/master/README</a>
+[3] <a href="https://github.com/PwnFunction/v8-randomness-predictor/blob/main/main.py">https://github.com/PwnFunction/v8-randomness-predictor/blob/main/main.py</a>
+[4] <a href="https://github.com/maple3142/gf2bv">https://github.com/maple3142/gf2bv</a>
+[5] <a href="https://github.com/anneouyang/MT19937/blob/master/code/implement_mt19937.py">https://github.com/anneouyang/MT19937/blob/master/code/implement_mt19937.py</a>
+[6] <a href="https://giapppp.notion.site/Crack-random-23e6a3e68e0a80a4ba35dc2e4f7f3bb9">https://giapppp.notion.site/Crack-random-23e6a3e68e0a80a4ba35dc2e4f7f3bb9</a>
+[7] <a href="https://cs.opensource.google/go/go/+/refs/tags/go1.24.2:src/math/rand/rand.go">https://cs.opensource.google/go/go/+/refs/tags/go1.24.2:src/math/rand/rand.go</a>
+[8] <a href="https://github.com/bminor/bash/blob/master/lib/sh/random.c#L150">https://github.com/bminor/bash/blob/master/lib/sh/random.c#L150</a></p>
+<p>Trong lúc mình làm thì mình có đọc khá nhiều tài liệu nhưng mà quên mất đi link :&gt;&gt;&gt;&gt;</p>
+
+</article>
+    </main>
+
+    <script src="../assets/js/common.js"></script>
+</body>
+</html>

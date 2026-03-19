@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z3 API trong Python - Nhan's Security Log</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
+    <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="../index.html">Nhan's Security Log</a>
+            <nav class="main-nav">
+                <a href="../index.html">Home</a>
+                <a href="../categories/index.html">Categories</a>
+                <a href="../tags/index.html">Tags</a>
+                <a class="is-active" href="writeup-template.html">Template</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="article-wrap">
+        <section class="hero article-hero reveal is-visible">
+            <div class="breadcrumb">
+                <a href="../index.html">Home</a>
+                <span>/</span>
+                <span>Template</span>
+            </div>
+            <h1>Z3 API trong Python</h1>
+            <div class="post-meta" style="margin-top: 10px;">
+                <span>YYYY-MM-DD</span>
+                <a href="../categories/writeup.html">Writeup</a>
+                <a href="../tags/index.html">tag-1</a>
+                <a href="../tags/index.html">tag-2</a>
+            </div>
+            <p class="lead">Tom tat challenge trong 2-3 cau: de bai, dau moi, va huong giai.</p>
+        </section>
+
+        <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
+<h1>Z3 API trong Python</h1>
+<blockquote>
+<h2>Nhan_laptop |</h2>
+</blockquote>
+<blockquote>
+<p>Blog này sẽ hướng dẫn một cách tổng quan về Z3Py: Z3 API ở Python.
+Main resource: <a href="https://microsoft.github.io/z3guide/programming/Z3%20Python%20-%20Readonly/Introduction/#boolean-logic">Z3 Guide</a></p>
+</blockquote>
+<h2>Sử dụng Z3Py cục bộ</h2>
+<p>Syntax:</p>
+<pre><code class="hljs language-bash">pip install z3-solver
+</code></pre><h2>Mở đầu</h2>
+<p>Ví dụ 1:</p>
+<pre><code class="hljs language-python">x = Int(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Int(<span class="hljs-string">&#x27;y&#x27;</span>)
+solve(x &gt; <span class="hljs-number">2</span>, y &lt; <span class="hljs-number">10</span>, x + <span class="hljs-number">2</span>*y == <span class="hljs-number">7</span>)
+</code></pre><ul>
+<li>Kết quả: <code>[y = 0, x = 7]</code></li>
+</ul>
+<p>Hàm <code>Int(&#39;x&#39;)</code> tạo ra một biến số nguyên trong Z3 có tên là <code>x</code>. Hàm <code>solve</code> sẽ giải quyết một hệ thống các ràng buộc. Với ví dụ trên ta sử dụng 2 biến <code>x</code> và <code>y</code>, và 3 ràng buộc:</p>
+<ul>
+<li>x phải lớn hơn 2.</li>
+<li>y phải bé hơn 10.</li>
+<li>Cuối cùng là tổng giá trị giữa x và 2 lần y phải bằng 7.</li>
+</ul>
+<p>Trong phần giải thích toán học, ta có thể viết điều kiện cuối cùng là:</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>x</mi><mo>+</mo><mn>2</mn><mi>y</mi><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">x + 2y = 7</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">2</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">7</span></span></span></span></span>
+<p>Z3Py như Python sử dụng <code>=</code> để gán. Các toán tử <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>==</code> và <code>!=</code> để so sánh. Ví dụ trên, biểu thức <code>x + 2*y == 7</code> là một ràng buộc Z3. Z3 có thể giải và tính toán các công thức.</p>
+<blockquote>
+<p>Các ví dụ tiếp theo đây sẽ hướng dẫn bạn sử dụng Z3 theo cách đơn giản nhất.</p>
+</blockquote>
+<p>Ví dụ 2:</p>
+<pre><code class="hljs language-python">x = Int(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Int(<span class="hljs-string">&#x27;y&#x27;</span>)
+<span class="hljs-built_in">print</span>(simplify(x + y + <span class="hljs-number">2</span>*x + <span class="hljs-number">3</span>))
+<span class="hljs-built_in">print</span>(simplify(x &lt; y + x + <span class="hljs-number">2</span>))
+<span class="hljs-built_in">print</span>(simplify(And(x + <span class="hljs-number">1</span> &gt;= <span class="hljs-number">3</span>, x**<span class="hljs-number">2</span> + x**<span class="hljs-number">2</span> + y**<span class="hljs-number">2</span> + <span class="hljs-number">2</span> &gt;= <span class="hljs-number">5</span>)))
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python"><span class="hljs-number">3</span> + <span class="hljs-number">3</span>*x + y
+Not(y &lt;= -<span class="hljs-number">2</span>)
+And(x &gt;= <span class="hljs-number">2</span>, <span class="hljs-number">2</span>*x**<span class="hljs-number">2</span> + y**<span class="hljs-number">2</span> &gt;= <span class="hljs-number">3</span>)
+</code></pre><p>Theo mặc định, Z3Py (dành cho web) hiển thị các công thức và biểu thức bằng kí hiệu toán học. Như thường lệ, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∧</mo></mrow><annotation encoding="application/x-tex">\land</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5556em;"></span><span class="mord">∧</span></span></span></span> là logic and, và <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∨</mo></mrow><annotation encoding="application/x-tex">\lor</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5556em;"></span><span class="mord">∨</span></span></span></span> là logic or, v.v. Lệnh <code>set_option(html_mode=False)</code> làm tất cả các công thức và biểu thức được trình bày với ký hiệu Z3Py. Điều này cũng được đặt làm mặc định mode cho bản offline Z3Py với phân phối Z3.</p>
+<p>Ví dụ 3:</p>
+<pre><code class="hljs language-python">x = Int(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Int(<span class="hljs-string">&#x27;y&#x27;</span>)
+<span class="hljs-built_in">print</span>(x**<span class="hljs-number">2</span> + y**<span class="hljs-number">2</span> &gt;= <span class="hljs-number">1</span>)
+set_option(html_mode=<span class="hljs-literal">False</span>)
+<span class="hljs-built_in">print</span>(x**<span class="hljs-number">2</span> + y**<span class="hljs-number">2</span> &gt;= <span class="hljs-number">1</span>)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">x**<span class="hljs-number">2</span> + y**<span class="hljs-number">2</span> &gt;= <span class="hljs-number">1</span>
+x**<span class="hljs-number">2</span> + y**<span class="hljs-number">2</span> &gt;= <span class="hljs-number">1</span>
+</code></pre><p>Ví dụ 4:</p>
+<pre><code class="hljs language-python">x = Int(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Int(<span class="hljs-string">&#x27;y&#x27;</span>)
+n = x + y &gt;= <span class="hljs-number">3</span>
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;num args: &quot;</span>, n.num_args())
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;children: &quot;</span>, n.children())
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;1st child:&quot;</span>, n.arg(<span class="hljs-number">0</span>))
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;2nd child:&quot;</span>, n.arg(<span class="hljs-number">1</span>))
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;operator: &quot;</span>, n.decl())
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;op name:  &quot;</span>, n.decl().name())
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">num args:  <span class="hljs-number">2</span>
+children:  [x + y, <span class="hljs-number">3</span>]
+1st child: x + y
+2nd child: <span class="hljs-number">3</span>
+operator:  &gt;=
+op name:   &gt;=
+</code></pre><p>Z3 cung cấp đầy đủ những phép toán cơ bản. Z3Py sử dụng tương tự thứ tự ưu tiên toán tử như Python. Như <code>**</code> là toán tử mũ. Z3 có thể giải các ràng buộc phi tuyến tính.</p>
+<p>Ví dụ 5:</p>
+<pre><code class="hljs language-python">x = Real(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Real(<span class="hljs-string">&#x27;y&#x27;</span>)
+solve(x**<span class="hljs-number">2</span> + y**<span class="hljs-number">2</span> &gt; <span class="hljs-number">3</span>, x**<span class="hljs-number">3</span> + y &lt; <span class="hljs-number">5</span>)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[y = <span class="hljs-number">2</span>, x = <span class="hljs-number">0</span>]
+</code></pre><p>Hàm <code>Real(&#39;x&#39;)</code> tạo biến giá trị thực x. Z3Py có thể biểu diễn số nguyên lớn tùy ý, số hữu tỉ (như ví dụ trên), và số đại số vô tỷ. Một đại số vô tỷ là một nghiệm của một đa thức hệ số nguyên. Về mặt nội bộ, Z3 biểu diễn chính xác tất cả các số này. Các số vô tỉ được biểu diễn dưới dạng thập phân để dễ đọc kết quả.</p>
+<p>Ví dụ 6:</p>
+<pre><code class="hljs language-python">x = Real(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Real(<span class="hljs-string">&#x27;y&#x27;</span>)
+solve(x**<span class="hljs-number">2</span> + y**<span class="hljs-number">2</span> == <span class="hljs-number">3</span>, x**<span class="hljs-number">3</span> == <span class="hljs-number">2</span>)
+
+set_option(precision=<span class="hljs-number">30</span>)
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Solving, and displaying result with 30 decimal places&quot;</span>)
+solve(x**<span class="hljs-number">2</span> + y**<span class="hljs-number">2</span> == <span class="hljs-number">3</span>, x**<span class="hljs-number">3</span> == <span class="hljs-number">2</span>)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[y = -<span class="hljs-number">1.1885280594</span>?, x = <span class="hljs-number">1.2599210498</span>?]
+Solving, <span class="hljs-keyword">and</span> displaying result <span class="hljs-keyword">with</span> <span class="hljs-number">30</span> decimal places
+[y = -<span class="hljs-number">1.188528059421316533710369365015</span>?,
+ x = <span class="hljs-number">1.259921049894873164767210607278</span>?]
+</code></pre><p>Hàm <code>set_option</code> được sử dụng để cấu hình trong môi trường Z3. Nó được sử dụng để thiết lập các tùy chọn cấu hình như hiển thị kết quả. Tùy chọn <code>set_option(precision=30)</code> thiết lập số chữ số thập phân để hiển thị kết quả. Dấu <code>?</code> trong <code>1.2599210498?</code> cho biết đầu ra đã bị cắt bớt.</p>
+<h2>Boolean Logic</h2>
+<p>Z3 hỗ trợ toán tử Boolean: <code>And</code>, <code>Or</code>, <code>Not</code>, <code>Implies</code> (implication), <code>If</code> (if-then-else). Các hàm ý song phương được biểu diễn bằng phép so sánh <code>==</code>.</p>
+<p>Ví dụ 1:</p>
+<pre><code class="hljs language-python">p = Bool(<span class="hljs-string">&#x27;p&#x27;</span>)
+q = Bool(<span class="hljs-string">&#x27;q&#x27;</span>)
+r = Bool(<span class="hljs-string">&#x27;r&#x27;</span>)
+solve(Implies(p, q), r == Not(q), Or(Not(p), r))
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[q = <span class="hljs-literal">True</span>, p = <span class="hljs-literal">False</span>, r = <span class="hljs-literal">False</span>]
+</code></pre><p>Các hằng Boolean <code>True</code> và <code>False</code> có thể dùng để xây dựng phương trình Boolean.</p>
+<p>Ví dụ 2:</p>
+<pre><code class="hljs language-python">p = Bool(<span class="hljs-string">&#x27;p&#x27;</span>)
+q = Bool(<span class="hljs-string">&#x27;q&#x27;</span>)
+<span class="hljs-built_in">print</span>(And(p, q, <span class="hljs-literal">True</span>))
+<span class="hljs-built_in">print</span>(simplify(And(p, q, <span class="hljs-literal">True</span>)))
+<span class="hljs-built_in">print</span>(simplify(And(p, <span class="hljs-literal">False</span>)))
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">And(p, q, <span class="hljs-literal">True</span>)
+And(p, q)
+<span class="hljs-literal">False</span>
+</code></pre><p>Ví dụ 3: sử dụng sự kết hợp giữa đa thức và ràng buộc Boolean.</p>
+<pre><code class="hljs language-python">p = Bool(<span class="hljs-string">&#x27;p&#x27;</span>)
+x = Real(<span class="hljs-string">&#x27;x&#x27;</span>)
+solve(Or(x &lt; <span class="hljs-number">5</span>, x &gt; <span class="hljs-number">10</span>), Or(p, x**<span class="hljs-number">2</span> == <span class="hljs-number">2</span>), Not(p))
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[x = -<span class="hljs-number">1.414213562373095048801688724209</span>?, p = <span class="hljs-literal">False</span>]
+</code></pre><h2>Solvers</h2>
+<ul>
+<li>Z3 cung cấp cho ta nhiều trình giải khác nhau, như đã được biết ở trên là <code>solve</code>. Ở đây sẽ cung cấp cho bạn một cú pháp mới với <code>Solver()</code>.</li>
+</ul>
+<p>Ví dụ 1:</p>
+<pre><code class="hljs language-python">x = Int(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Int(<span class="hljs-string">&#x27;y&#x27;</span>)
+
+s = Solver()
+<span class="hljs-built_in">print</span>(s)
+
+s.add(x &gt; <span class="hljs-number">10</span>, y == x + <span class="hljs-number">2</span>)
+<span class="hljs-built_in">print</span>(s)
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Solving constraints in the solver s ...&quot;</span>)
+<span class="hljs-built_in">print</span>(s.check())
+
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Create a new scope...&quot;</span>)
+s.push()
+s.add(y &lt; <span class="hljs-number">11</span>)
+<span class="hljs-built_in">print</span>(s)
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Solving updated set of constraints...&quot;</span>)
+<span class="hljs-built_in">print</span>(s.check())
+
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Restoring state...&quot;</span>)
+s.pop()
+<span class="hljs-built_in">print</span>(s)
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Solving restored set of constraints...&quot;</span>)
+<span class="hljs-built_in">print</span>(s.check())
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[]
+[x &gt; <span class="hljs-number">10</span>, y == x + <span class="hljs-number">2</span>]
+Solving constraints <span class="hljs-keyword">in</span> the solver s ...
+Stack (most recent call first):
+  File <span class="hljs-string">&quot;/lib/python3.12/site-packages/z3/z3core.py&quot;</span>, line <span class="hljs-number">4276</span> <span class="hljs-keyword">in</span> Z3_solver_check_assumptions
+  File <span class="hljs-string">&quot;/lib/python3.12/site-packages/z3/z3.py&quot;</span>, line <span class="hljs-number">7181</span> <span class="hljs-keyword">in</span> check
+  File <span class="hljs-string">&quot;&lt;exec&gt;&quot;</span>, line <span class="hljs-number">11</span> <span class="hljs-keyword">in</span> &lt;module&gt;
+  File <span class="hljs-string">&quot;/lib/python312.zip/_pyodide/_base.py&quot;</span>, line <span class="hljs-number">357</span> <span class="hljs-keyword">in</span> run
+  File <span class="hljs-string">&quot;/lib/python312.zip/_pyodide/_base.py&quot;</span>, line <span class="hljs-number">523</span> <span class="hljs-keyword">in</span> eval_code
+</code></pre><p>Lệnh <code>Solver()</code> tạo một solver chung. Các ràng buộc có thể được thêm vào bằng cách sử dụng phương thức <code>add</code>. Chúng ta nói rằng các ràng buộc có thể được asserted trong solver. Phương thức <code>check()</code> giải các ràng buộc đã được khẳng định. Kết quả là <code>sat</code> (satisfiable) nếu một kết quả được tìm thấy. Kết quả trả về <code>unsat</code> (ngược lại). Chúng ta có thể nói hệ thống các ràng buộc không thỏa. Cuối cùng solver có thể thất bại trong việc giải và trả về <code>unknown</code>.</p>
+<p>Một số ứng dụng, chúng ta muốn giải quyết nhiều bài toán giống nhau với vài ràng buộc. Chúng ta sử dụng lệnh <code>push</code> và <code>pop</code> để làm điều này. Mỗi solver giữ một ngăn của các assertions. Lệnh <code>push</code> tạo một phạm vi bằng cách lưu kích thước ngăn xếp hiện tại. Lệnh <code>pop</code> xóa mọi assertion đã thực hiện giữa nó và lệnh <code>push</code> tương ứng. Lệnh <code>check</code> luôn luôn hoạt động trên nội dung của ngăn xếp solver assertion.</p>
+<p>Ví dụ 2: đây là ví dụ cho thấy rằng Z3 không thể giải. Z3 có thể giải được các bài toán phi tuyến tính nhưng <code>2**x</code> không phải là một đa thức.</p>
+<pre><code class="hljs language-python">x = Real(<span class="hljs-string">&#x27;x&#x27;</span>)
+s = Solver()
+s.add(<span class="hljs-number">2</span>**x == <span class="hljs-number">3</span>)
+<span class="hljs-built_in">print</span>(s.check())
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">Stack (most recent call first):
+  File <span class="hljs-string">&quot;/lib/python3.12/site-packages/z3/z3core.py&quot;</span>, line <span class="hljs-number">4276</span> <span class="hljs-keyword">in</span> Z3_solver_check_assumptions
+  File <span class="hljs-string">&quot;/lib/python3.12/site-packages/z3/z3.py&quot;</span>, line <span class="hljs-number">7181</span> <span class="hljs-keyword">in</span> check
+  File <span class="hljs-string">&quot;&lt;exec&gt;&quot;</span>, line <span class="hljs-number">5</span> <span class="hljs-keyword">in</span> &lt;module&gt;
+  File <span class="hljs-string">&quot;/lib/python312.zip/_pyodide/_base.py&quot;</span>, line <span class="hljs-number">357</span> <span class="hljs-keyword">in</span> run
+  File <span class="hljs-string">&quot;/lib/python312.zip/_pyodide/_base.py&quot;</span>, line <span class="hljs-number">523</span> <span class="hljs-keyword">in</span> eval_code
+</code></pre><p>Ví dụ 3: ví dụ thấy cách duyệt các ràng buộc vào solver, và cách thu thập các số liệu cho <code>check</code>.</p>
+<pre><code class="hljs language-python">x = Real(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Real(<span class="hljs-string">&#x27;y&#x27;</span>)
+s = Solver()
+s.add(x &gt; <span class="hljs-number">1</span>, y &gt; <span class="hljs-number">1</span>, Or(x + y &gt; <span class="hljs-number">3</span>, x - y &lt; <span class="hljs-number">2</span>))
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;asserted constraints...&quot;</span>)
+<span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> s.assertions():
+    <span class="hljs-built_in">print</span>(c)
+
+<span class="hljs-built_in">print</span>(s.check())
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;statistics for the last check method...&quot;</span>)
+<span class="hljs-built_in">print</span>(s.statistics())
+<span class="hljs-comment"># Traversing statistics</span>
+<span class="hljs-keyword">for</span> k, v <span class="hljs-keyword">in</span> s.statistics():
+    <span class="hljs-built_in">print</span>(k, <span class="hljs-string">&quot; : &quot;</span>, v)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">asserted constraints...
+x &gt; <span class="hljs-number">1</span>
+y &gt; <span class="hljs-number">1</span>
+Or(x + y &gt; <span class="hljs-number">3</span>, x - y &lt; <span class="hljs-number">2</span>)
+sat
+statistics <span class="hljs-keyword">for</span> the last check method...
+(:arith-lower         <span class="hljs-number">1</span>
+ :arith-make-feasible <span class="hljs-number">3</span>
+ :arith-<span class="hljs-built_in">max</span>-columns   <span class="hljs-number">8</span>
+ :arith-<span class="hljs-built_in">max</span>-rows      <span class="hljs-number">2</span>
+ :arith-upper         <span class="hljs-number">3</span>
+ :decisions           <span class="hljs-number">2</span>
+ :final-checks        <span class="hljs-number">1</span>
+ :<span class="hljs-built_in">max</span>-memory          <span class="hljs-number">8.91</span>
+ :memory              <span class="hljs-number">8.65</span>
+ :mk-<span class="hljs-built_in">bool</span>-var         <span class="hljs-number">4</span>
+ :mk-clause-binary    <span class="hljs-number">1</span>
+ :num-allocs          <span class="hljs-number">3055</span>
+ :num-checks          <span class="hljs-number">1</span>
+ :rlimit-count        <span class="hljs-number">357</span>
+ :time                <span class="hljs-number">0.01</span>)
+decisions  :  <span class="hljs-number">2</span>
+final checks  :  <span class="hljs-number">1</span>
+mk clause binary  :  <span class="hljs-number">1</span>
+num checks  :  <span class="hljs-number">1</span>
+mk <span class="hljs-built_in">bool</span> var  :  <span class="hljs-number">4</span>
+arith-lower  :  <span class="hljs-number">1</span>
+arith-upper  :  <span class="hljs-number">3</span>
+arith-make-feasible  :  <span class="hljs-number">3</span>
+arith-<span class="hljs-built_in">max</span>-columns  :  <span class="hljs-number">8</span>
+arith-<span class="hljs-built_in">max</span>-rows  :  <span class="hljs-number">2</span>
+num allocs  :  <span class="hljs-number">3067</span>
+rlimit count  :  <span class="hljs-number">357</span>
+<span class="hljs-built_in">max</span> memory  :  <span class="hljs-number">8.91</span>
+memory  :  <span class="hljs-number">8.65</span>
+time  :  <span class="hljs-number">0.005</span>
+</code></pre><p>Lệnh <code>check()</code> trả về <code>sat</code> khi Z3 tìm được bất cứ kết quả nào dựa trên các ràng buộc. Chúng ta nói Z3 thỏa mãn các ràng buộc. Chúng ta nói rằng kết quả là một <code>model</code> với các tập hợp các ràng buộc. Một <code>model</code> là một diễn giải làm cho mỗi ràng buộc được khẳng định là đúng.</p>
+<p>Ví dụ 4: cho chúng ta thấy về một phương pháp để kiểm tra các model.</p>
+<pre><code class="hljs language-python">x, y, z = Reals(<span class="hljs-string">&#x27;x y z&#x27;</span>)
+s = Solver()
+s.add(x &gt; <span class="hljs-number">1</span>, y &gt; <span class="hljs-number">1</span>, x + y &gt; <span class="hljs-number">3</span>, z - x &lt; <span class="hljs-number">10</span>)
+<span class="hljs-built_in">print</span>(s.check())
+
+m = s.model()
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;x = %s&quot;</span> % m[x])
+
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;traversing model...&quot;</span>)
+<span class="hljs-keyword">for</span> d <span class="hljs-keyword">in</span> m.decls():
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;%s = %s&quot;</span> % (d.name(), m[d]))
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">sat
+x = <span class="hljs-number">3</span>/<span class="hljs-number">2</span>
+traversing model...
+y = <span class="hljs-number">2</span>
+x = <span class="hljs-number">3</span>/<span class="hljs-number">2</span>
+z = <span class="hljs-number">0</span>
+</code></pre><p>Biểu thức <code>m[x]</code> trả về cách diễn giải x trong model <code>m</code>. Biểu thức <code>&quot;%s = %s&quot; % (d.name(), m[d])</code> trả về một chuỗi trong đó <code>%s</code> đầu tiên được thay thế bằng tên <code>d</code> (... <code>d.name()</code>), và <code>%s</code> tiếp theo cũng như thế.</p>
+<h2>Arithmetic</h2>
+<p>Z3 hỗ trợ các biến thực và biến số nguyên. Chúng có thể được kết hợp theo từng bài toán. Như một ngôn ngữ lập trình, Z3Py sẽ tự động thêm các phép ép buộc để chuyển từ số nguyên sang số thực (nếu cần thiết).</p>
+<p>Ví dụ 1:</p>
+<pre><code class="hljs language-python">x = Real(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Int(<span class="hljs-string">&#x27;y&#x27;</span>)
+a, b, c = Reals(<span class="hljs-string">&#x27;a b c&#x27;</span>)
+s, r = Ints(<span class="hljs-string">&#x27;s r&#x27;</span>)
+<span class="hljs-built_in">print</span>(x + y + <span class="hljs-number">1</span> + (a + s))
+<span class="hljs-built_in">print</span>(ToReal(y) + c)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">x + ToReal(y) + <span class="hljs-number">1</span> + a + ToReal(s)
+ToReal(y) + c
+</code></pre><p>Hàm <code>ToReal</code> chuyển đổi một biểu thức số nguyên sang biểu thức số thực.</p>
+<p>Z3Py hỗ trợ tất cả các phép tính cơ bản.</p>
+<p>Ví dụ 2:</p>
+<pre><code class="hljs language-python">a, b, c = Ints(<span class="hljs-string">&#x27;a b c&#x27;</span>)
+d, e = Reals(<span class="hljs-string">&#x27;d e&#x27;</span>)
+solve(a &gt; b + <span class="hljs-number">2</span>,
+      a == <span class="hljs-number">2</span>*c + <span class="hljs-number">10</span>,
+      c + b &lt;= <span class="hljs-number">1000</span>,
+      d &gt;= e)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[d = <span class="hljs-number">0</span>, b = <span class="hljs-number">0</span>, c = <span class="hljs-number">0</span>, e = <span class="hljs-number">0</span>, a = <span class="hljs-number">10</span>]
+</code></pre><p>Lệnh <code>simplify</code> áp dụng các biểu thức biến đổi trên biểu thức Z3.</p>
+<p>Ví dụ 3:</p>
+<pre><code class="hljs language-python">x, y = Reals(<span class="hljs-string">&#x27;x y&#x27;</span>)
+<span class="hljs-comment"># Put expression in sum-of-monomials form</span>
+t = simplify((x + y)**<span class="hljs-number">3</span>, som=<span class="hljs-literal">True</span>)
+<span class="hljs-built_in">print</span>(t)
+<span class="hljs-comment"># Use power operator</span>
+t = simplify(t, mul_to_power=<span class="hljs-literal">True</span>)
+<span class="hljs-built_in">print</span>(t)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">x*x*x + <span class="hljs-number">3</span>*x*x*y + <span class="hljs-number">3</span>*x*y*y + y*y*y
+x**<span class="hljs-number">3</span> + <span class="hljs-number">3</span>*x**<span class="hljs-number">2</span>*y + <span class="hljs-number">3</span>*x*y**<span class="hljs-number">2</span> + y**<span class="hljs-number">3</span>
+</code></pre><h2>Machine Arithmetic</h2>
+<p>Ví dụ dưới đây sẽ diễn giải cách tạo biến và hằng số bit-vector. Hàm <code>BitVec(&#39;x&#39;,16)</code> tạo ra một biến bit-vector trong Z3 có tên biến là <code>x</code> với 16 bit. Để thuận tiện, các hằng số cũng có thể được tạo thành biểu thức bit-vector trong Z3Py. Hàm <code>BitVecVal(10,32)</code> tạo một bit-vector với kích thước 32 lưu trữ giá trị 10.</p>
+<p>Ví dụ 1:</p>
+<pre><code class="hljs language-python">x = BitVec(<span class="hljs-string">&#x27;x&#x27;</span>, <span class="hljs-number">16</span>)
+y = BitVec(<span class="hljs-string">&#x27;y&#x27;</span>, <span class="hljs-number">16</span>)
+<span class="hljs-built_in">print</span>(x + <span class="hljs-number">2</span>)
+<span class="hljs-comment"># Internal representation</span>
+<span class="hljs-built_in">print</span>((x + <span class="hljs-number">2</span>).sexpr())
+
+<span class="hljs-comment"># -1 is equal to 65535 for 16-bit integers</span>
+<span class="hljs-built_in">print</span>(simplify(x + y - <span class="hljs-number">1</span>))
+
+<span class="hljs-comment"># Creating bit-vector constants</span>
+a = BitVecVal(-<span class="hljs-number">1</span>, <span class="hljs-number">16</span>)
+b = BitVecVal(<span class="hljs-number">65535</span>, <span class="hljs-number">16</span>)
+<span class="hljs-built_in">print</span>(simplify(a == b))
+
+a = BitVecVal(-<span class="hljs-number">1</span>, <span class="hljs-number">32</span>)
+b = BitVecVal(<span class="hljs-number">65535</span>, <span class="hljs-number">32</span>)
+<span class="hljs-comment"># -1 is not equal to 65535 for 32-bit integers</span>
+<span class="hljs-built_in">print</span>(simplify(a == b))
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">x + <span class="hljs-number">2</span>
+(bvadd x <span class="hljs-comment">#x0002)</span>
+<span class="hljs-number">65535</span> + x + y
+<span class="hljs-literal">True</span>
+<span class="hljs-literal">False</span>
+</code></pre><p>Toán tử <code>&gt;&gt;</code> là một phép dịch phải, và ngược lại là <code>&lt;&lt;</code>.</p>
+<p>Ví dụ 2:</p>
+<pre><code class="hljs language-python"><span class="hljs-comment"># Create two bit-vectors of size 32</span>
+x, y = BitVecs(<span class="hljs-string">&#x27;x y&#x27;</span>, <span class="hljs-number">32</span>)
+
+solve(x &gt;&gt; <span class="hljs-number">2</span> == <span class="hljs-number">3</span>)
+
+solve(x &lt;&lt; <span class="hljs-number">2</span> == <span class="hljs-number">3</span>)
+
+solve(x &lt;&lt; <span class="hljs-number">2</span> == <span class="hljs-number">24</span>)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[x = <span class="hljs-number">12</span>]
+no solution
+[x = <span class="hljs-number">6</span>]
+</code></pre><h2>Functions</h2>
+<p>Không giống với các ngôn ngữ khác, các hàm có tác dụng phụ hoặc không trả về, các hàm trong Z3 không có tác dụng phụ và là toàn bộ. Được hiểu là, các hàm đó được định nghĩa trên toàn bộ các giá trị đầu vào. Bao gồm các hàm như chia. Z3 dựa trên logic bậc nhất.</p>
+<p>Cho một ràng buộc như <code>x + y &gt; 3</code>, chúng ta nói rằng các <code>x</code> và <code>y</code> là các biến.</p>
+<p>Để minh họa các hàm và hằng số chưa được diễn giải, chúng ta hãy định nghĩa các giá trị đó <code>x</code>, <code>y</code>. Cuối cùng, đặt <code>f</code> là một hàm chưa được diễn giải nhận một đối số (như sort) nguyên và kết quả là một giá trị số nguyên.</p>
+<p>Ví dụ 1:</p>
+<pre><code class="hljs language-python">x = Int(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Int(<span class="hljs-string">&#x27;y&#x27;</span>)
+f = Function(<span class="hljs-string">&#x27;f&#x27;</span>, IntSort(), IntSort())
+solve(f(f(x)) == x, f(x) == y, x != y)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[x = <span class="hljs-number">0</span>, y = <span class="hljs-number">1</span>, f = [<span class="hljs-number">1</span> -&gt; <span class="hljs-number">0</span>, <span class="hljs-keyword">else</span> -&gt; <span class="hljs-number">1</span>]]
+</code></pre><p>Kết quả với <code>f</code> nên được đọc là <code>f(0)</code> là 1, <code>f(1)</code> là 0, và <code>f(a)</code> là 1 với tất cả <code>a</code> khác nhau từ 0 đến 1.</p>
+<p>Trong Z3, chúng ta cũng có thể đánh giá các biểu thức trong mô hình với một hệ thống ràng buộc.</p>
+<p>Ví dụ 2:</p>
+<pre><code class="hljs language-python">x = Int(<span class="hljs-string">&#x27;x&#x27;</span>)
+y = Int(<span class="hljs-string">&#x27;y&#x27;</span>)
+f = Function(<span class="hljs-string">&#x27;f&#x27;</span>, IntSort(), IntSort())
+s = Solver()
+s.add(f(f(x)) == x, f(x) == y, x != y)
+<span class="hljs-built_in">print</span>(s.check())
+m = s.model()
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;f(f(x)) =&quot;</span>, m.evaluate(f(f(x))))
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;f(x)    =&quot;</span>, m.evaluate(f(x)))
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">sat
+f(f(x)) = <span class="hljs-number">0</span>
+f(x)    = <span class="hljs-number">1</span>
+</code></pre><h2>Satisfiability and Validity</h2>
+<p>Phần này chúng ta có thể nhìn ví dụ dưới để xem một biểu thức có nghiệm không.</p>
+<pre><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">prove</span>(<span class="hljs-params">f</span>):
+    s = Solver()
+    s.add(Not(f))
+    <span class="hljs-keyword">if</span> s.check() == unsat:
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;proved&quot;</span>)
+    <span class="hljs-keyword">else</span>:
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;failed to prove&quot;</span>)
+</code></pre><h2>List Comprehensions</h2>
+<p>Python hỗ trợ <code>List Comprehensions</code>. List Comprehensions cung cấp một cách ngắn gọn tạo các danh sách. Nó cũng được sử dụng để tạo biểu thức Z3 và các bài toán trong Z3Py.</p>
+<p>Ví dụ 1:</p>
+<pre><code class="hljs language-python"><span class="hljs-comment"># Create list [1, ..., 5]</span>
+<span class="hljs-built_in">print</span>([x + <span class="hljs-number">1</span> <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)])
+
+<span class="hljs-comment"># Create two lists containing 5 integer variables</span>
+X = [Int(<span class="hljs-string">&#x27;x%s&#x27;</span> % i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)]
+Y = [Int(<span class="hljs-string">&#x27;y%s&#x27;</span> % i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)]
+<span class="hljs-built_in">print</span>(X)
+
+<span class="hljs-comment"># Create a list containing X[i]+Y[i]</span>
+X_plus_Y = [X[i] + Y[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)]
+<span class="hljs-built_in">print</span>(X_plus_Y)
+
+<span class="hljs-comment"># Create a list containing X[i] &gt; Y[i]</span>
+X_gt_Y = [X[i] &gt; Y[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)]
+<span class="hljs-built_in">print</span>(X_gt_Y)
+
+<span class="hljs-built_in">print</span>(And(X_gt_Y))
+
+<span class="hljs-comment"># Create a 3x3 &quot;matrix&quot; (list of lists) of integer variables</span>
+X = [[Int(<span class="hljs-string">&quot;x_%s_%s&quot;</span> % (i + <span class="hljs-number">1</span>, j + <span class="hljs-number">1</span>)) <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>)]
+     <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>)]
+pp(X)
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]
+[x0, x1, x2, x3, x4]
+[x0 + y0, x1 + y1, x2 + y2, x3 + y3, x4 + y4]
+[x0 &gt; y0, x1 &gt; y1, x2 &gt; y2, x3 &gt; y3, x4 &gt; y4]
+And(x0 &gt; y0, x1 &gt; y1, x2 &gt; y2, x3 &gt; y3, x4 &gt; y4)
+[[x_1_1, x_1_2, x_1_3],
+ [x_2_1, x_2_2, x_2_3],
+ [x_3_1, x_3_2, x_3_3]]
+</code></pre><p>Lệnh <code>pp(x)</code> giống <code>print</code>, nhưng nó sử dụng Z3Py formatter với lists và tuples thay vì Python formatter.</p>
+<p>Ví dụ 2:</p>
+<pre><code class="hljs language-python">X = IntVector(<span class="hljs-string">&#x27;x&#x27;</span>, <span class="hljs-number">5</span>)
+Y = RealVector(<span class="hljs-string">&#x27;y&#x27;</span>, <span class="hljs-number">5</span>)
+P = BoolVector(<span class="hljs-string">&#x27;p&#x27;</span>, <span class="hljs-number">5</span>)
+<span class="hljs-built_in">print</span>(X)
+<span class="hljs-built_in">print</span>(Y)
+<span class="hljs-built_in">print</span>(P)
+<span class="hljs-built_in">print</span>([y**<span class="hljs-number">2</span> <span class="hljs-keyword">for</span> y <span class="hljs-keyword">in</span> Y])
+<span class="hljs-built_in">print</span>(Sum([y**<span class="hljs-number">2</span> <span class="hljs-keyword">for</span> y <span class="hljs-keyword">in</span> Y]))
+</code></pre><ul>
+<li>Kết quả:</li>
+</ul>
+<pre><code class="hljs language-python">[x__0, x__1, x__2, x__3, x__4]
+[y__0, y__1, y__2, y__3, y__4]
+[p__0, p__1, p__2, p__3, p__4]
+[y__0**<span class="hljs-number">2</span>, y__1**<span class="hljs-number">2</span>, y__2**<span class="hljs-number">2</span>, y__3**<span class="hljs-number">2</span>, y__4**<span class="hljs-number">2</span>]
+y__0**<span class="hljs-number">2</span> + y__1**<span class="hljs-number">2</span> + y__2**<span class="hljs-number">2</span> + y__3**<span class="hljs-number">2</span> + y__4**<span class="hljs-number">2</span>
+</code></pre><p>Các ví dụ vừa rồi được thực hiện trên Python 3.6.</p>
+<blockquote>
+<p>Python 3.10 trở lên</p>
+</blockquote>
+<p>Ví dụ:</p>
+<pre><code class="hljs language-python">x = [Int(<span class="hljs-string">f&#x27;x<span class="hljs-subst">{i}</span>&#x27;</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)]
+<span class="hljs-comment"># [x0, x1, x2, x3, x4]</span>
+</code></pre><h2>Remarks</h2>
+<ul>
+<li>Có thể thấy được Z3 rất nhiều ứng dụng và đa dạng hàm hỗ trợ, nhưng hầu như chúng ta chỉ sử dụng một số trong đó.</li>
+<li>Có nhiều bài toán chúng ta có thể sử dụng <a href="https://en.wikipedia.org/wiki/Gr%C3%B6bner_basis">Gröbner basis</a> thay thế Z3.</li>
+<li>Z3 có thể là một công cụ hiệu quả cho các bài toán cần symbolic, như các bài cryptanalysis.</li>
+</ul>
+<h2>Bonus Challenge</h2>
+<h3>Part2 &#39;L-win&#39; - Crypthack</h3>
+<p>Chall:</p>
+<pre><code class="hljs language-python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> bytes_to_long
+
+SECRET_T = [?,?,?,?]
+FLAG = <span class="hljs-string">b&quot;crypto{????????????????????????????????????????}&quot;</span>
+<span class="hljs-keyword">assert</span> <span class="hljs-built_in">len</span>(FLAG) == <span class="hljs-number">48</span>
+<span class="hljs-built_in">print</span>(<span class="hljs-built_in">len</span>(<span class="hljs-built_in">bin</span>(bytes_to_long(FLAG))[<span class="hljs-number">2</span>:]),<span class="hljs-number">16</span>*<span class="hljs-number">48</span>)
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">LFSR</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-variable language_">self</span>._s = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, <span class="hljs-built_in">list</span>(<span class="hljs-string">&quot;{:0384b}&quot;</span>.<span class="hljs-built_in">format</span>(bytes_to_long(FLAG)))))
+
+        <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span> * <span class="hljs-built_in">len</span>(FLAG)):
+            <span class="hljs-variable language_">self</span>._clock()
+
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_clock</span>(<span class="hljs-params">self</span>):
+        b = <span class="hljs-variable language_">self</span>._s[<span class="hljs-number">0</span>]
+        c = <span class="hljs-number">0</span>
+        <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> SECRET_T: c ^= <span class="hljs-variable language_">self</span>._s[t]
+        <span class="hljs-variable language_">self</span>._s = <span class="hljs-variable language_">self</span>._s[<span class="hljs-number">1</span>:] + [c]
+        <span class="hljs-keyword">return</span> b
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">stream</span>(<span class="hljs-params">self, length</span>):
+        <span class="hljs-keyword">return</span> [<span class="hljs-variable language_">self</span>._clock() <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(length)]
+
+c = LFSR()
+stream = c.stream(<span class="hljs-number">2048</span>)
+<span class="hljs-built_in">print</span>()
+<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;&quot;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, stream)))
+</code></pre><details>
+<summary>Bấm để xem Script Solve (Z3)</summary>
+
+<pre><code class="hljs language-python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
+<span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *
+<span class="hljs-keyword">from</span> z3 <span class="hljs-keyword">import</span> *
+
+c = <span class="hljs-string">&#x27;......&#x27;</span>
+c = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>, c))
+
+taps = [<span class="hljs-number">16</span>, <span class="hljs-number">15</span>, <span class="hljs-number">6</span>, <span class="hljs-number">0</span>]
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">_clock</span>(<span class="hljs-params">_s</span>):
+    b = _s[<span class="hljs-number">0</span>]
+    c = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> taps:
+        c += _s[t]
+
+    _s = _s[<span class="hljs-number">1</span>:] + [c]
+    <span class="hljs-keyword">return</span> b, _s
+
+
+fi = [BitVec(<span class="hljs-string">f&quot;x_<span class="hljs-subst">{i}</span>&quot;</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">384</span>)]
+s = Solver()
+
+<span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span> * <span class="hljs-number">48</span>):
+    b, fi = _clock(fi)
+
+s.add([f == BitVecVal(i, <span class="hljs-number">1</span>) <span class="hljs-keyword">for</span> i, f <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(c, fi)])
+
+<span class="hljs-keyword">assert</span> s.check() == sat
+
+models = s.model()
+fi = [BitVec(<span class="hljs-string">f&quot;x_<span class="hljs-subst">{i}</span>&quot;</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">384</span>)]
+flag_bit = <span class="hljs-string">&quot;&quot;</span>.join([<span class="hljs-built_in">str</span>(models[f]) <span class="hljs-keyword">for</span> f <span class="hljs-keyword">in</span> fi])
+
+<span class="hljs-built_in">print</span>(flag_bit)
+<span class="hljs-built_in">print</span>(long_to_bytes(<span class="hljs-built_in">int</span>(flag_bit, <span class="hljs-number">2</span>)))
+</code></pre></details>
+
+<h3>Cipher - by Giappp</h3>
+<p>Chall:</p>
+<pre><code class="hljs language-python"><span class="hljs-keyword">import</span> os
+<span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> xor
+
+ROUND = <span class="hljs-number">10</span>
+P = [<span class="hljs-number">12</span>, <span class="hljs-number">11</span>, <span class="hljs-number">8</span>, <span class="hljs-number">13</span>, <span class="hljs-number">5</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">9</span>, <span class="hljs-number">15</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">7</span>, <span class="hljs-number">10</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">14</span>]
+KEY = os.urandom(<span class="hljs-number">16</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">pad</span>(<span class="hljs-params">state</span>):
+    <span class="hljs-keyword">return</span> state + <span class="hljs-built_in">bytes</span>([<span class="hljs-number">16</span> - <span class="hljs-built_in">len</span>(state) % <span class="hljs-number">16</span>]) * (<span class="hljs-number">16</span> - <span class="hljs-built_in">len</span>(state) % <span class="hljs-number">16</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">permute</span>(<span class="hljs-params">state</span>):
+    new_state = <span class="hljs-string">b&quot;&quot;</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span>):
+        new_state += <span class="hljs-built_in">bytes</span>([state[P[i]]])
+    <span class="hljs-keyword">return</span> new_state
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">genroundkey</span>(<span class="hljs-params">key</span>):
+    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+        new = <span class="hljs-string">b&quot;\0&quot;</span>
+        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [<span class="hljs-number">4</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">9</span>, <span class="hljs-number">14</span>]:
+            new = xor(new, key[i])
+        key = key[<span class="hljs-number">1</span>:] + new
+        <span class="hljs-keyword">yield</span> key
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">encrypt</span>():
+    plaintext = pad(<span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;Enter your plaintext in hex: &quot;</span>)))
+    ciphertext = <span class="hljs-string">b&quot;&quot;</span>
+    gen = genroundkey(KEY)
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(plaintext), <span class="hljs-number">16</span>):
+        block = plaintext[i:i+<span class="hljs-number">16</span>]
+        <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(ROUND):
+            block = permute(block)
+            block = xor(block, <span class="hljs-built_in">next</span>(gen))
+        ciphertext += block
+    <span class="hljs-built_in">print</span>(ciphertext.<span class="hljs-built_in">hex</span>())
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">guess_the_key</span>():
+    guess = <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;Enter your guess: &quot;</span>))
+    <span class="hljs-keyword">if</span> guess == KEY:
+        <span class="hljs-built_in">print</span>(<span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;flag.txt&quot;</span>, <span class="hljs-string">&quot;r&quot;</span>).read())
+    <span class="hljs-keyword">else</span>:
+        exit(<span class="hljs-number">0</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">menu</span>():
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;&quot;&quot;0. Encrypt\n1. Guess the key&quot;&quot;&quot;</span>)
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;&gt; &quot;</span>))
+
+<span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+    <span class="hljs-keyword">try</span>:
+        choice = [encrypt, guess_the_key]
+        option = menu()
+        choice[option]()
+    <span class="hljs-keyword">except</span>:
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Something wrong with your input...&quot;</span>)
+        exit(<span class="hljs-number">0</span>)
+</code></pre><p>Mục đích là ta phải tìm lại được key.</p>
+<details>
+<summary>Bấm để xem Script Solve (Z3)</summary>
+
+<pre><code class="hljs language-python"><span class="hljs-keyword">import</span> os
+<span class="hljs-keyword">from</span> z3 <span class="hljs-keyword">import</span> *
+ROUND = <span class="hljs-number">10</span>
+P = [<span class="hljs-number">12</span>, <span class="hljs-number">11</span>, <span class="hljs-number">8</span>, <span class="hljs-number">13</span>, <span class="hljs-number">5</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">9</span>, <span class="hljs-number">15</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">7</span>, <span class="hljs-number">10</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">14</span>]
+
+Key = [BitVec(<span class="hljs-string">f&quot;x_<span class="hljs-subst">{i}</span>&quot;</span>, <span class="hljs-number">8</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span>)]
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">pad</span>(<span class="hljs-params">state</span>):
+    <span class="hljs-keyword">return</span> state + <span class="hljs-built_in">bytes</span>([<span class="hljs-number">16</span> - <span class="hljs-built_in">len</span>(state) % <span class="hljs-number">16</span>]) * (<span class="hljs-number">16</span> - <span class="hljs-built_in">len</span>(state) % <span class="hljs-number">16</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">permute</span>(<span class="hljs-params">state</span>):
+    new_state = []
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span>):
+        new_state += [state[P[i]]]
+    <span class="hljs-keyword">return</span> new_state
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">genroundkey</span>(<span class="hljs-params">key</span>):
+    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+        new = BitVecVal(<span class="hljs-number">0</span>, <span class="hljs-number">8</span>)
+        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [<span class="hljs-number">4</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">9</span>, <span class="hljs-number">14</span>]:
+            new = new ^ key[i]
+        key = key[<span class="hljs-number">1</span>:] + [new]
+        <span class="hljs-keyword">yield</span> key
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">XOR</span>(<span class="hljs-params">block, key</span>):
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span>):
+        block[i] = block[i] ^ key[i]
+    <span class="hljs-keyword">return</span> block
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">encrypt</span>():
+    plaintext = [BitVecVal(<span class="hljs-number">0</span>, <span class="hljs-number">8</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span>)]
+    ciphertext = <span class="hljs-string">b&quot;&quot;</span>
+    gen = genroundkey(Key)
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(plaintext), <span class="hljs-number">16</span>):
+        block = plaintext[i:i+<span class="hljs-number">16</span>]
+        <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(ROUND):
+            block = permute(block)
+            block = XOR(block, <span class="hljs-built_in">next</span>(gen))
+        ciphertext = block
+    <span class="hljs-keyword">return</span> ciphertext
+
+Key = encrypt()
+<span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
+
+p = process([<span class="hljs-string">&quot;python3.10&quot;</span>, <span class="hljs-string">&quot;chall.py&quot;</span>])
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">send0</span>():
+    pay = <span class="hljs-string">b&#x27;\0&#x27;</span>*<span class="hljs-number">16</span>
+    p.recvuntil(<span class="hljs-string">&#x27;&gt; &#x27;</span>)
+    p.sendline(<span class="hljs-string">&#x27;0&#x27;</span>)
+    p.recvuntil(<span class="hljs-string">&quot;Enter your plaintext in hex: &quot;</span>)
+    p.sendline(pay.<span class="hljs-built_in">hex</span>())
+    p.recvuntil(<span class="hljs-string">&quot;ciphertext&quot;</span>)
+    resp = p.recvline().decode().strip()
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">bytes</span>.fromhex(resp)
+
+ciphertext = send0()[:<span class="hljs-number">16</span>]
+
+ciphertext = [BitVecVal(ci, <span class="hljs-number">8</span>) <span class="hljs-keyword">for</span> ci <span class="hljs-keyword">in</span> ciphertext]
+s = Solver()
+
+<span class="hljs-keyword">for</span> ci, ki <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(ciphertext, Key):
+    s.add(ki == ci)
+
+<span class="hljs-keyword">assert</span> s.check() == sat
+
+key = [BitVec(<span class="hljs-string">f&quot;x_<span class="hljs-subst">{i}</span>&quot;</span>, <span class="hljs-number">8</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span>)]
+
+key = [s.model()[ki].as_long() <span class="hljs-keyword">for</span> ki <span class="hljs-keyword">in</span> key]
+key = <span class="hljs-built_in">bytes</span>(key)
+
+p.recvuntil(<span class="hljs-string">&quot;&gt; &quot;</span>)
+p.sendline(<span class="hljs-string">&#x27;1&#x27;</span>)
+p.sendlineafter(<span class="hljs-string">&#x27;Enter your guess: &#x27;</span>, key.<span class="hljs-built_in">hex</span>())
+p.recvuntil(<span class="hljs-string">&quot;flag&quot;</span>)
+p.recvline()
+</code></pre></details>
+
+<p>Bài này thì mình chia làm 2 phase:</p>
+<ul>
+<li>Phase 1: chúng ta sẽ symbolic toàn bộ các phần mã hóa xem có gì.</li>
+<li>Phase 2: giải thôi.</li>
+</ul>
+<h3>Custom chall</h3>
+<p>Chall:</p>
+<pre><code class="hljs language-python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *
+<span class="hljs-keyword">import</span> os
+
+flag = <span class="hljs-string">b&#x27;CUSCTF{???}&#x27;</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Cipher</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, n</span>):
+        <span class="hljs-variable language_">self</span>.state = n
+        <span class="hljs-variable language_">self</span>.tap = [[<span class="hljs-number">9</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>, <span class="hljs-number">11</span>, <span class="hljs-number">3</span>, <span class="hljs-number">20</span>, <span class="hljs-number">16</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">18</span>], [<span class="hljs-number">10</span>, <span class="hljs-number">2</span>, <span class="hljs-number">12</span>, <span class="hljs-number">3</span>, <span class="hljs-number">11</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">20</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>], [<span class="hljs-number">19</span>, <span class="hljs-number">7</span>, <span class="hljs-number">0</span>, <span class="hljs-number">20</span>, <span class="hljs-number">16</span>, <span class="hljs-number">21</span>, <span class="hljs-number">14</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">17</span>], [<span class="hljs-number">15</span>, <span class="hljs-number">20</span>, <span class="hljs-number">13</span>, <span class="hljs-number">12</span>, <span class="hljs-number">19</span>, <span class="hljs-number">6</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">0</span>, <span class="hljs-number">9</span>], [<span class="hljs-number">6</span>, <span class="hljs-number">12</span>, <span class="hljs-number">19</span>, <span class="hljs-number">14</span>, <span class="hljs-number">8</span>, <span class="hljs-number">10</span>, <span class="hljs-number">15</span>, <span class="hljs-number">18</span>, <span class="hljs-number">16</span>, <span class="hljs-number">7</span>], [<span class="hljs-number">10</span>, <span class="hljs-number">21</span>, <span class="hljs-number">20</span>, <span class="hljs-number">11</span>, <span class="hljs-number">15</span>, <span class="hljs-number">14</span>, <span class="hljs-number">1</span>, <span class="hljs-number">8</span>, <span class="hljs-number">17</span>, <span class="hljs-number">7</span>], [<span class="hljs-number">15</span>, <span class="hljs-number">3</span>, <span class="hljs-number">16</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">19</span>, <span class="hljs-number">5</span>, <span class="hljs-number">17</span>, <span class="hljs-number">10</span>, <span class="hljs-number">8</span>], [<span class="hljs-number">0</span>, <span class="hljs-number">16</span>, <span class="hljs-number">6</span>, <span class="hljs-number">20</span>, <span class="hljs-number">19</span>, <span class="hljs-number">1</span>, <span class="hljs-number">18</span>, <span class="hljs-number">13</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>], [<span class="hljs-number">11</span>, <span class="hljs-number">14</span>, <span class="hljs-number">10</span>, <span class="hljs-number">12</span>, <span class="hljs-number">9</span>, <span class="hljs-number">3</span>, <span class="hljs-number">17</span>, <span class="hljs-number">5</span>, <span class="hljs-number">13</span>, <span class="hljs-number">19</span>], [<span class="hljs-number">21</span>, <span class="hljs-number">19</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">18</span>, <span class="hljs-number">11</span>, <span class="hljs-number">14</span>, <span class="hljs-number">17</span>, <span class="hljs-number">10</span>, <span class="hljs-number">8</span>], [<span class="hljs-number">12</span>, <span class="hljs-number">20</span>, <span class="hljs-number">7</span>, <span class="hljs-number">11</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">8</span>, <span class="hljs-number">18</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>], [<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">21</span>, <span class="hljs-number">19</span>, <span class="hljs-number">2</span>, <span class="hljs-number">7</span>, <span class="hljs-number">11</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>, <span class="hljs-number">3</span>], [<span class="hljs-number">21</span>, <span class="hljs-number">10</span>, <span class="hljs-number">3</span>, <span class="hljs-number">11</span>, <span class="hljs-number">15</span>, <span class="hljs-number">17</span>, <span class="hljs-number">1</span>, <span class="hljs-number">7</span>, <span class="hljs-number">19</span>, <span class="hljs-number">14</span>], [<span class="hljs-number">14</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">3</span>, <span class="hljs-number">16</span>, <span class="hljs-number">7</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">10</span>], [<span class="hljs-number">12</span>, <span class="hljs-number">16</span>, <span class="hljs-number">8</span>, <span class="hljs-number">3</span>, <span class="hljs-number">17</span>, <span class="hljs-number">6</span>, <span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">13</span>, <span class="hljs-number">7</span>], [<span class="hljs-number">16</span>, <span class="hljs-number">7</span>, <span class="hljs-number">21</span>, <span class="hljs-number">13</span>, <span class="hljs-number">9</span>, <span class="hljs-number">0</span>, <span class="hljs-number">19</span>, <span class="hljs-number">6</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>], [<span class="hljs-number">11</span>, <span class="hljs-number">1</span>, <span class="hljs-number">13</span>, <span class="hljs-number">2</span>, <span class="hljs-number">20</span>, <span class="hljs-number">19</span>, <span class="hljs-number">14</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>], [<span class="hljs-number">11</span>, <span class="hljs-number">4</span>, <span class="hljs-number">14</span>, <span class="hljs-number">16</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>, <span class="hljs-number">13</span>, <span class="hljs-number">18</span>, <span class="hljs-number">21</span>, <span class="hljs-number">12</span>], [<span class="hljs-number">11</span>, <span class="hljs-number">14</span>, <span class="hljs-number">12</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">9</span>, <span class="hljs-number">13</span>, <span class="hljs-number">6</span>, <span class="hljs-number">19</span>], [<span class="hljs-number">20</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">21</span>, <span class="hljs-number">11</span>, <span class="hljs-number">9</span>, <span class="hljs-number">5</span>, <span class="hljs-number">16</span>, <span class="hljs-number">7</span>, <span class="hljs-number">14</span>], [<span class="hljs-number">4</span>, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">21</span>, <span class="hljs-number">6</span>, <span class="hljs-number">9</span>, <span class="hljs-number">12</span>, <span class="hljs-number">5</span>, <span class="hljs-number">20</span>, <span class="hljs-number">18</span>], [<span class="hljs-number">1</span>, <span class="hljs-number">15</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>, <span class="hljs-number">5</span>, <span class="hljs-number">11</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">19</span>, <span class="hljs-number">12</span>]]
+        <span class="hljs-variable language_">self</span>.list_params = <span class="hljs-variable language_">self</span>._rebash(n)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_rebash</span>(<span class="hljs-params">self, n, b=<span class="hljs-number">256</span></span>):
+        <span class="hljs-keyword">if</span> n &lt;= <span class="hljs-number">256</span>:
+            <span class="hljs-keyword">return</span> [n]
+        <span class="hljs-keyword">else</span>:
+            <span class="hljs-keyword">return</span> [n % b] + <span class="hljs-variable language_">self</span>._rebash(n // b)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">t2b</span>(<span class="hljs-params">self</span>):
+        res = []
+        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-variable language_">self</span>.tap:
+            b = <span class="hljs-number">0</span>
+            <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> i:
+                b = (b + <span class="hljs-variable language_">self</span>.list_params[j]) % <span class="hljs-number">256</span>
+            <span class="hljs-variable language_">self</span>.list_params = <span class="hljs-variable language_">self</span>.list_params[<span class="hljs-number">1</span>:] + [b]
+        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">self</span>.list_params
+
+C = Cipher(bytes_to_long(flag))
+
+<span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;list_ciphertext = &#x27;</span>, C.t2b())
+<span class="hljs-comment"># list_ciphertext =  [123, 70, 84, 67, 83, 85, 67, 81, 226, 166, 200, 31, 247, 146, 128, 219, 48, 56, 24, 186, 98, 152, 193, 148, 241, 29, 127, 176, 109]</span>
+</code></pre><p>Làm thử đi :))))</p>
+<blockquote>
+<p>Continue...</p>
+</blockquote>
+<h2>References</h2>
+<p>[1] Wikipedia.
+[2] <a href="https://microsoft.github.io/z3guide/programming/Z3%20Python%20-%20Readonly/Introduction/#boolean-logic">Z3 Guide</a>
+[3] AI: Chatgpt.
+[4] <a href="https://github.com/ViRb3/z3-python-ctf">https://github.com/ViRb3/z3-python-ctf</a>
+[5] <a href="https://book.jorianwoltjer.com/cryptography/custom-ciphers/z3-solver">https://book.jorianwoltjer.com/cryptography/custom-ciphers/z3-solver</a>
+[6] <a href="https://microsoft.github.io/z3guide/">https://microsoft.github.io/z3guide/</a></p>
+
+</article>
+    </main>
+
+    <script src="../assets/js/common.js"></script>
+</body>
+</html>

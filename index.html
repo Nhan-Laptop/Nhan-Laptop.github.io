@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nguyen Trong Nhan | Personal Blog Homepage</title>
+    <meta
+        name="description"
+        content="Homepage blog cua Nguyen Trong Nhan: writeup CTF, cryptography learning notes, va life log."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="assets/css/common.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="index.html">Nhan's Security Log</a>
+            <nav class="main-nav">
+                <a class="is-active" href="index.html">Home</a>
+                <a href="categories/index.html">Categories</a>
+                <a href="tags/index.html">Tags</a>
+                <!-- <a href="posts/writeup-rsa-ctf.html">Writeup Sample</a>
+                <a href="posts/daily-semester-log.html">Daily Sample</a> -->
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-shell">
+        <section class="hero reveal is-visible">
+            <span class="eyebrow">Information Security Student | Honor Program | UIT - VNUHCM</span>
+            <h1>Nguyen Trong Nhan</h1>
+            <p class="lead">
+                Personal blog ve cryptography, CTF writeups, va nhat ky hoc tap. Muc tieu la xay dung mot archive
+                de moi bai viet deu co category, tag, va huong tiep can co the tai su dung.
+            </p>
+            <div class="hero-actions">
+                <a class="action-btn" href="#latest-posts">Latest Posts</a>
+                <a class="rank-pill" href="categories/index.html">Browse Categories</a>
+                <a class="rank-pill" href="tags/index.html">Explore Tags</a>
+                <a class="rank-pill" href="https://github.com/Nhan-Laptop" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a class="rank-pill" href="https://www.facebook.com/nhan.trongnguyen.3133/" target="_blank" rel="noopener noreferrer">Facebook</a>
+                <a class="rank-pill" href="https://hackmd.io/@NhanLAPTOP" target="_blank" rel="noopener noreferrer">HackMD</a>
+
+            </div>
+            <div class="hero-stats">
+                <article class="stat">
+                    <span>Main track</span>
+                    <strong>Crypto-focused CTF writeups</strong>
+                </article>
+                <article class="stat">
+                    <span>Side track</span>
+                    <strong>Learning logs and life notes</strong>
+                </article>
+                <article class="stat">
+                    <span>Blog vision</span>
+                    <strong>Small, clear, reproducible posts</strong>
+                </article>
+            </div>
+        </section>
+
+        <div class="layout">
+            <aside class="sidebar">
+                <section class="panel reveal">
+                    <div class="profile-photo-wrap">
+                        <img
+                            id="profilePhoto"
+                            class="profile-photo"
+                            src="self.png"
+                            alt="Profile photo of Nguyen Trong Nhan"
+                            width="240"
+                            height="240"
+                            decoding="async"
+                        >
+                    </div>
+                    <p class="mono" style="text-align:center; color: var(--brand);">HONOR PROGRAM - INFOSEC</p>
+                    <p class="panel-text" style="margin-top: 10px; text-align:center;">Click portrait to preview.</p>
+                    <div style="text-align:center; margin-top: 8px;">
+                        <button class="secondary-btn" id="photoTrigger" type="button">Open Photo</button>
+                    </div>
+                    <ul class="contact-list" style="margin-top: 14px;">
+                        <li class="contact-item">
+                            <span class="k">Email</span>
+                            <a href="mailto:nguyentrongnhan06cm@gmail.com">nguyentrongnhan06cm@gmail.com</a>
+                        </li>
+                        <li class="contact-item">
+                            <span class="k">Phone</span>
+                            <a href="tel:0947523907">0947 523 907</a>
+                        </li>
+                        <li class="contact-item">
+                            <span class="k">Address</span>
+                            10 Han Thuyen, Thu Duc, Ho Chi Minh City
+                        </li>
+                    </ul>
+                    <div style="margin-top: 12px; text-align:center;">
+                        <button class="secondary-btn" id="copyEmail" type="button">Copy Email</button>
+                    </div>
+                </section>
+
+                <section class="panel archive-panel reveal">
+                    <p class="section-label">Archive Navigation</p>
+                    <h2 class="panel-title">Categories and Tags</h2>
+                    <p class="panel-text"></p>
+                    <ul class="quick-links" style="margin-top: 10px;">
+                        <li><a href="categories/life.html">Life <span>01</span></a></li>
+                        <li><a href="categories/writeup.html">Writeup <span>02</span></a></li>
+                        <li><a href="categories/learning.html">Learning <span>03</span></a></li>
+                    </ul>
+                    <ul class="quick-links" style="margin-top: 10px;">
+                        <!-- <li><a href="tags/mpc.html">MPC</a></li>
+                        <li><a href="tags/zkp.html">ZKP</a></li>
+                        <li><a href="tags/ecc.html">ECC</a></li> -->
+                    </ul>
+                </section>
+            </aside>
+
+            <main class="main">
+               
+
+                <section class="panel reveal section">
+                    <p class="section-label">Academic Snapshot</p>
+                    <h2 class="section-title">Education and current technical direction</h2>
+                    <div class="timeline">
+                        <article class="timeline-item">
+                            <h3>University of Information Technology - VNUHCM</h3>
+                            <div class="meta-row">
+                                <span>B.Sc. Information Security - Honor Program</span>
+                                <span>2024 - Present</span>
+                                <span>Thu Duc, Ho Chi Minh City</span>
+                            </div>
+                            <p>
+                                Main track gom cryptography, CTF problem solving, va secure coding mindset.
+                            </p>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel reveal section">
+                    <p class="section-label">Skill Matrix</p>
+                    <h2 class="section-title">What I can execute now</h2>
+                    <div class="skills-grid">
+                        <article class="skill-card">
+                            <h3>Technical</h3>
+                            <ul class="skill-list">
+                                <li>CTF Cryptography</li>
+                                <li>Security analysis</li>
+                                <li>Script-based solving</li>
+                                <li>Research and self-learning</li>
+                            </ul>
+                        </article>
+                        <article class="skill-card">
+                            <h3>Writing</h3>
+                            <ul class="skill-list">
+                                <li>Challenge breakdown</li>
+                                <li>Reasoning-first explanations</li>
+                                <li>Template-driven publishing</li>
+                                <li>Taxonomy organization</li>
+                            </ul>
+                        </article>
+                        <article class="skill-card">
+                            <h3>Collaboration</h3>
+                            <ul class="skill-list">
+                                <li>Team CTF participation</li>
+                                <li>Technical communication</li>
+                                <li>Consistent learning logs</li>
+                                <li>Cross-reference notes</li>
+                            </ul>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel reveal section">
+                    <p class="section-label">Achievements</p>
+                    <h2 class="section-title">Recent results and milestones</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Award / Competition</th>
+                                    <th>Result</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>UIT Honor Program Scholarship</td>
+                                    <td><span class="rank-pill">Top 2</span></td>
+                                    <td>Merit-based scholarship for strong academic performance.</td>
+                                </tr>
+                                <tr>
+                                    <td>Wanna.W1n Recruitment (Crypto)</td>
+                                    <td><span class="rank-pill">Top 1</span></td>
+                                    <td>Ranked first in internal cryptography challenge.</td>
+                                </tr>
+                                <tr>
+                                    <td>Securinet CTF 2025</td>
+                                    <td><span class="rank-pill">Top 23</span></td>
+                                    <td>Solved crypto and misc tasks as team member.</td>
+                                </tr>
+                                <tr>
+                                    <td>N1CTF 2025</td>
+                                    <td><span class="rank-pill">Top 50</span></td>
+                                    <td>International event with high-difficulty crypto tasks.</td>
+                                </tr>
+                                <tr>
+                                    <td>M*CTF 2025</td>
+                                    <td><span class="rank-pill">Top 1</span></td>
+                                    <td>International event.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                
+
+                <section id="latest-posts" class="panel reveal section">
+                    <p class="section-label">Latest Posts</p>
+                    <h2 class="section-title">Bai viet moi nhat</h2>
+                    <ul class="post-list">
+                        
+                       <li class="post-item">
+                            <h3><a href="posts/writeup-n1ctf-2025.html">[Writeup] N1CTF 2025</a></h3>
+                            <div class="post-meta">
+                                <span>2026-03-19</span>
+                                <a href="categories/writeup.html">Writeup</a>
+                            </div>
+                            <p>Phan tich tu de bai den script giai, tap trung vao cach trich manh moi trong parameter.</p>
+                        </li>
+
+                        <li class="post-item">
+                            <h3><a href="posts/writeup-wannagame-championship-2025.html">[Writeup] WannaGame Championship 2025</a></h3>
+                            <div class="post-meta">
+                                <span>2026-03-19</span>
+                                <a href="categories/writeup.html">Writeup</a>
+                            </div>
+                            <p>Phan tich tu de bai den script giai, tap trung vao cach trich manh moi trong parameter.</p>
+                        </li>
+                    </ul>
+                </section>
+
+                <div class="duo-grid">
+                    <section class="panel reveal section">
+                        <p class="section-label">Activities</p>
+                        <h2 class="section-title">Discipline outside the classroom</h2>
+                        <ul class="feature-list">
+                            <li>
+                                <strong>Badminton Champion - UIT Sports</strong>
+                                First place in an internal UIT badminton event.
+                            </li>
+                            <li>
+                                <strong>Regular CTF participation</strong>
+                                Focus on crypto and note-driven postmortem after each event.
+                            </li>
+                        </ul>
+                    </section>
+                    <section class="panel reveal section">
+                        <p class="section-label">Projects & Interests</p>
+                        <h2 class="section-title">Independent study directions</h2>
+                        <ul class="feature-list">
+                            <li>
+                                <strong>Cryptography practice</strong>
+                                RSA, ECC, lattice, and challenge-oriented experimentation.
+                            </li>
+                            <li>
+                                <strong>Knowledge base building</strong>
+                                Keep writeups synchronized between GitHub and HackMD.
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+
+                <section class="panel archive-match reveal section">
+                    <p class="section-label">Taxonomy</p>
+                    <h2 class="section-title">Category/Tag links are real pages</h2>
+                    <div class="grid-2">
+                        <article class="card">
+                            <h3>Categories</h3>
+                            <ul class="taxonomy-list">
+                                <li><a class="pill-link" href="categories/index.html">All Categories</a></li>
+                                <li><a class="pill-link" href="categories/writeup.html">Writeup</a></li>
+                                <li><a class="pill-link" href="categories/learning.html">Learning</a></li>
+                                <li><a class="pill-link" href="categories/life.html">Life</a></li>
+                            </ul>
+                        </article>
+                        <article class="card">
+                            <h3>Tags</h3>
+                            <div class="tags-inline">
+                                <!-- <a class="tag-chip" href="tags/index.html">All Tags</a>
+                                <a class="tag-chip" href="tags/mpc.html">MPC</a>
+                                <a class="tag-chip" href="tags/zkp.html">ZKP</a>
+                                <a class="tag-chip" href="tags/ecc.html">ECC</a> -->
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                
+            </main>
+        </div>
+
+        <p class="footer-note">Designed as a personal security blog homepage with reusable multi-page structure.</p>
+    </div>
+
+    <dialog id="photoDialog" aria-label="Profile photo preview" style="border:none; background:transparent;">
+        <img id="dialogImage" src="" alt="Profile photo preview" style="max-width:min(90vw,680px); border-radius:18px; border:1px solid rgba(125,183,229,0.24);">
+        <div style="text-align:right; margin-top:8px;">
+            <button id="closeDialog" class="secondary-btn" type="button">Close</button>
+        </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="assets/js/common.js"></script>
+</body>
+</html>
