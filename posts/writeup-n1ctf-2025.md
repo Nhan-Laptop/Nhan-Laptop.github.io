@@ -810,7 +810,7 @@ s_i = [encode(M)\cdot encode(\beta_i)]_{X_0} =\sum_{j=1}^{K}  u_k \cdot a_k^j  \
 $$
 trong đó: 
 - K $\Leftarrow$ 16 
-- $a_k$ = ${{\beta}'}_{ik}$ với ik là các vị trí slot khác 0 
+- $a_k$ = ${\beta'}_{ik}$ với ik là các vị trí slot khác 0 
 - $u_k$ = $M[i_k]\cdot c_{ik}$ ( $c_{ik}=[encode(e_i)]_{X_0}$).
 
 **Định lí cơ bản**: bất kỳ dãy nào là tổng của K cấp số Nhân $\sum_{j=1}^{K}   u_k \cdot a_k^j$ sẽ luôn thỏa một truy hồi tuyến tính bậc K: 
