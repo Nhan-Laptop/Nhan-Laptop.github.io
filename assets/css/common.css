@@ -1,5 +1,23 @@
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap");
 
+
+
+@keyframes spin270 {
+    from {
+        transform: rotate(270deg);
+    }
+    to {
+        transform: rotate(630deg); /* 270 + 360 */
+    }
+}
+
+#profilePhoto {
+    transform: rotate(270deg);
+}
+
+#profilePhoto:hover {
+    animation: spin270 1s linear infinite;
+}
 :root {
     --bg: #050915;
     --bg-deep: #02040d;
@@ -329,22 +347,49 @@ img {
     margin-bottom: 2px;
 }
 
-.profile-photo-wrap {
-    width: 180px;
-    height: 180px;
-    margin: 0 auto 12px;
-    border-radius: 50%;
-    padding: 5px;
-    border: 1px solid rgba(125, 183, 229, 0.38);
-    box-shadow: 0 12px 28px rgba(1, 8, 17, 0.48);
+.plasma-avatar-wrap {
+    position: relative;
+    width: 190px;
+    height: 190px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
 }
 
-.profile-photo {
-    width: 100%;
-    height: 100%;
+.plasma-field {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(140deg, #63e8ff 6%, #7f9dff 38%, #c36bff 70%, #4ec8ff 100%);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    filter: saturate(118%);
+    box-shadow:
+        0 0 18px rgba(111, 225, 255, 0.55),
+        0 0 38px rgba(118, 166, 255, 0.42),
+        0 0 62px rgba(195, 107, 255, 0.28);
+    animation: morphing-plasma 10s ease-in-out infinite, plasma-rotation 22s linear infinite;
+}
+
+.plasma-field::before {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border-radius: 52% 48% 58% 42% / 44% 62% 38% 56%;
+    background: radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.02) 48%, rgba(6, 17, 36, 0.18) 100%);
+    mix-blend-mode: screen;
+    animation: morphing-plasma 8.8s ease-in-out infinite reverse;
+}
+
+.avatar-img {
+    position: absolute;
+    z-index: 2;
+    width: 160px;
+    height: 160px;
     border-radius: 50%;
     object-fit: cover;
+    border: 2px solid rgba(220, 246, 255, 0.78);
     background: linear-gradient(180deg, #0d1726, #0a111b);
+    box-shadow: 0 14px 26px rgba(1, 8, 17, 0.5), 0 0 20px rgba(118, 213, 255, 0.25);
+    animation: avatar-float 6.4s ease-in-out infinite;
 }
 
 .mono {
@@ -554,6 +599,7 @@ tbody tr:last-child td {
     box-shadow: 0 0 0 0 rgba(118, 213, 255, 0.62);
     animation: nhap-nhay-bop-vo 4s infinite ease-in-out;
     will-change: transform, opacity, box-shadow;
+    text-decoration: none;
 }
 
 .duo-grid {
@@ -851,6 +897,154 @@ tbody tr:last-child td {
     transform: translate(-50%, 0);
 }
 
+/* Cryptographic Universe - Tags page */
+.cosmic-container {
+    position: relative;
+    margin-top: 16px;
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    min-height: 560px;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+.starfield {
+    position: absolute;
+    inset: -30% -20%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.starfield,
+.starfield::before,
+.starfield::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+}
+
+.starfield {
+    width: 1px;
+    height: 1px;
+    opacity: 0.42;
+    box-shadow:
+        24px 40px #f7fbff, 88px 250px #d4e8ff, 146px 512px #f7fbff, 213px 844px #c7ddff, 289px 102px #d7ecff,
+        352px 415px #f7fbff, 437px 733px #d4e8ff, 529px 190px #eff7ff, 618px 542px #f7fbff, 704px 879px #dbeaff,
+        788px 323px #e8f4ff, 856px 612px #f7fbff, 930px 78px #d4e8ff, 1012px 458px #f7fbff, 1098px 805px #d7ecff,
+        1176px 270px #f7fbff, 1262px 634px #d4e8ff, 1335px 980px #eff7ff, 1418px 356px #f7fbff, 1496px 694px #dbeaff,
+        1570px 124px #e8f4ff, 1648px 520px #f7fbff, 1730px 870px #d4e8ff, 1812px 236px #f7fbff, 1886px 590px #d7ecff,
+        1958px 930px #f7fbff, 2035px 372px #d4e8ff, 2108px 718px #eff7ff, 2194px 96px #f7fbff, 2278px 488px #dbeaff,
+        2360px 826px #e8f4ff, 2444px 270px #f7fbff, 2528px 646px #d4e8ff, 2616px 1002px #f7fbff, 2698px 324px #d7ecff,
+        2784px 702px #f7fbff, 2860px 140px #d4e8ff, 2948px 544px #eff7ff, 3026px 904px #f7fbff, 3112px 296px #dbeaff,
+        3190px 660px #e8f4ff, 3278px 58px #f7fbff, 3344px 444px #d4e8ff, 3432px 772px #f7fbff, 3518px 116px #d7ecff,
+        3592px 504px #f7fbff, 3675px 862px #d4e8ff, 3760px 218px #eff7ff, 3844px 598px #f7fbff, 3926px 946px #dbeaff;
+    animation: drift-far 175s linear infinite, twinkle 8s ease-in-out infinite;
+}
+
+.starfield::before {
+    width: 2px;
+    height: 2px;
+    opacity: 0.55;
+    box-shadow:
+        40px 180px #e4f2ff, 132px 470px #b9d8ff, 240px 720px #f7fbff, 338px 112px #b9d8ff, 462px 374px #f7fbff,
+        570px 650px #d7ecff, 696px 948px #f7fbff, 818px 278px #b9d8ff, 944px 558px #f7fbff, 1070px 836px #d7ecff,
+        1192px 168px #f7fbff, 1320px 446px #b9d8ff, 1440px 730px #f7fbff, 1564px 94px #d7ecff, 1686px 384px #f7fbff,
+        1808px 668px #b9d8ff, 1930px 972px #f7fbff, 2056px 252px #d7ecff, 2182px 536px #f7fbff, 2308px 820px #b9d8ff,
+        2440px 132px #f7fbff, 2562px 416px #d7ecff, 2690px 704px #f7fbff, 2810px 998px #b9d8ff, 2938px 298px #f7fbff,
+        3060px 582px #d7ecff, 3188px 866px #f7fbff, 3312px 166px #b9d8ff, 3438px 450px #f7fbff, 3560px 734px #d7ecff,
+        3688px 36px #f7fbff, 3812px 320px #b9d8ff, 3934px 604px #f7fbff;
+    animation: drift-mid 115s linear infinite, twinkle 6.5s ease-in-out infinite;
+}
+
+.starfield::after {
+    width: 3px;
+    height: 3px;
+    opacity: 0.78;
+    box-shadow:
+        72px 300px #9dd0ff, 236px 104px #b5dcff, 402px 624px #a3d4ff, 590px 820px #bde1ff, 780px 222px #9dd0ff,
+        968px 516px #b5dcff, 1154px 918px #a3d4ff, 1338px 338px #bde1ff, 1526px 712px #9dd0ff, 1714px 144px #b5dcff,
+        1906px 548px #a3d4ff, 2090px 950px #bde1ff, 2278px 392px #9dd0ff, 2466px 786px #b5dcff, 2652px 238px #a3d4ff,
+        2838px 642px #bde1ff, 3024px 86px #9dd0ff, 3206px 492px #b5dcff, 3390px 888px #a3d4ff, 3578px 304px #bde1ff,
+        3764px 700px #9dd0ff, 3948px 162px #b5dcff;
+    animation: drift-near 74s linear infinite, twinkle 4.6s ease-in-out infinite;
+}
+
+.tags-universe {
+    position: relative;
+    z-index: 1;
+    min-height: 560px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.planet-tag {
+    --color: #76d5ff;
+    --float-duration: 9s;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    text-decoration: none;
+    color: #f3f9ff;
+    border: 1px solid color-mix(in srgb, var(--color) 55%, rgba(255, 255, 255, 0.18));
+    background:
+        radial-gradient(circle at 28% 24%, color-mix(in srgb, var(--color) 48%, white 52%), color-mix(in srgb, var(--color) 72%, transparent) 36%, color-mix(in srgb, var(--color) 52%, #091325) 72%, #060c1a 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+        inset -10px -14px 18px rgba(2, 5, 14, 0.4),
+        inset 8px 8px 14px rgba(255, 255, 255, 0.09),
+        0 0 18px color-mix(in srgb, var(--color) 44%, transparent),
+        0 10px 28px rgba(4, 8, 20, 0.4);
+    animation: none !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.planet-tag::before {
+    content: "";
+    position: absolute;
+    inset: auto auto -18px -12px;
+    width: 118px;
+    height: 48px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--color) 42%, transparent), transparent 72%);
+    pointer-events: none;
+}
+
+.planet-tag:hover {
+    z-index: 100;
+    border-color: color-mix(in srgb, var(--color) 88%, white 12%);
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--color) 72%, transparent),
+        0 0 28px color-mix(in srgb, var(--color) 60%, transparent),
+        0 0 52px color-mix(in srgb, var(--color) 35%, transparent);
+}
+
+.tag-name {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 10px rgba(8, 14, 31, 0.8);
+}
+
+.tag-count {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--color) 62%, white 38%);
+    text-shadow: 0 0 14px color-mix(in srgb, var(--color) 50%, transparent);
+}
+
+
 @keyframes sky-shift {
     from { transform: translateY(0); }
     50% { transform: translateY(-1.5%); }
@@ -875,6 +1069,61 @@ tbody tr:last-child td {
         transform: scale(1);
         box-shadow: 0 0 0 0 rgba(118, 213, 255, 0);
     }
+}
+
+@keyframes morphing-plasma {
+    0% {
+        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    }
+    33% {
+        border-radius: 58% 42% 36% 64% / 52% 34% 66% 48%;
+    }
+    66% {
+        border-radius: 34% 66% 54% 46% / 62% 45% 55% 38%;
+    }
+    100% {
+        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    }
+}
+
+@keyframes plasma-rotation {
+    from { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.02); }
+    to { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes avatar-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+@keyframes drift-far {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-140px, -1000px, 0); }
+}
+
+@keyframes drift-mid {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-220px, -1300px, 0); }
+}
+
+@keyframes drift-near {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-340px, -1600px, 0); }
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.34; }
+    22% { opacity: 0.78; }
+    47% { opacity: 0.5; }
+    63% { opacity: 0.92; }
+    81% { opacity: 0.41; }
+}
+
+@keyframes orbit-float {
+    0%, 100% { transform: translateY(0); }
+    35% { transform: translateY(-7px); }
+    68% { transform: translateY(5px); }
 }
 
 @media (max-width: 1060px) {
@@ -913,6 +1162,39 @@ tbody tr:last-child td {
     .hero-actions button,
     .pill-link {
         width: 100%;
+    }
+
+    .cosmic-container {
+        min-height: 520px;
+        border-radius: 0;
+    }
+
+    .tags-universe {
+        min-height: 520px;
+    }
+
+    .planet-tag {
+        width: 78px;
+        height: 78px;
+    }
+
+    .tag-name {
+        font-size: 0.68rem;
+    }
+
+    .tag-count {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .tags-universe {
+        min-height: 460px;
+    }
+
+    .planet-tag {
+        width: 72px;
+        height: 72px;
     }
 }
 

@@ -66,10 +66,11 @@
         <div class="layout">
             <aside class="sidebar">
                 <section class="panel reveal">
-                    <div class="profile-photo-wrap">
+                    <div class="plasma-avatar-wrap">
+                        <div class="plasma-field" aria-hidden="true"></div>
                         <img
                             id="profilePhoto"
-                            class="profile-photo"
+                            class="avatar-img"
                             src="self.png"
                             alt="Profile photo of Nguyen Trong Nhan"
                             width="240"
@@ -77,6 +78,7 @@
                             decoding="async"
                         >
                     </div>
+                    
                     <p class="mono" style="text-align:center; color: var(--brand);">HONOR PROGRAM - INFOSEC</p>
                     <p class="panel-text" style="margin-top: 10px; text-align:center;">Click portrait to preview.</p>
                     <div style="text-align:center; margin-top: 8px;">
@@ -110,11 +112,13 @@
                         <li><a href="categories/writeup.html">Writeup <span>02</span></a></li>
                         <li><a href="categories/learning.html">Learning <span>03</span></a></li>
                     </ul>
-                    <ul class="quick-links" style="margin-top: 10px;">
-                        <!-- <li><a href="tags/mpc.html">MPC</a></li>
-                        <li><a href="tags/zkp.html">ZKP</a></li>
-                        <li><a href="tags/ecc.html">ECC</a></li> -->
-                    </ul>
+                    <!-- <ul class="quick-links" style="margin-top: 10px;">
+                        <li><a href="posts/learning-he-bfv.html">HE-BFV</a></li>
+                        <li><a href="posts/learning-breaking-random.html">Breaking Random</a></li>
+                        <li><a href="posts/learning-symmetric-ciphers.html">Symmetric Ciphers</a></li>
+                        <li><a href="posts/learning-z3-api-python.html">Z3</a></li>
+                        
+                    </ul> -->
                 </section>
             </aside>
 
@@ -289,11 +293,12 @@
                         </article>
                         <article class="card">
                             <h3>Tags</h3>
-                            <div class="tags-inline">
-                                <!-- <a class="tag-chip" href="tags/index.html">All Tags</a>
-                                <a class="tag-chip" href="tags/mpc.html">MPC</a>
-                                <a class="tag-chip" href="tags/zkp.html">ZKP</a>
-                                <a class="tag-chip" href="tags/ecc.html">ECC</a> -->
+                            <div class="tag-group">
+                                <li><a class ="rank-pill" href="posts/learning-he-bfv.html" class="tag">#FHE</a></li>
+                                <li><a class ="rank-pill" href="posts/learning-breaking-random.html" class="tag">#PRNG</a></li>
+                                <li><a class="rank-pill" href="posts/learning-symmetric-ciphers.html" class="tag">#AES</a></li>
+                                <li><a class="rank-pill" href="posts/learning-z3-api-python.html" class="tag">#Z3</a></li>
+                                <li><a class="rank-pill" href="tags/index.html" class="tag-all">View All →</a></li>
                             </div>
                         </article>
                     </div>

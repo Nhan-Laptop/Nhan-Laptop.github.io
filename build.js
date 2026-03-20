@@ -19,9 +19,181 @@ const ROOT = __dirname;
 const PATHS = {
     postsDir: path.join(ROOT, "posts"),
     templateHtml: path.join(ROOT, "templates", "writeup-template.html"),
+    categoryTemplateHtml: path.join(ROOT, "templates", "category-template.html"),
+    categoryWriteupHtml: path.join(ROOT, "categories", "writeup.html"),
     vendorHighlightDir: path.join(ROOT, "assets", "vendor", "highlight"),
     vendorKatexDir: path.join(ROOT, "assets", "vendor", "katex"),
 };
+
+function escapeHtml(text = "") {
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function formatDate(dateLike) {
+    const date = new Date(dateLike);
+    if (Number.isNaN(date.getTime())) {
+        return new Date().toISOString().slice(0, 10);
+    }
+    return date.toISOString().slice(0, 10);
+}
+
+function parseMarkdownMetadata(markdown) {
+    const dateMatch = markdown.match(/^\s*(?:\*\*)?Date:\s*(?:\*\*)?(.+)$/im);
+    const tagsMatch = markdown.match(/^\s*(?:\*\*)?Tags:\s*(?:\*\*)?(.+)$/im);
+    const summaryMatch = markdown.match(/^\s*(?:\*\*)?Summary:\s*(?:\*\*)?(.+)$/im);
+
+    const rawDate = dateMatch ? dateMatch[1].trim() : "";
+    const dateIsoMatch = rawDate.match(/\b(20\d{2}-\d{2}-\d{2})\b/);
+
+    const rawTags = tagsMatch ? tagsMatch[1].trim() : "";
+    const tags = Array.from(new Set(rawTags.match(/#[A-Za-z0-9_-]+/g) || []));
+
+    const summary = summaryMatch ? summaryMatch[1].trim() : "";
+
+    return {
+        date: dateIsoMatch ? dateIsoMatch[1] : "",
+        tags,
+        summary,
+    };
+}
+
+function stripMetadataLines(markdown) {
+    return markdown
+        .replace(/^\s*(?:\*\*)?Date:\s*(?:\*\*)?.*\n?/gim, "")
+        .replace(/^\s*(?:\*\*)?Tags:\s*(?:\*\*)?.*\n?/gim, "")
+        .replace(/^\s*(?:\*\*)?Summary:\s*(?:\*\*)?.*\n?/gim, "")
+        .replace(/\n{3,}/g, "\n\n");
+}
+
+function extractDescription(markdown) {
+    const noCodeBlocks = markdown.replace(/```[\s\S]*?```/g, " ");
+    const noDetails = noCodeBlocks
+        .replace(/<details>[\s\S]*?<\/details>/gi, " ")
+        .replace(/<summary>[\s\S]*?<\/summary>/gi, " ");
+
+    const lines = noDetails.split("\n");
+    const paragraph = [];
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) {
+            if (paragraph.length > 0) break;
+            continue;
+        }
+
+        if (
+            /^#/.test(trimmed) ||
+            /^>/.test(trimmed) ||
+            /^\*\*Tags:/i.test(trimmed) ||
+            /^Tags:/i.test(trimmed) ||
+            /^!\[/.test(trimmed) ||
+            /^\$\$/.test(trimmed) ||
+            /^[-*+]\s+/.test(trimmed) ||
+            /^\d+\.\s+/.test(trimmed) ||
+            /^`/.test(trimmed)
+        ) {
+            continue;
+        }
+
+        paragraph.push(trimmed);
+        if (paragraph.join(" ").length >= 180) break;
+    }
+
+    const description = paragraph.join(" ").replace(/\s+/g, " ").trim();
+    if (!description) return "Writeup with analysis, exploit strategy, and verification steps.";
+
+    return description.length > 220 ? `${description.slice(0, 217)}...` : description;
+}
+
+function extractDate(markdown, fallbackDate) {
+    const metadata = parseMarkdownMetadata(markdown);
+    if (metadata.date) return metadata.date;
+
+    const firstIsoDate = markdown.match(/\b(20\d{2}-\d{2}-\d{2})\b/);
+    if (firstIsoDate) return firstIsoDate[1];
+
+    return fallbackDate;
+}
+
+function extractPostMetadata(markdown, outputFileName, fallbackDate) {
+    const titleMatch = markdown.match(/^#\s+(.*)$/m);
+    const title = titleMatch ? titleMatch[1].trim() : outputFileName.replace(/\.html$/, "");
+    const metadata = parseMarkdownMetadata(markdown);
+    const normalizedDate = metadata.date || extractDate(markdown, fallbackDate);
+
+    return {
+        title,
+        date: normalizedDate,
+        tags: metadata.tags,
+        summary: metadata.summary || "",
+        link: `../posts/${outputFileName}`,
+        sourceFile: outputFileName,
+    };
+}
+
+function renderCategoryPostItem(post) {
+    const tagsHtml = (post.tags || [])
+        .map(tag => `<span class="tag">${escapeHtml(tag)}</span>`)
+        .join(" ");
+
+    return [
+        "                <li class=\"post-item\">",
+        `                    <h3><a href=\"${escapeHtml(post.link)}\">[Writeup] ${escapeHtml(post.title)}</a></h3>`,
+        "                    <div class=\"post-meta\">",
+        `                        <span>${escapeHtml(post.date)}</span>`,
+        "                    </div>",
+        tagsHtml ? `                    <div class=\"post-tags\">${tagsHtml}</div>` : "",
+        "                    <p>",
+        `                        ${escapeHtml(post.summary)}`,
+        "                    </p>",
+        "                </li>",
+    ]
+        .filter(Boolean)
+        .join("\n");
+}
+
+async function generateWriteupCategoryPage(allPosts) {
+    let categoryTemplate;
+    try {
+        categoryTemplate = await fs.readFile(PATHS.categoryTemplateHtml, "utf8");
+    } catch {
+        // Backward-compatible fallback: if category template does not exist yet,
+        // reuse current category page as the layout template.
+        categoryTemplate = await fs.readFile(PATHS.categoryWriteupHtml, "utf8");
+    }
+
+    const writeupPosts = allPosts.filter((post) => /^writeup-/i.test(post.sourceFile || ""));
+
+    const sortedPosts = [...(writeupPosts.length > 0 ? writeupPosts : allPosts)].sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    const postsHtml = sortedPosts.map(renderCategoryPostItem).join("\n");
+
+    const postListBlock = [
+        "            <ul class=\"post-list\">",
+        postsHtml,
+        "            </ul>",
+    ].join("\n");
+
+    let output = categoryTemplate;
+
+    if (output.includes("{{POST_LIST}}")) {
+        output = output.replace(/{{POST_LIST}}/g, postsHtml);
+    } else if (/<ul\s+class=["']post-list["'][^>]*>[\s\S]*?<\/ul>/i.test(output)) {
+        output = output.replace(/<ul\s+class=["']post-list["'][^>]*>[\s\S]*?<\/ul>/i, postListBlock);
+    } else {
+        output = output.replace(/<\/main>/i, `\n${postListBlock}\n    </main>`);
+    }
+
+    await fs.writeFile(PATHS.categoryWriteupHtml, output, "utf8");
+    console.log(`✅ Đã cập nhật trang category: ${path.relative(ROOT, PATHS.categoryWriteupHtml)}`);
+}
 
 function preprocessHackmdMarkdown(input) {
     let text = input.replace(/\r\n/g, "\n");
@@ -225,6 +397,7 @@ async function build() {
 
         const templateHtml = await fs.readFile(PATHS.templateHtml, "utf8");
         await copyVendorAssets();
+        const allPosts = [];
 
         for (const file of mdFiles) {
             const inputPath = path.join(PATHS.postsDir, file);
@@ -232,7 +405,8 @@ async function build() {
             const outputPath = path.join(PATHS.postsDir, outputFileName);
 
             const rawMarkdown = await fs.readFile(inputPath, "utf8");
-            const cleanedMarkdown = preprocessHackmdMarkdown(rawMarkdown);
+            const markdownWithoutMetadata = stripMetadataLines(rawMarkdown);
+            const cleanedMarkdown = preprocessHackmdMarkdown(markdownWithoutMetadata);
 
             const originalWarn = console.warn;
             console.warn = (...args) => {
@@ -251,14 +425,22 @@ async function build() {
             let outputHtml = injectRenderedHtmlIntoTemplate(templateHtml, renderedArticle);
             
             // [MỚI] Gọi hàm đắp MetaData (Title) vào file HTML
-            outputHtml = injectMetadata(outputHtml, rawMarkdown); 
+            outputHtml = injectMetadata(outputHtml, rawMarkdown);
             
             outputHtml = removeClientSideMarkdownScripts(outputHtml);
             outputHtml = injectLocalCssLinks(outputHtml);
 
             await fs.writeFile(outputPath, outputHtml, "utf8");
+
+            const stats = await fs.stat(inputPath);
+            allPosts.push(
+                extractPostMetadata(rawMarkdown, outputFileName, formatDate(stats.mtime))
+            );
+
             console.log(`✅ Đã build xong: ${file} -> ${outputFileName}`);
         }
+
+        await generateWriteupCategoryPage(allPosts);
 
         console.log("\n🎉 Quá trình build hoàn tất 100%! Các bài viết đã sẵn sàng.");
 

@@ -43,7 +43,6 @@
 
         <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
 <h1>Symmetric Ciphers</h1>
-<p><strong>Tags:</strong> #SymmetricCipher #Cryptography #AES #Writeup</p>
 <blockquote>
 <h2>Nhan_laptop</h2>
 </blockquote>
@@ -291,7 +290,6 @@ inv_s_box = (
     <span class="hljs-comment"># Group key words in 4x4 byte matrices.</span>
     <span class="hljs-keyword">return</span> [key_columns[<span class="hljs-number">4</span>*i : <span class="hljs-number">4</span>*(i+<span class="hljs-number">1</span>)] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(key_columns) // <span class="hljs-number">4</span>)]
 
-
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">decrypt</span>(<span class="hljs-params">key, ciphertext</span>):
     round_keys = expand_key(key) <span class="hljs-comment"># Remember to start from the last round key and work backwards through them when decrypting</span>
 
@@ -315,9 +313,7 @@ inv_s_box = (
     plaintext = matrix2bytes(state)
     <span class="hljs-keyword">return</span> plaintext
 
-
 <span class="hljs-built_in">print</span>(decrypt(key, ciphertext))
-
 </code></pre><p><em><strong>LƯU Ý</strong></em>: có thể thấy rõ trong cách cài đặt này, sẽ đôi phần khác với MixColumns mà tôi đã kèm theo link trong hướng dẫn, nhưng hãy cùng nhìn lại về mặt toán học một chút:</p>
 <ul>
 <li>Về mặt nhân ma trận thì như các bạn đã được học thì sẽ như sau:</li>
@@ -412,13 +408,11 @@ s&#x27;_{3,j} &amp;= (3 \cdot s_{0,j}) \oplus (1 \cdot s_{1,j}) \oplus (1 \cdot 
 <li>Đầy đủ encrypt lẫn decrypt.</li>
 </ul>
 <pre><code class="hljs language-python">
-
 <span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
 <span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *
 <span class="hljs-keyword">from</span> sage.<span class="hljs-built_in">all</span> <span class="hljs-keyword">import</span> *
 
 N_ROUNDS = <span class="hljs-number">10</span>
-
 
 x = GF(<span class="hljs-number">2</span>)[<span class="hljs-string">&quot;x&quot;</span>].gen()
 gf2e = GF( <span class="hljs-number">2</span>**<span class="hljs-number">8</span> , name = <span class="hljs-string">&quot;y&quot;</span> , modulus = x**<span class="hljs-number">8</span> + x**<span class="hljs-number">4</span> + x**<span class="hljs-number">3</span> + x + <span class="hljs-number">1</span>  )
@@ -441,7 +435,6 @@ key        = <span class="hljs-string">b&#x27;\xc3,\\\xa6\xb5\x80^\x0c\xdb\x8d\x
 ciphertext = <span class="hljs-string">b&#x27;\xd1O\x14j\xa4+O\xb6\xa1\xc4\x08B)\x8f\x12\xdd&#x27;</span>
 plaintext  = <span class="hljs-string">b&#x27;crypto{MYAES128}&#x27;</span>
 
-
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">add_round_key</span>(<span class="hljs-params">state,key</span>):
     
     state  = state + key 
@@ -454,7 +447,6 @@ plaintext  = <span class="hljs-string">b&#x27;crypto{MYAES128}&#x27;</span>
     
     <span class="hljs-keyword">return</span> s 
     
-
 
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">shift_rows</span>(<span class="hljs-params">s</span>):
 
@@ -526,7 +518,6 @@ inv_s_box = (
     s  =s * mix_matrix.T
     <span class="hljs-keyword">return</span> s
 
-
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">inv_mix_columns</span>(<span class="hljs-params">s</span>):
     int_array =  [
         [<span class="hljs-number">14</span>, <span class="hljs-number">11</span>, <span class="hljs-number">13</span>, <span class="hljs-number">9</span> ],
@@ -555,7 +546,6 @@ inv_s_box = (
             s[i][j] = s_box[s[i][j]]
     s = to_ma_gf2e(s)
     <span class="hljs-keyword">return</span> s
-
 
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">expand_key</span>(<span class="hljs-params">master_key</span>):
     <span class="hljs-string">&quot;&quot;&quot;
@@ -606,7 +596,6 @@ round_keys = expand_key(key)
 
 round_keys = [to_ma_gf2e(round_keys[i]) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">11</span>)]
 
-
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">decrypt</span>(<span class="hljs-params">key, ciphertext</span>):
     
     state = bytes2matrix(ciphertext)
@@ -630,7 +619,6 @@ round_keys = [to_ma_gf2e(round_keys[i]) <span class="hljs-keyword">for</span> i 
         <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">4</span>):
             tmp = tmp + <span class="hljs-built_in">bytes</span>([plaintext[i][j]])
     <span class="hljs-keyword">return</span> tmp 
-
 
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">encrypt</span>(<span class="hljs-params">key, plaintext</span>):
     
@@ -658,9 +646,6 @@ round_keys = [to_ma_gf2e(round_keys[i]) <span class="hljs-keyword">for</span> i 
 ciphertext = encrypt(key,plaintext)
 <span class="hljs-built_in">print</span>(ciphertext)
 <span class="hljs-built_in">print</span>(decrypt(key, ciphertext))
-
-
-
 </code></pre><h2>Cipher chemes in AES</h2>
 <p><img src="https://hackmd.io/_uploads/H1sF-IhtJe.png" alt="image">
 <em>Hình: Tổng quan các mode trong AES.</em></p>

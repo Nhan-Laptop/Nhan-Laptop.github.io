@@ -25,9 +25,7 @@ Ta sẽ trực quan dễ hiểu trên không gian 3D thay vì 4D khó hiểu.
 Trong không gian 3D - (x,y,z), phương trình mặt phẳng đi qua gốc gọa độ là:
 
 $$
-\begin{aligned}
-a \cdot x + b \cdot y + c \cdot z = 0
-\end{aligned}
+a\cdot x + b\cdot y + c\cdot z = 0
 $$
 
 -> vector $\vec{L}= (a,b,c)$ là vector pháp tuyến của mặt, vuông góc với mặt phẳng.

@@ -636,7 +636,6 @@ Nhưng đổi lại ta có được vài trạng thái <code>LSB = 0</code>:</p>
                         output[index]   = (output[index] * <span class="hljs-number">2</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
                         fre[index]=<span class="hljs-number">1</span>
 
-
                     <span class="hljs-keyword">if</span> fre[index-<span class="hljs-number">3</span>]  ==<span class="hljs-number">0</span> :
                         output[index-<span class="hljs-number">3</span>] = (output[index - <span class="hljs-number">3</span>]* <span class="hljs-number">2</span> + <span class="hljs-number">1</span>) %<span class="hljs-number">2</span>**<span class="hljs-number">32</span>
                         fre[index-<span class="hljs-number">3</span>] = <span class="hljs-number">1</span>
@@ -656,7 +655,6 @@ Nhưng đổi lại ta có được vài trạng thái <code>LSB = 0</code>:</p>
                     <span class="hljs-keyword">if</span> fre[index]==<span class="hljs-number">0</span>:
                         output[index]   = (output[index] * <span class="hljs-number">2</span>) % <span class="hljs-number">2</span>**<span class="hljs-number">32</span>
                         fre[index]=<span class="hljs-number">1</span>
-
 
                     <span class="hljs-keyword">if</span> fre[index-<span class="hljs-number">3</span>]  ==<span class="hljs-number">0</span> :
                         output[index-<span class="hljs-number">3</span>] = (output[index - <span class="hljs-number">3</span>]* <span class="hljs-number">2</span> + <span class="hljs-number">1</span>) %<span class="hljs-number">2</span>**<span class="hljs-number">32</span>
@@ -693,7 +691,6 @@ Nhưng đổi lại ta có được vài trạng thái <code>LSB = 0</code>:</p>
                     <span class="hljs-keyword">assert</span> output[index-<span class="hljs-number">31</span>] == tmp[index-<span class="hljs-number">31</span>]
 
     index -= <span class="hljs-number">1</span>
-
 
 check = <span class="hljs-number">1</span>
 <span class="hljs-keyword">while</span> check:

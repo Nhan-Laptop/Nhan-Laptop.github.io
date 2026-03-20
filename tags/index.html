@@ -28,15 +28,142 @@
             <p class="lead">Tag pages duoc tach rieng de filter bai viet de dang hon.</p>
         </section>
 
-        <section class="panel reveal section">
-            <div class="tags-inline">
-                <!-- <a class="tag-chip" href="mpc.html">MPC</a>
-                <a class="tag-chip" href="zkp.html">ZKP</a>
-                <a class="tag-chip" href="ecc.html">ECC</a> -->
+        <section class="cosmic-container reveal is-visible">
+            <div class="starfield"></div>
+            <div class="tags-universe">
+                <a class="planet-tag" style="--color:#76d5ff; --float-duration:7.2s;" href="../posts/learning-symmetric-ciphers.html">
+                    <span class="tag-name">#AES</span>
+                    <span class="tag-count">1</span>
+                </a>
+               
+                <a class="planet-tag" style="--color:#88f5d2; --float-duration:9.6s;" href="../posts/learning-z3-api-python.html">
+                    <span class="tag-name">#Z3</span>
+                    <span class="tag-count">1</span>
+                </a>
+                <a class="planet-tag" style="--color:#9cb8ff; --float-duration:11.7s;" href="../posts/learning-he-bfv.html">
+                    <span class="tag-name">#FHE</span>
+                    <span class="tag-count">1</span>
+                </a>
+                <a class="planet-tag" style="--color:#ff9bd3; --float-duration:6.4s;" href="../posts/learning-breaking-random.html">
+                    <span class="tag-name">#PRNG</span>
+                    <span class="tag-count">1</span>
+                </a>
+                
+                
             </div>
         </section>
     </main>
 
     <script src="../assets/js/common.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const arena = document.querySelector('.tags-universe');
+            const tags = Array.from(document.querySelectorAll('.planet-tag'));
+            const DAMPING = 0.999;
+            const MIN_SPEED = 0.18;
+            const MAX_SPEED = 1.8;
+            const RESTITUTION = 0.98;
+
+            let planets = tags.map(tag => {
+                const rect = tag.getBoundingClientRect();
+                const radius = rect.width / 2;
+                return {
+                    el: tag,
+                    x: Math.random() * arena.clientWidth,
+                    y: Math.random() * arena.clientHeight,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    radius,
+                    isHovered: false
+                };
+            });
+
+            planets.forEach(p => {
+                p.el.addEventListener('mouseenter', () => {
+                    p.isHovered = true;
+                    p.el.style.transform = `scale(1.15)`;
+                });
+                p.el.addEventListener('mouseleave', () => {
+                    p.isHovered = false;
+                    p.el.style.transform = `scale(1)`;
+                });
+            });
+
+            function animate() {
+                const arenaWidth = arena.clientWidth;
+                const arenaHeight = arena.clientHeight;
+
+                planets.forEach(p => {
+                    if (p.isHovered) return;
+
+                    p.vx *= DAMPING;
+                    p.vy *= DAMPING;
+                    if (Math.abs(p.vx) < MIN_SPEED) p.vx = MIN_SPEED * Math.sign(p.vx || (Math.random() - 0.5));
+                    if (Math.abs(p.vy) < MIN_SPEED) p.vy = MIN_SPEED * Math.sign(p.vy || (Math.random() - 0.5));
+                    p.vx = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, p.vx));
+                    p.vy = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, p.vy));
+
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Infinite wrap-around (toroidal space)
+                    if (p.x > arenaWidth + p.radius) p.x = -p.radius;
+                    if (p.x < -p.radius) p.x = arenaWidth + p.radius;
+                    if (p.y > arenaHeight + p.radius) p.y = -p.radius;
+                    if (p.y < -p.radius) p.y = arenaHeight + p.radius;
+                });
+
+                for (let i = 0; i < planets.length; i++) {
+                    for (let j = i + 1; j < planets.length; j++) {
+                        let p1 = planets[i];
+                        let p2 = planets[j];
+
+                        if (p1.isHovered || p2.isHovered) continue;
+
+                        let dx = p2.x - p1.x;
+                        let dy = p2.y - p1.y;
+                        if (Math.abs(dx) > arenaWidth / 2) dx -= Math.sign(dx) * arenaWidth;
+                        if (Math.abs(dy) > arenaHeight / 2) dy -= Math.sign(dy) * arenaHeight;
+                        const distance = Math.sqrt(dx * dx + dy * dy) || 0.0001;
+                        const minDistance = p1.radius + p2.radius;
+
+                        if (distance < minDistance) {
+                            const nx = dx / distance;
+                            const ny = dy / distance;
+
+                            // Push apart to prevent overlap sticking
+                            const overlap = minDistance - distance;
+                            p1.x -= nx * (overlap * 0.5);
+                            p1.y -= ny * (overlap * 0.5);
+                            p2.x += nx * (overlap * 0.5);
+                            p2.y += ny * (overlap * 0.5);
+
+                            // Elastic collision along normal
+                            const rvx = p2.vx - p1.vx;
+                            const rvy = p2.vy - p1.vy;
+                            const velAlongNormal = rvx * nx + rvy * ny;
+
+                            if (velAlongNormal < 0) {
+                                const impulse = -((1 + RESTITUTION) * velAlongNormal) / 2;
+                                p1.vx -= impulse * nx;
+                                p1.vy -= impulse * ny;
+                                p2.vx += impulse * nx;
+                                p2.vy += impulse * ny;
+                            }
+                        }
+                    }
+                }
+
+                planets.forEach(p => {
+                    p.el.style.left = (p.x - p.radius) + 'px';
+                    p.el.style.top = (p.y - p.radius) + 'px';
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        });
+    </script>
 </body>
 </html>

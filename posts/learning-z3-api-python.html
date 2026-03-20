@@ -516,7 +516,6 @@ FLAG = <span class="hljs-string">b&quot;crypto{?????????????????????????????????
         <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">16</span> * <span class="hljs-built_in">len</span>(FLAG)):
             <span class="hljs-variable language_">self</span>._clock()
 
-
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">_clock</span>(<span class="hljs-params">self</span>):
         b = <span class="hljs-variable language_">self</span>._s[<span class="hljs-number">0</span>]
         c = <span class="hljs-number">0</span>
@@ -551,7 +550,6 @@ taps = [<span class="hljs-number">16</span>, <span class="hljs-number">15</span>
 
     _s = _s[<span class="hljs-number">1</span>:] + [c]
     <span class="hljs-keyword">return</span> b, _s
-
 
 fi = [BitVec(<span class="hljs-string">f&quot;x_<span class="hljs-subst">{i}</span>&quot;</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">384</span>)]
 s = Solver()
