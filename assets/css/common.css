@@ -1131,20 +1131,64 @@ tbody tr:last-child td {
         width: min(1180px, calc(100% - 16px));
     }
 
+    .article-wrap {
+        width: min(920px, calc(100% - 16px));
+    }
+
     .hero,
     .panel {
-        padding: 18px;
+        padding: 16px;
         border-radius: 20px;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    .hero h1 {
+        font-size: clamp(1.75rem, 9vw, 2.5rem);
+        line-height: 1.02;
+    }
+
+    .hero .lead {
+        margin-top: 10px;
+        font-size: 0.96rem;
+        line-height: 1.6;
     }
 
     .main-nav {
         display: none;
     }
 
-    .hero-actions a,
-    .hero-actions button,
-    .pill-link {
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .hero-actions .action-btn {
         width: 100%;
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+
+    .hero-actions .secondary-btn,
+    .hero-actions .pill-link {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 0;
+        font-size: 0.85rem;
+        padding: 9px 10px;
+    }
+
+    .plasma-avatar-wrap {
+        width: min(170px, 60vw);
+        height: min(170px, 60vw);
+        margin-inline: auto;
+    }
+
+    .avatar-img {
+        width: calc(min(170px, 60vw) - 28px);
+        height: calc(min(170px, 60vw) - 28px);
     }
 
     .cosmic-container {
@@ -1154,6 +1198,8 @@ tbody tr:last-child td {
 
     .tags-universe {
         min-height: 520px;
+        overflow: hidden;
+        justify-content: center;
     }
 
     .planet-tag {
@@ -1171,8 +1217,34 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 520px) {
+    .hero,
+    .panel,
+    .card {
+        padding: 14px;
+    }
+
+    .hero h1 {
+        font-size: clamp(1.55rem, 10vw, 2rem);
+    }
+
+    .hero-actions .secondary-btn,
+    .hero-actions .pill-link {
+        flex: 1 1 100%;
+    }
+
+    .plasma-avatar-wrap {
+        width: min(150px, 58vw);
+        height: min(150px, 58vw);
+    }
+
+    .avatar-img {
+        width: calc(min(150px, 58vw) - 24px);
+        height: calc(min(150px, 58vw) - 24px);
+    }
+
     .tags-universe {
         min-height: 460px;
+        overflow: hidden;
     }
 
     .planet-tag {
