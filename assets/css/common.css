@@ -1,23 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap");
 
-
-
-@keyframes spin270 {
-    from {
-        transform: rotate(270deg);
-    }
-    to {
-        transform: rotate(630deg); /* 270 + 360 */
-    }
-}
-
-#profilePhoto {
-    transform: rotate(270deg);
-}
-
-#profilePhoto:hover {
-    animation: spin270 1s linear infinite;
-}
 :root {
     --bg: #050915;
     --bg-deep: #02040d;
@@ -389,6 +371,7 @@ img {
     border: 2px solid rgba(220, 246, 255, 0.78);
     background: linear-gradient(180deg, #0d1726, #0a111b);
     box-shadow: 0 14px 26px rgba(1, 8, 17, 0.5), 0 0 20px rgba(118, 213, 255, 0.25);
+    transform: rotate(270deg);
     animation: avatar-float 6.4s ease-in-out infinite;
 }
 
@@ -1093,8 +1076,8 @@ tbody tr:last-child td {
 }
 
 @keyframes avatar-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+    0%, 100% { transform: rotate(270deg) translateY(0); }
+    50% { transform: rotate(270deg) translateY(-5px); }
 }
 
 @keyframes drift-far {
