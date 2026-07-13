@@ -198,12 +198,6 @@ time: 3.4585907459259033 seconds
 <p>This forges future <code>NextWeakBase64()</code> values without needing any further interaction with the target RNG.</p>
 </li>
 </ol>
-<h2>P/S</h2>
-<ul>
-<li>The original notebook correctly identified the core relation (Z_t = 45x_t + k_t \pmod{2^{32}}), but the carry for the multiplication-by-5 step must be (\left\lfloor 5\ell_t / 2^{25} \right\rfloor), not division by (2^{32}).</li>
-<li>The slice used by <code>shift_25</code> is best written as ([25,57)), or bits (25) through (56) inclusive. Writing <code>A[25:57]</code> is fine only if that notation is explicitly understood as half-open.</li>
-<li>The transition matrix argument applies to the xoshiro state update only. The output mixer <code>result = (rol64((s1 * 5) &amp; mask_64, 7) * 9) &amp; mask_64</code> is nonlinear over (GF(2)), which is why the solve first peels it back into the slice candidates handled by <code>cal_x</code>.</li>
-</ul>
 
 </article>
     </main>

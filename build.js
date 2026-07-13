@@ -379,7 +379,25 @@ function injectRenderedHtmlIntoTemplate(templateHtml, articleHtml) {
 }
 
 // [MỚI] Hàm lấy tiêu đề từ Markdown và đắp vào HTML Template
-function injectMetadata(html, markdown, fallbackDate) {
+function inferPostCategory(fileName = "") {
+    const lower = String(fileName).toLowerCase();
+
+    if (lower.startsWith("writeup-")) {
+        return { label: "Writeup", href: "../categories/writeup.html" };
+    }
+
+    if (lower.startsWith("learning-")) {
+        return { label: "Learning", href: "../categories/learning.html" };
+    }
+
+    if (lower.startsWith("daily-") || lower.startsWith("life-")) {
+        return { label: "Life", href: "../categories/life.html" };
+    }
+
+    return { label: "Template", href: "writeup-template.html" };
+}
+
+function injectMetadata(html, markdown, fallbackDate, outputFileName = "") {
     // Tìm dòng H1 đầu tiên trong Markdown (VD: "# N1CTF 2025")
     const titleMatch = markdown.match(/^#\s+(.*)$/m);
     const title = titleMatch ? titleMatch[1].trim() : "Untitled Writeup";
@@ -396,13 +414,14 @@ function injectMetadata(html, markdown, fallbackDate) {
     }
 
     const date = metadata.date || fallbackDate;
+    const category = inferPostCategory(outputFileName);
     const tagsHtml = metadata.tags
         .map((tag) => `<a href="../tags/index.html">${escapeHtml(tag)}</a>`)
         .join("\n                ");
     const postMetaHtml = [
         '<div class="post-meta" style="margin-top: 10px;">',
         `                <span>${escapeHtml(date)}</span>`,
-        '                <a href="../categories/writeup.html">Writeup</a>',
+        `                <a href="${escapeHtml(category.href)}">${escapeHtml(category.label)}</a>`,
         tagsHtml ? `                ${tagsHtml}` : "",
         "            </div>",
     ]
@@ -416,7 +435,7 @@ function injectMetadata(html, markdown, fallbackDate) {
     newHtml = newHtml.replace(/<span>Template<\/span>/i, () => `<span>${escapeHtml(title)}</span>`);
     newHtml = newHtml.replace(
         '<a class="is-active" href="writeup-template.html">Template</a>',
-        '<a class="is-active" href="../categories/writeup.html">Writeup</a>'
+        `<a class="is-active" href="${escapeHtml(category.href)}">${escapeHtml(category.label)}</a>`
     );
 
     if (metadata.summary) {
@@ -519,7 +538,7 @@ async function build() {
             let outputHtml = injectRenderedHtmlIntoTemplate(templateHtml, renderedArticle);
             
             // [MỚI] Gọi hàm đắp MetaData (Title) vào file HTML
-            outputHtml = injectMetadata(outputHtml, rawMarkdown, fallbackDate);
+            outputHtml = injectMetadata(outputHtml, rawMarkdown, fallbackDate, outputFileName);
             
             outputHtml = removeClientSideMarkdownScripts(outputHtml);
             outputHtml = injectLocalCssLinks(outputHtml);

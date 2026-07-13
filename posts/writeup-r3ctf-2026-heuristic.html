@@ -163,8 +163,6 @@ io.sendlineafter(<span class="hljs-string">b&quot;&gt; &quot;</span>, <span clas
 io.sendlineafter(<span class="hljs-string">b&quot;delta&gt; &quot;</span>, <span class="hljs-built_in">str</span>(delta).encode())
 <span class="hljs-built_in">print</span>(io.recvline().decode().strip())
 </code></pre><p>The submitted value equals the server&#39;s hidden Δ, so option <code>3</code> returns the flag.</p>
-<h2>P/S</h2>
-<p>The notebook was useful for identifying the noisy congruence system and scripting both oracles, but its HNP path also contained provisional range assumptions that do not match the server. The final exploit uses the server code for the exact ranges and turns chosen-plaintext control into a deterministic recurrence attack.</p>
 
 </article>
     </main>

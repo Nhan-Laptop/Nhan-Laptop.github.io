@@ -237,6 +237,3 @@ print(io.recvline().decode().strip())
 
 The submitted value equals the server's hidden Δ, so option `3` returns the flag.
 
-## P/S
-
-The notebook was useful for identifying the noisy congruence system and scripting both oracles, but its HNP path also contained provisional range assumptions that do not match the server. The final exploit uses the server code for the exact ranges and turns chosen-plaintext control into a deterministic recurrence attack.

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mTLS - Mutual Transport Layer Security - Nhan's Security Log</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
+    <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="../index.html">Nhan's Security Log</a>
+            <nav class="main-nav">
+                <a href="../index.html">Home</a>
+                <a href="../categories/index.html">Categories</a>
+                <a href="../tags/index.html">Tags</a>
+                <a class="is-active" href="../categories/learning.html">Learning</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="article-wrap">
+        <section class="hero article-hero reveal is-visible">
+            <div class="breadcrumb">
+                <a href="../index.html">Home</a>
+                <span>/</span>
+                <span>mTLS - Mutual Transport Layer Security</span>
+            </div>
+            <h1>mTLS - Mutual Transport Layer Security</h1>
+            <div class="post-meta" style="margin-top: 10px;">
+                <span>2026-07-13</span>
+                <a href="../categories/learning.html">Learning</a>
+                <a href="../tags/index.html">#mtls</a>
+                <a href="../tags/index.html">#tls</a>
+                <a href="../tags/index.html">#pki</a>
+                <a href="../tags/index.html">#x509</a>
+            </div>
+            <p class="lead">A practical overview of mTLS, PKI components, X.509 certificates, and how mutual authentication is deployed in real systems.</p>
+        </section>
+
+        <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
+<h1>mTLS - Mutual Transport Layer Security</h1>
+<blockquote>
+<h2>Nguyen Trong Nhan - 24521236 |</h2>
+</blockquote>
+<blockquote>
+<p>Toàn bộ thư mục ở: <a href="https://github.com/Nhan-Laptop/mTLS---Mutual-Transport-Layer-Security">https://github.com/Nhan-Laptop/mTLS---Mutual-Transport-Layer-Security</a></p>
+</blockquote>
+<h2>Overview and Motivation</h2>
+<p>Để đáp ứng như cầu chuyển đổi số ngày càng phát triển, nhiều giao thức bảo mật an toàn đã được ra đời, và theo đó là sự ra đời của <strong>TLS</strong> - <strong>mTLS</strong>.</p>
+<p>Tổng quan về giao thức bảo mật mở rộng <strong>mTLS</strong>, yêu cầu máy khách và máy chủ luôn phải trao đổi - xác thực lẫn nhau. Các khái niệm và môn phỏng xuyên suốt quá trình trao đổi chứng thư - xác thực giữa 2 bên - &quot;client &amp; server&quot;: </p>
+<ol>
+<li>mTLS (Mutual Transport Layer Security).</li>
+<li>CA (Certificate Authority).</li>
+<li>Certificate.</li>
+<li>RA (Registration Authority).</li>
+<li>CSR (Certificate Signing Request).</li>
+<li>Mối liên hệ giữa mTLS – CA – RA – CSR</li>
+<li>Triển khai Hệ thống mTLS Đa Thuật toán (ECDSA &amp; ML-DSA) và Hạ tầng PKI Kháng Lượng tử trên nền tảng OpenSSL</li>
+</ol>
+<hr>
+<h2>1. mTLS (Mutual Transport Layer Security)</h2>
+<h3>1.1 Khái niệm</h3>
+<p>mTLS là mở rộng của TLS, trong đó cả client và server đều xác thực lẫn nhau bằng chứng thư số X.509, không chỉ server chứng minh danh tính với client (như HTTPs thông thường), mà client cũng phải trình chứng thư hợp lệ. </p>
+<h3>1.2 Cơ chế hoạt động</h3>
+<ol>
+<li>Client khởi tạo kết nối TLS.</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/BJG0_yYQbx.png" alt="image"></p>
+<ol start="2">
+<li>Server gửi chứng thư số của mình. </li>
+<li>Client kiểm tra chứng thư của server (Chuỗi CA, thời hạn, etc...).</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/rkbyFJtQWg.png" alt="image"></p>
+<ol start="4">
+<li>Server yêu cầu client gửi chứng thư số.</li>
+<li>Client gửi chứng thư + chứng minh sở hữu private key (ký handshake). </li>
+<li>Server xác thực chứng thư của client.</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/HkGxYkFQZg.png" alt="image"></p>
+<ol start="7">
+<li>Hai bên thiết lập mã hóa an toàn.</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/HkjlKyK7Ze.png" alt="image"></p>
+<hr>
+<h2>2. CA (Certificate Authority)</h2>
+<h3>2.1 Khái niệm</h3>
+<p><strong>CA</strong> là tổ chức/tổ hợp kỹ thuật chịu trách nhiệm phát hành, ký, gia hạn và thu hồi chứng thư số, CA là root of trust trong hạ tầng PKI </p>
+<p><img src="https://hackmd.io/_uploads/B1f25JYXWe.png" alt="image"></p>
+<h3>2.2 Phân cấp CA</h3>
+<ul>
+<li><strong>Root CA</strong>: tin cậy tuyệt đối, khóa riêng được bảo vệ nghiêm ngặt (Offline).</li>
+<li><strong>Intermediate/Sub CA</strong>: phát hành chứng thư cho người dùng, dịch vụ.</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/BkEC51Km-e.png" alt="image"></p>
+<h3>2.3 Chức năng chính</h3>
+<ul>
+<li>Ký chứng thư số X.509.</li>
+<li>Phát hành CRL (Certificate Revocation List). </li>
+<li>Hỗ trợ OCSP responder. </li>
+<li>Quản lý chính sách chứng thư (CP/CPS).</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/HJy1iJFX-l.png" alt="image"></p>
+<hr>
+<h2>3. Certificate</h2>
+<h3>3.1 Khái niệm về Certificate</h3>
+<p>Certificate (chứng thư số) là một cấu trúc dữ liệu điện tử theo chuẩn X.509, do CA phát hành, nhằm xạc nhận rằng: </p>
+<ul>
+<li>Một public key cụ thể thuộc một chủ thật đã được xác thực danh tính.</li>
+</ul>
+<p>Certificate đóng vai trò như &quot;CMND/CCCD điện tử&quot; trong một số môi trường ảo.</p>
+<h3>3.2 Cấu trúc Certificate X.509</h3>
+<p>Một cert X.509 bao gồm 3 phần chính: </p>
+<h4>1. Thông tin định danh (TBSCertificate)</h4>
+<ul>
+<li>Version: phiên bản X.509 (v3 phổ biến nhất).</li>
+<li>Serial Number: Số seri duy nhất do CA cấp.</li>
+<li>Signature Algorithm: Thuật toán ký của CA (ECDSA, EdDSA,...).</li>
+<li>Issuer: Danh tính CA phát hành.</li>
+<li>Validity: Thời hạn hiệu lực (Not Before/Not After).</li>
+<li>Subject: Danh tính chủ thể sở hữu certificate.</li>
+<li>Subject Public Key Info: public key + thuật toán.</li>
+</ul>
+<h4>2. Extensions (X.509 v3)</h4>
+<p>Một số extensions quan trọng: </p>
+<ul>
+<li>Key Usage: Chỉ ra mục đích sử dụng (Digital Signature, Key Encipherment,...).</li>
+<li>Extended Key Usage (EKU): TLS client auth, server auth, code signing....</li>
+<li>Basic Constraints: CA = TRUE/FALSE.</li>
+<li>CRL Distribution Points: URL tải CRL.</li>
+<li>Authority Information Access (AIA): OCSP URL.</li>
+<li>Subject Alternative Name (SAN): DNS, IP, email...</li>
+</ul>
+<h4>3. Chữ ký số CA</h4>
+<p>Toàn bộ TBSCertificate được CA ký bằng private key của CA, tạo thành chữ ký số xác thực certificate.</p>
+<h3>3.3. Phân loại Certificate</h3>
+<p><img src="https://hackmd.io/_uploads/HJWvt4t7Zl.png" alt="image"></p>
+<h3>3.4. Vòng đời của Certificate</h3>
+<p><img src="https://hackmd.io/_uploads/r1qm5EFXWg.png" alt="image"></p>
+<h3>3.5 Vai trò của Certificate trong mTLS</h3>
+<p>Trong Mutual TLS, certificate được dùng để:</p>
+<ul>
+<li><p>Server chứng minh danh tính với client.</p>
+</li>
+<li><p>Client chứng minh danh tính với server.</p>
+</li>
+<li><p>Thiết lập khóa phiên an toàn.</p>
+</li>
+</ul>
+<p>=&gt; Certificate là nền tảng của xác thực hai chiều.</p>
+<hr>
+<h2>4. RA (Registration Authority)</h2>
+<h3>4.1 Khái niệm</h3>
+<p><strong>RA</strong> là đơn vị trung gian giữa người đăng ký và CA, chịu trách nhiệm xác thực danh tính trước khi CA cấp chứng thư. </p>
+<p><img src="https://hackmd.io/_uploads/H1mOnkFQZl.png" alt="image"></p>
+<h3>4.2 Nhiệm vụ chính</h3>
+<ul>
+<li>Tiếp nhận hồ sơ đăng ký chứng thư. </li>
+<li>Xác minh danh tính (KYC, eID, CCCD, sinh trắc học).</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/SJ6uhkFQbg.png" alt="image">		</p>
+<ul>
+<li>Phê duyệt hoặc từ chối yêu cầu cấp chứng thư. </li>
+<li>Ghi log, audit và tuân thủ quy trình phấp lý.</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/B1j5hkYmWl.png" alt="image"></p>
+<hr>
+<h2>5. CSR (Certificate Signing Request)</h2>
+<h3>5.1 Khái niệm</h3>
+<p><strong>CSR</strong> là một gói dữ liệu do chủ thể (Client/server) tạo, gửi tới CA để xin cấp chứng thư số. </p>
+<p><img src="https://hackmd.io/_uploads/B194pyFQWg.png" alt="image"></p>
+<h3>5.2 Nội dung CSR</h3>
+<p>Một CSR thường chứa: </p>
+<ul>
+<li>Public key.</li>
+<li>Subject DN (CN, O, OU, C,...).</li>
+<li>Extensions (Key Usage, EKU).</li>
+<li>Chữ ký số bằng private-key tương ứng.</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/ByxOTkKQWe.png" alt="image"></p>
+<h3>5.3 Quy trình CSR</h3>
+<ol>
+<li>Chủ thể sinh cặp khóa (private/public).</li>
+<li>Tạo CSR và ký bằng private key.</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/rJGqp1K7Ze.png" alt="image"></p>
+<ol start="3">
+<li>Gửi CSR đến RA. </li>
+<li>RA xác thực thông tin.</li>
+<li>CA ký và phát hành certificate.</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/B1u3p1tQWg.png" alt="image"></p>
+<h3>5.4 Ý nghĩa bảo mật</h3>
+<ul>
+<li>Private key không bao giờ rời khỏi thiết bị.</li>
+<li>CA chỉ xác nhận publickey + danh tính.</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/B1VgA1F7-e.png" alt="image"></p>
+<hr>
+<h2>6. Mối liên hệ giữa mTLS – CA – RA – CSR</h2>
+<p>Tạo thành chuỗi tin cậy: </p>
+<ol>
+<li>Client/Server tạo <strong>CSR</strong>. </li>
+<li><strong>RA</strong> xác thực danh tính.</li>
+<li><strong>CA</strong> ký và phát hành chứng thư.</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/SJ5c1etXWe.png" alt="image"></p>
+<p>Chứng thư được dùng trong <strong>mTLS</strong>, ký số, OCSP, TSA: </p>
+<p><img src="https://hackmd.io/_uploads/SyHAkgYmWe.png" alt="image"></p>
+<p>Nếu RA sai → CA ký sai:</p>
+<p><img src="https://hackmd.io/_uploads/BJlxexK7Wg.png" alt="image"></p>
+<p>=&gt; mTLS &amp; chữ ký số mất giá trị pháp lý:</p>
+<p><img src="https://hackmd.io/_uploads/B1ZbgeKQWg.png" alt="image"></p>
+<hr>
+<h2>7. Triển khai Hệ thống mTLS Đa Thuật toán (ECDSA &amp; ML-DSA) và Hạ tầng PKI Kháng Lượng tử trên nền tảng OpenSSL</h2>
+<h3>7.1 kiến thức nền</h3>
+<p>ECDSA (Elliptic Curve Digital Signature Algorithm): </p>
+<ul>
+<li><strong>Cơ chế</strong>: Dựa trên đường cong Elliptic trên trường hữu hạn.</li>
+<li><strong>Tham số</strong>: prime256v1 (NIST P-256).</li>
+<li><strong>Lý thuyết</strong>: <a href="https://en.wikipedia.org/wiki/Elliptic-curve_cryptography">https://en.wikipedia.org/wiki/Elliptic-curve_cryptography</a></li>
+</ul>
+<p>ML-DSA (Module-Lattice Digital Signature Algorithm): </p>
+<ul>
+<li><p><strong>Khái niệm</strong>:  Là một lược đồ chữ ký dựa trên lưới (lattice-based), cụ thể là bài toán Module Learning With Errors (ML-WE) và Module Short Integer Solution (M-SIS).</p>
+</li>
+<li><p><strong>Cơ chế</strong>: Độ khó dựa trên việc tìm vectơ ngắn nhất trong một lưới đa chiều, một bài toán được cho là khó ngay cả với máy tính lượng tử.</p>
+</li>
+<li><p>Tham số:</p>
+<ul>
+<li>ML-DSA-44 (Cấp độ 2): Tương đương AES-128.</li>
+<li>ML-DSA-65 (Cấp độ 3): Tương đương AES-192 (Sử dụng cho Cấp phát Dịch vụ).</li>
+<li>ML-DSA-87 (Cấp độ 5): Tương đương AES-256 (Sử dụng cho Root CA).</li>
+</ul>
+</li>
+<li><p><strong>Lý thuyết</strong>:<a href="https://csrc.nist.gov/pubs/fips/204/final">https://csrc.nist.gov/pubs/fips/204/final</a></p>
+</li>
+</ul>
+<h3>7.2 Yêu cầu kĩ thuật</h3>
+<ul>
+<li>Ubuntu 22.04/24.04 LTS hoặc tương đương: <a href="https://ubuntu.com/download/desktop">https://ubuntu.com/download/desktop</a>.</li>
+<li>OpenSSL 3.x: <a href="https://openssl-library.org/news/openssl-3.0-notes/index.html">https://openssl-library.org/news/openssl-3.0-notes/index.html</a>.</li>
+<li>Thư viện liboqs: <a href="https://github.com/open-quantum-safe/liboqs.git">https://github.com/open-quantum-safe/liboqs.git</a>.</li>
+</ul>
+<h3>7.3 Kiến trúc PKI và hệ thống lưu trữ khóa (Key Storage)</h3>
+<p>Mô phỏng hardward Security Module (HSM) mếm và quy trình RA logic -&gt; đáp ứng nhu cầu phân cấp thiết kế nghiêm ngặt. </p>
+<h4>1. Cấu trúc Thư mục phân cấp:</h4>
+<p>Tạo RA (ngoại tuyến) và Intermediate CA (Trực tuyến/cấp phát): </p>
+<pre><code class="hljs language-py">mkdir -p pki/{root-ca,inter-ca,end-users}/{private,certs,csr,crl,newcerts}
+chmod <span class="hljs-number">700</span> pki/*/private
+touch pki/root-ca/index.txt pki/inter-ca/index.txt
+echo <span class="hljs-number">1000</span> &gt; pki/root-ca/serial
+echo <span class="hljs-number">1000</span> &gt; pki/inter-ca/serial
+</code></pre><h4>2. Giải pháp Lưu trữ Khóa (Key Storage Strategy):</h4>
+<p>Tạo giả lập lưu trữ phần cứng (HSM): </p>
+<ul>
+<li><strong>Lưu trữ vật lý (mô phỏng)</strong>: SoftHSMv2 qua giao diện PKCS#11. </li>
+<li>Lưu trữ file mã hóa (Encrypted PEM): Dành cho các khóa CA nếu không dùng SoftHSM, được mã hóa bằng AES-256.</li>
+</ul>
+<pre><code class="hljs language-py">nhanlaptop@DESKTOP-JKAR60A:~/softhsm$ tree
+.
+├── conf
+└── tokens
+    └── 209aa402-<span class="hljs-number">8469</span>-d728-6a36-4b2c37fefd23
+        ├── generation
+        ├── token.lock
+        └── token.<span class="hljs-built_in">object</span>
+
+<span class="hljs-number">2</span> directories, <span class="hljs-number">4</span> files
+</code></pre><h3>7.4 Triển khai Tuyến A: Hệ thống ECDSA (Tiêu chuẩn Hiện tại)</h3>
+<h4>1. Khởi tạo Root CA (ECDSA)</h4>
+<p>Sử dụng đường cong prime256v1 (NIST P-256)</p>
+<ul>
+<li>Tạo Khóa riêng cho Root CA (lưu trữ an toàn, mã hóa AES-256):</li>
+</ul>
+<pre><code class="hljs language-py">openssl ecparam -name prime256v1 -genkey -noout | openssl pkey -aes256 -out pki/root-ca/private/ca-ecdsa.key
+</code></pre><ul>
+<li>Tự ký chứng chỉ Root:</li>
+</ul>
+<pre><code class="hljs language-py">openssl req -new -x509 -days <span class="hljs-number">3650</span> -sha256 \
+    -key pki/root-ca/private/ca-ecdsa.key \
+    -out pki/root-ca/certs/ca-ecdsa.crt \
+    -subj <span class="hljs-string">&quot;/C=VN/ST=HOCHIMINH/O=PQC Research/CN=QuantumSafe Root CA (ECDSA)&quot;</span>
+</code></pre><h4>2. Khởi tạo Intermediate CA (ECDSA)</h4>
+<p>Intermediate CA dùng để ký chứng chỉ dịch vụ, giúp bảo vệ Root CA offline.</p>
+<ul>
+<li>Tạo khóa Intermediate:</li>
+</ul>
+<pre><code class="hljs language-py">openssl ecparam -name prime256v1 -genkey -noout \
+    -out pki/inter-ca/private/inter-ecdsa.key
+</code></pre><ul>
+<li>Tạo yêu cầu ký chứng chỉ (CSR) - RA nhận file này:</li>
+</ul>
+<pre><code class="hljs language-python">openssl req -new -sha256 \
+    -key pki/inter-ca/private/inter-ecdsa.key \
+    -out pki/inter-ca/csr/inter-ecdsa.csr \
+    -subj <span class="hljs-string">&quot;/C=VN/ST=HOCHIMINH/O=PQC Research/CN=QuantumSafe Inter CA (ECDSA)&quot;</span>
+</code></pre><ul>
+<li>Root CA ký cho Intermediate CA:</li>
+</ul>
+<pre><code class="hljs language-python">openssl x509 -req -days <span class="hljs-number">1825</span> -sha256 \
+    -<span class="hljs-keyword">in</span> pki/inter-ca/csr/inter-ecdsa.csr \
+    -CA pki/root-ca/certs/ca-ecdsa.crt \
+    -CAkey pki/root-ca/private/ca-ecdsa.key \
+    -CAcreateserial \
+    -out pki/inter-ca/certs/inter-ecdsa.crt \
+    -extfile &lt;(echo <span class="hljs-string">&quot;basicConstraints=critical,CA:TRUE,pathlen:0&quot;</span>)
+</code></pre><h3>7.5 Triển khai Tuyến B: Hệ thống ML-DSA (Hậu Lượng Tử)</h3>
+<p>Ở đây chúng ta sẽ sử dụng: </p>
+<ul>
+<li>Root CA: ML-DSA-87 độ an toàn cao nhất. </li>
+<li>Intermediate/Service: Sử dụng ML-DSA-65 - tương đương với Dilithium level 3.</li>
+</ul>
+<h4>1. Khởi tạo Root CA (ML-DSA-87)</h4>
+<ul>
+<li>Tạo khóa riêng PQC:</li>
+</ul>
+<pre><code class="hljs language-python">openssl genpkey -algorithm mldsa87 \
+    -out pki/root-ca/private/ca-mldsa.key
+</code></pre><ul>
+<li>Tự ký chứng chỉ Root PQC:</li>
+</ul>
+<pre><code class="hljs language-python">openssl req -new -x509 -days <span class="hljs-number">3650</span> \
+    -key pki/root-ca/private/ca-mldsa.key \
+    -out pki/root-ca/certs/ca-mldsa.crt \
+    -subj <span class="hljs-string">&quot;/C=VN/ST=Hanoi/O=PQC Research/CN=QuantumSafe Root CA (ML-DSA)&quot;</span> \
+    -config /usr/local/ssl/openssl.cnf
+</code></pre><h4>2. Khởi tạo Intermediate CA (ML-DSA-65)</h4>
+<ul>
+<li>Tạo khóa Intermediate (Level 3):</li>
+</ul>
+<pre><code class="hljs language-python">openssl genpkey -algorithm mldsa65 \
+    -out pki/inter-ca/private/inter-mldsa.key
+</code></pre><ul>
+<li>Tạo CSR:</li>
+</ul>
+<pre><code class="hljs language-python">openssl req -new \
+    -key pki/inter-ca/private/inter-mldsa.key \
+    -out pki/inter-ca/csr/inter-mldsa.csr \
+    -subj <span class="hljs-string">&quot;/C=VN/ST=HOCHIMINH/O=PQC Research/CN=QuantumSafe Inter CA (ML-DSA)&quot;</span>
+</code></pre><ul>
+<li>Root CA (ML-DSA-87) ký cho Intermediate (ML-DSA-65):</li>
+</ul>
+<pre><code class="hljs language-py">openssl x509 -req -days <span class="hljs-number">1825</span> \
+    -<span class="hljs-keyword">in</span> pki/inter-ca/csr/inter-mldsa.csr \
+    -CA pki/root-ca/certs/ca-mldsa.crt \
+    -CAkey pki/root-ca/private/ca-mldsa.key \
+    -CAcreateserial \
+    -out pki/inter-ca/certs/inter-mldsa.crt \
+    -extfile &lt;(echo <span class="hljs-string">&quot;basicConstraints=critical,CA:TRUE,pathlen:0&quot;</span>)
+</code></pre><h3>7.6 Quy trình Cấp phát Chứng chỉ Dịch vụ (mTLS)</h3>
+<p>Trong mô hình mTLS, chúng ta có 2 dịch vụ: Service A (Server) và Service B (Client). Cả hai đều cần chứng chỉ định danh.</p>
+<h4>1. Tạo File Cấu hình Extension (RA Policy</h4>
+<p>RA cần áp đặt các ràng buộc sử dụng khóa (Key Usage). Tạo file <code>service_ext.cnf</code>:</p>
+<pre><code class="hljs language-python">basicConstraints = CA:FALSE
+nsCertType = server, client
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS<span class="hljs-number">.1</span> = service-a.internal
+DNS<span class="hljs-number">.2</span> = localhost
+IP<span class="hljs-number">.1</span> = <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>
+</code></pre><h4>2. Cấp phát Chứng chỉ cho Service A (Server) - Hybrid Approach</h4>
+<p>Ta cần cấp 2 chứng chỉ cho Service A: </p>
+<h5>Chứng chỉ ECDSA (Legacy):</h5>
+<ul>
+<li><p>Key &amp; CSR: </p>
+<ul>
+<li>Key: <code>openssl ecparam -name prime256v1 -genkey -out pki/end-users/private/service-a-ecdsa.key</code></li>
+<li>CSR: <code>openssl req -new -key pki/end-users/private/service-a-ecdsa.key -out pki/end-users/csr/service-a-ecdsa.csr -subj &quot;/CN=service-a.internal&quot;</code></li>
+</ul>
+</li>
+<li><p>RA/CA Ký:</p>
+</li>
+</ul>
+<pre><code class="hljs language-python">openssl x509 -req -<span class="hljs-keyword">in</span> pki/end-users/csr/service-a-ecdsa.csr \
+    -CA pki/inter-ca/certs/inter-ecdsa.crt \
+    -CAkey pki/inter-ca/private/inter-ecdsa.key \
+    -CAcreateserial -out pki/end-users/certs/service-a-ecdsa.crt -days <span class="hljs-number">365</span> \
+    -extfile service_ext.cnf
+</code></pre><h5>Chứng chỉ ML-DSA (Post-Quantum):</h5>
+<ul>
+<li><p>Key &amp; CSR:</p>
+<ul>
+<li>Key: <code>openssl genpkey -algorithm mldsa65 -out pki/end-users/private/service-a-mldsa.key</code></li>
+<li>CSR: <code>openssl req -new -key pki/end-users/private/service-a-mldsa.key -out pki/end-users/csr/service-a-mldsa.csr -subj &quot;/CN=service-a.internal&quot;</code></li>
+</ul>
+</li>
+<li><p>RA/CA Ký:</p>
+</li>
+</ul>
+<pre><code class="hljs language-python">openssl x509 -req -<span class="hljs-keyword">in</span> pki/end-users/csr/service-a-mldsa.csr \
+    -CA pki/inter-ca/certs/inter-mldsa.crt \
+    -CAkey pki/inter-ca/private/inter-mldsa.key \
+    -CAcreateserial -out pki/end-users/certs/service-a-mldsa.crt -days <span class="hljs-number">365</span> \
+    -extfile service_ext.cnf
+</code></pre><h4>3. Cấp phát Chứng chỉ cho Service B (Client)</h4>
+<p>Tương tự, Service B nhận một cặp khóa ML-DSA để thực hiện xác thực phía client (Client Authentication).</p>
+<pre><code class="hljs language-python">openssl genpkey -algorithm mldsa65 -out pki/end-users/private/service-b-client.key
+<span class="hljs-comment">#--------------------------------------</span>
+
+openssl req -new -key pki/end-users/private/service-b-client.key \
+    -out pki/end-users/csr/service-b-client.csr -subj <span class="hljs-string">&quot;/CN=service-b-client&quot;</span>
+<span class="hljs-comment">#---------------------------------------</span>
+
+openssl x509 -req -<span class="hljs-keyword">in</span> pki/end-users/csr/service-b-client.csr \
+    -CA pki/inter-ca/certs/inter-mldsa.crt \
+    -CAkey pki/inter-ca/private/inter-mldsa.key \
+    -CAcreateserial -out pki/end-users/certs/service-b-client.crt -days <span class="hljs-number">365</span> \
+    -extfile service_ext.cnf
+</code></pre><h4>4. Đóng gói Khóa (Key Container)</h4>
+<p>Để chuyển giao khóa cho ứng dụng một cách an toàn, cần sử dụng định dạng PKCS#12 (.p12).</p>
+<p>Đóng gói cho Service A (ML-DSA):</p>
+<pre><code class="hljs language-python">openssl pkcs12 -export \
+    -inkey pki/end-users/private/service-a-mldsa.key \
+    -<span class="hljs-keyword">in</span> pki/end-users/certs/service-a-mldsa.crt \
+    -certfile pki/inter-ca/certs/inter-mldsa.crt \
+    -out pki/end-users/service-a-mldsa.p12 \
+    -name <span class="hljs-string">&quot;ServiceA_QuantumID&quot;</span> -passout <span class="hljs-keyword">pass</span>:<span class="hljs-number">123123123</span>
+</code></pre><h3>7.7 Thiết lập Kết nối mTLS và Kiểm thử</h3>
+<h4>Khởi chạy Service A (Server):</h4>
+<pre><code class="hljs language-python">openssl s_server \
+    -cert pki/end-users/certs/service-a-mldsa.crt \
+    -key pki/end-users/private/service-a-mldsa.key \
+	-cert2 pki/end-users/certs/service-a-mldsa.crt \
+    -key2 pki/end-users/private/service-a-mldsa.key \
+    -CAfile pki/inter-ca/certs/inter-mldsa.crt \
+    -Verify <span class="hljs-number">1</span> \
+    -accept <span class="hljs-number">4433</span> \
+    -www
+</code></pre><h4>Kết nối từ Service B (Client):</h4>
+<pre><code class="hljs language-python">openssl s_client \
+    -connect localhost:<span class="hljs-number">4433</span> \
+    -cert pki/end-users/certs/service-b-client.crt \
+    -key pki/end-users/private/service-b-client.key \
+    -CAfile pki/inter-ca/certs/inter-mldsa.crt
+</code></pre><h2>References:</h2>
+<ol>
+<li><a href="https://github.com/open-quantum-safe/oqs-provider">https://github.com/open-quantum-safe/oqs-provider</a></li>
+<li><a href="https://developer.ibm.com/tutorials/awb-building-quantum-safe-web-applications/">https://developer.ibm.com/tutorials/awb-building-quantum-safe-web-applications/</a></li>
+<li><a href="https://www.erianna.com/ecdsa-certificate-authorities-and-certificates-with-openssl/">https://www.erianna.com/ecdsa-certificate-authorities-and-certificates-with-openssl/</a></li>
+<li><a href="https://developer.ibm.com/tutorials/awb-quantum-safe-openssl/">https://developer.ibm.com/tutorials/awb-quantum-safe-openssl/</a></li>
+<li><a href="https://medium.com/be-tech-with-santander/how-to-configure-post-quantum-cryptography-in-your-web-server-fcf79e05e526">https://medium.com/be-tech-with-santander/how-to-configure-post-quantum-cryptography-in-your-web-server-fcf79e05e526</a></li>
+<li><a href="https://docs.python.org/3/library/ssl.html">https://docs.python.org/3/library/ssl.html</a></li>
+</ol>
+
+</article>
+    </main>
+
+    <script src="../assets/js/common.js"></script>
+</body>
+</html>

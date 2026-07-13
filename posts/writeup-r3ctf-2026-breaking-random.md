@@ -294,7 +294,3 @@ At that point, predicting future challenge values is trivial: use `generate_valu
 
    This forges future `NextWeakBase64()` values without needing any further interaction with the target RNG.
 
-## P/S
-- The original notebook correctly identified the core relation \(Z_t = 45x_t + k_t \pmod{2^{32}}\), but the carry for the multiplication-by-5 step must be \(\left\lfloor 5\ell_t / 2^{25} \right\rfloor\), not division by \(2^{32}\).
-- The slice used by `shift_25` is best written as \([25,57)\), or bits \(25\) through \(56\) inclusive. Writing `A[25:57]` is fine only if that notation is explicitly understood as half-open.
-- The transition matrix argument applies to the xoshiro state update only. The output mixer `result = (rol64((s1 * 5) & mask_64, 7) * 9) & mask_64` is nonlinear over \(GF(2)\), which is why the solve first peels it back into the slice candidates handled by `cal_x`.

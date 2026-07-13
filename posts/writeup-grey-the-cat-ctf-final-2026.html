@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grey Cat The Flag Finals 2026 - Nhan's Security Log</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
+    <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="../index.html">Nhan's Security Log</a>
+            <nav class="main-nav">
+                <a href="../index.html">Home</a>
+                <a href="../categories/index.html">Categories</a>
+                <a href="../tags/index.html">Tags</a>
+                <a class="is-active" href="../categories/writeup.html">Writeup</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="article-wrap">
+        <section class="hero article-hero reveal is-visible">
+            <div class="breadcrumb">
+                <a href="../index.html">Home</a>
+                <span>/</span>
+                <span>Grey Cat The Flag Finals 2026</span>
+            </div>
+            <h1>Grey Cat The Flag Finals 2026</h1>
+            <div class="post-meta" style="margin-top: 10px;">
+                <span>2026-07-13</span>
+                <a href="../categories/writeup.html">Writeup</a>
+                <a href="../tags/index.html">#crypto</a>
+                <a href="../tags/index.html">#dsa</a>
+                <a href="../tags/index.html">#lattice</a>
+                <a href="../tags/index.html">#prng</a>
+            </div>
+            <p class="lead">A finals recap covering several solved crypto challenges from Grey Cat The Flag Finals 2026, with notes on DSA, lattices, and PRNG reasoning.</p>
+        </section>
+
+        <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
+<h1>Grey Cat The Flag Finals 2026</h1>
+<blockquote>
+<h2>Nhan_laptop |</h2>
+<p>Crypto player</p>
+</blockquote>
+<p><img src="https://hackmd.io/_uploads/r1SJVQ0zMe.png" alt="image"></p>
+<h2>Motivation and overview</h2>
+<p>Vừa rồi mình có tham gia một giải ctf mà ban ai, khá là hay khi mình được trải nghiệm lại những cảm giác từ lúc mới bắt đầu chơi ctf. Hơn hết là 5 tiếng đầu mình đã cụt tay và phải đọc lại syntax và các wu khá là nhiều ....</p>
+<p>Trong blog này mình sẽ giải thích chi tiết các bài mình đã giải được trong giải: </p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Category</th>
+<th>Tags</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="https://hackmd.io/KWEhcXxxS3KhGrIZO2fm2g?both#Efficient-DSA-Algorithm">Efficient DSA Algorithm</a></td>
+<td>Crypto</td>
+<td>DSA,PRNG</td>
+<td>★</td>
+</tr>
+<tr>
+<td><a href="https://hackmd.io/KWEhcXxxS3KhGrIZO2fm2g?view#Half-Bit-Wonder">Half Bit Wonder</a></td>
+<td>Crypto</td>
+<td>Lattice, HNP ,PRNG</td>
+<td>★★</td>
+</tr>
+<tr>
+<td><a href="https://hackmd.io/KWEhcXxxS3KhGrIZO2fm2g?view#random-brainrot">random brainrot</a></td>
+<td>Crypto</td>
+<td>Python, Math</td>
+<td>★★★★</td>
+</tr>
+</tbody></table>
+<h2>Efficient DSA Algorithm</h2>
+<p><img src="https://hackmd.io/_uploads/H1mnVXAGfx.png" alt="image"></p>
+<pre><code>.
+└── dist-efficient_dsa_algorithm
+    ├── <span class="hljs-keyword">cc</span>.<span class="hljs-keyword">py</span> ---------- <span class="hljs-keyword">debug</span>
+    ├── efficient_dsa.sage
+    ├── hall.<span class="hljs-keyword">py</span>-------- <span class="hljs-keyword">debug</span>
+    ├── output.txt
+    ├── secret.<span class="hljs-keyword">py</span>
+    ├── solve.<span class="hljs-keyword">py</span>----- <span class="hljs-keyword">debug</span>
+    ├── tmp.<span class="hljs-keyword">py</span>----- <span class="hljs-keyword">debug</span>
+    └── vd.<span class="hljs-keyword">py</span>----- <span class="hljs-keyword">debug</span>
+</code></pre><h3>chall</h3>
+<details>
+<summary>```python</summary>
+
+<p>#!/usr/bin/env sage
+from hashlib import sha256
+from importlib import util
+from itertools import cycle
+from pathlib import Path</p>
+<p>from sage.all import EllipticCurve, GF, ZZ, inverse_mod</p>
+<p>SCRIPT_DIR = Path(<strong>file</strong>).resolve().parent
+ROOT = SCRIPT_DIR.parent
+DIST_DIR = ROOT / &quot;dist&quot;</p>
+<p>secret_spec = util.spec_from_file_location(&quot;secret&quot;, SCRIPT_DIR / &quot;secret.py&quot;)
+secret = util.module_from_spec(secret_spec)
+secret_spec.loader.exec_module(secret)</p>
+<p>P = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
+N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+GX = 55066263022277343669578718895168534326250603453777594175500187360389116729240
+GY = 32670510020758816978083085130507043184471273380659243275938904335757337482424</p>
+<p>E = EllipticCurve(GF(P), [0, 7])
+G = E(GX, GY)</p>
+<p>def point_mul(k, point=G):
+    result = ZZ(k) * point
+    if result == E(0):
+        return None
+    x, y = result.xy()
+    return int(x), int(y)</p>
+<p>class LFSR:
+    def <strong>init</strong>(self, state, mask, width=32):
+        state = int(state)
+        mask = int(mask)
+        width = int(width)
+        one = int(1)
+        self.state = state &amp; ((one &lt;&lt; width) - one)
+        self.mask = mask &amp; ((one &lt;&lt; width) - one)
+        self.width = width</p>
+<pre><code>def bit(<span class="hljs-literal">self</span>):
+    one = int(<span class="hljs-number">1</span>)
+    <span class="hljs-keyword">out</span> = <span class="hljs-literal">self</span>.<span class="hljs-keyword">state</span> &amp; one
+    feedback = (<span class="hljs-literal">self</span>.<span class="hljs-keyword">state</span> &amp; <span class="hljs-literal">self</span>.mask).bit_count() &amp; one
+    <span class="hljs-literal">self</span>.<span class="hljs-keyword">state</span> = (<span class="hljs-literal">self</span>.<span class="hljs-keyword">state</span> &gt;&gt; one) | (feedback <span class="hljs-variable">&lt;&lt; (self.width - one))
+    return out
+
+def bits(self, count):
+    return [self.bit() for _ in range(count)]</span>
+</code></pre><p>def lfsr_int(lfsr, count):
+    return int(&quot;&quot;.join(map(str, lfsr.bits(count))), 2)</p>
+<p>def sign(message, private_key, lfsr):
+    z = int.from_bytes(sha256(message).digest(), &quot;big&quot;) % N
+    k = lfsr_int(lfsr, 256) % N
+    if k == 0:
+        raise RuntimeError(&quot;zero nonce&quot;)
+    r = point_mul(k)[0] % N
+    s = inverse_mod(k, N) * (z + r * private_key) % N
+    return int(r), int(s)</p>
+<p>def main():
+    DIST_DIR.mkdir(parents=True, exist_ok=True)</p>
+<pre><code>flag = secret.FLAG
+private_key = ZZ(secret.SECRET_D) % N
+lfsr = LFSR(secret.SECRET_LFSR_STATE, secret.SECRET_LFSR_MASK)
+lfsr_output = <span class="hljs-string">&quot;&quot;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, lfsr.bits(<span class="hljs-number">96</span>)))
+
+message = <span class="hljs-string">b&quot;give me the flag&quot;</span>
+r, s = sign(message, private_key, lfsr)
+pub = point_mul(private_key)
+key = sha256(<span class="hljs-built_in">int</span>(private_key).to_bytes(<span class="hljs-built_in">int</span>(<span class="hljs-number">32</span>), <span class="hljs-string">&quot;big&quot;</span>)).digest()
+ciphertext = <span class="hljs-built_in">bytes</span>(a ^ b <span class="hljs-keyword">for</span> a, b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(flag, cycle(key))).<span class="hljs-built_in">hex</span>()
+
+(DIST_DIR / <span class="hljs-string">&quot;sample_output.txt&quot;</span>).write_text(
+    <span class="hljs-string">&quot;\n&quot;</span>.join(
+        [
+            <span class="hljs-string">f&quot;p = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(P)}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;n = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(N)}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;Gx = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(GX)}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;Gy = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(GY)}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;message = <span class="hljs-subst">{message!r}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;lfsr_output = <span class="hljs-subst">{lfsr_output!r}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;public_key_x = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(pub[<span class="hljs-number">0</span>])}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;public_key_y = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(pub[<span class="hljs-number">1</span>])}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;r = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(r)}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;s = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(s)}</span>&quot;</span>,
+            <span class="hljs-string">f&quot;ciphertext = <span class="hljs-subst">{ciphertext!r}</span>&quot;</span>,
+        ]
+    )
+    + <span class="hljs-string">&quot;\n&quot;</span>,
+    encoding=<span class="hljs-string">&quot;utf-8&quot;</span>,
+)
+</code></pre><p>if <strong>name</strong> == &quot;<strong>main</strong>&quot;:
+    main()</p>
+<pre><code>
+&lt;/<span class="hljs-selector-tag">details</span>&gt;
+
+đọc <span class="hljs-selector-tag">source</span> <span class="hljs-selector-tag">th</span>ì mình <span class="hljs-selector-tag">th</span>ấ<span class="hljs-attribute">y</span> có <span class="hljs-number">2</span> hướng để attack, hướng đầu tiên biết được là: 
+
+```python
+/.../.../
+
+P = <span class="hljs-number">0</span>xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
+N = <span class="hljs-number">0</span>xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+GX = <span class="hljs-number">55066263022277343669578718895168534326250603453777594175500187360389116729240</span>
+GY = <span class="hljs-number">32670510020758816978083085130507043184471273380659243275938904335757337482424</span>
+
+E = <span class="hljs-built_in">EllipticCurve</span>(<span class="hljs-built_in">GF</span>(P), [<span class="hljs-number">0</span>, <span class="hljs-number">7</span>])
+G = <span class="hljs-built_in">E</span>(GX, GY)
+
+&lt;------------------&gt;
+
+def <span class="hljs-built_in">point_mul</span>(k, point=G):
+    result = <span class="hljs-built_in">ZZ</span>(k) * point
+    if result == <span class="hljs-built_in">E</span>(<span class="hljs-number">0</span>):
+        return None
+    x, y = result.<span class="hljs-built_in">xy</span>()
+    return <span class="hljs-built_in">int</span>(x), <span class="hljs-built_in">int</span>(y)
+
+class LFSR:
+    def <span class="hljs-built_in">__init__</span>(self, state, mask, width=<span class="hljs-number">32</span>):
+        state = <span class="hljs-built_in">int</span>(state)
+        mask = <span class="hljs-built_in">int</span>(mask)
+        width = <span class="hljs-built_in">int</span>(width)
+        one = <span class="hljs-built_in">int</span>(<span class="hljs-number">1</span>)
+        self.state = state &amp; ((one &lt;&lt; width) - one)
+        self.mask = mask &amp; ((one &lt;&lt; width) - one)
+        self.width = width
+
+    def <span class="hljs-built_in">bit</span>(self):
+        one = <span class="hljs-built_in">int</span>(<span class="hljs-number">1</span>)
+        out = self.state &amp; one
+        feedback = (self.state &amp; self.mask).<span class="hljs-built_in">bit_count</span>() &amp; one
+        self.state = (self.state &gt;&gt; one) | (feedback &lt;&lt; (self.width - one))
+        return out
+
+    def <span class="hljs-built_in">bits</span>(self, count):
+        return [self.<span class="hljs-built_in">bit</span>() for _ in <span class="hljs-built_in">range</span>(count)]
+
+def <span class="hljs-built_in">main</span>():
+    DIST_DIR.<span class="hljs-built_in">mkdir</span>(parents=True, exist_ok=True)
+
+    flag = secret.FLAG
+    private_key = <span class="hljs-built_in">ZZ</span>(secret.SECRET_D) % N
+    lfsr = <span class="hljs-built_in">LFSR</span>(secret.SECRET_LFSR_STATE, secret.SECRET_LFSR_MASK)
+    lfsr_output = <span class="hljs-string">&quot;&quot;</span>.<span class="hljs-built_in">join</span>(<span class="hljs-built_in">map</span>(str, lfsr.<span class="hljs-built_in">bits</span>(<span class="hljs-number">96</span>)))
+
+    message = b<span class="hljs-string">&quot;give me the flag&quot;</span>
+    r, s = <span class="hljs-built_in">sign</span>(message, private_key, lfsr)
+    pub = <span class="hljs-built_in">point_mul</span>(private_key)
+    key = <span class="hljs-built_in">sha256</span>(<span class="hljs-built_in">int</span>(private_key).<span class="hljs-built_in">to_bytes</span>(<span class="hljs-built_in">int</span>(<span class="hljs-number">32</span>), <span class="hljs-string">&quot;big&quot;</span>)).<span class="hljs-built_in">digest</span>()
+    ciphertext = <span class="hljs-built_in">bytes</span>(a ^ b for a, b in <span class="hljs-built_in">zip</span>(flag, <span class="hljs-built_in">cycle</span>(key))).<span class="hljs-built_in">hex</span>()
+</code></pre><p>Đầu tiên là cái curve, mình xem có thể attack vào đó không, thì mình tra được nó là: 
+<img src="https://hackmd.io/_uploads/SJHkdQRzfg.png" alt="image"></p>
+<p>Nên hướng này không khả thi.</p>
+<p>và hướng còn lại là PRNG - custom LCG </p>
+<h3>Solve</h3>
+<blockquote>
+<p>ref: </p>
+<ol>
+<li><a href="https://hackmd.io/@giangnd/rJjnnaY50">https://hackmd.io/@giangnd/rJjnnaY50</a></li>
+<li><a href="https://tang.cat/2024/07/15/HITCON-CTF-2024-Qual-Crypto-Writeup.html#lfsr-filter-function">https://tang.cat/2024/07/15/HITCON-CTF-2024-Qual-Crypto-Writeup.html#lfsr-filter-function</a></li>
+</ol>
+<p>ở Bài này thì mình làm được 2 cách tiếp cận khác nhau và hơn hết là 3 cách imple:))))</p>
+</blockquote>
+<p>Có thể dễ thấy được ở hàm gen: </p>
+<pre><code class="hljs language-python"> <span class="hljs-keyword">def</span> <span class="hljs-title function_">bit</span>(<span class="hljs-params">self</span>):
+	one = <span class="hljs-built_in">int</span>(<span class="hljs-number">1</span>)
+	out = <span class="hljs-variable language_">self</span>.state &amp; one
+	feedback = (<span class="hljs-variable language_">self</span>.state &amp; <span class="hljs-variable language_">self</span>.mask).bit_count() &amp; one
+	<span class="hljs-variable language_">self</span>.state = (<span class="hljs-variable language_">self</span>.state &gt;&gt; one) | (feedback &lt;&lt; (<span class="hljs-variable language_">self</span>.width - one))
+	<span class="hljs-keyword">return</span> out
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">bits</span>(<span class="hljs-params">self, count</span>):
+	<span class="hljs-keyword">return</span> [<span class="hljs-variable language_">self</span>.bit() <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(count)
+</code></pre><p>ở hàm bit thì ta có thể viết lại hoàn toàn bằng: </p>
+<pre><code class="hljs language-python"><span class="hljs-comment"># https://tang.cat/2024/07/15/HITCON-CTF-2024-Qual-Crypto-Writeup.html#lfsr-filter-function</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">LFSRSymbolic</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, n, key, mask</span>):
+        <span class="hljs-keyword">assert</span> <span class="hljs-built_in">len</span>(key) == n, <span class="hljs-string">&quot;Error: the key must be of exactly 128 bits.&quot;</span>
+        <span class="hljs-variable language_">self</span>.state = key
+        <span class="hljs-variable language_">self</span>.mask = mask
+        <span class="hljs-variable language_">self</span>.n = n
+        <span class="hljs-variable language_">self</span>.mask_bits = [<span class="hljs-built_in">int</span>(b) <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> <span class="hljs-built_in">bin</span>(<span class="hljs-variable language_">self</span>.mask)[<span class="hljs-number">2</span>:].zfill(n)]
+        
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">update</span>(<span class="hljs-params">self</span>):
+        s = <span class="hljs-built_in">sum</span>([<span class="hljs-variable language_">self</span>.state[i] * <span class="hljs-variable language_">self</span>.mask_bits[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-variable language_">self</span>.n)])
+        <span class="hljs-variable language_">self</span>.state = [s] + <span class="hljs-variable language_">self</span>.state[:-<span class="hljs-number">1</span>]
+        
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__call__</span>(<span class="hljs-params">self</span>):
+        b = <span class="hljs-variable language_">self</span>.state[-<span class="hljs-number">1</span>]
+        <span class="hljs-variable language_">self</span>.update()
+        <span class="hljs-keyword">return</span> b
+</code></pre><p>Dễ hiểu được, ở hàm: </p>
+<pre><code class="hljs language-py">feedback = (<span class="hljs-variable language_">self</span>.state &amp; <span class="hljs-variable language_">self</span>.mask).bit_count() &amp; one
+</code></pre><p>thì bản chất là: </p>
+<pre><code class="hljs language-py">s1 s2 s3 s4... s32 
+&amp;
+m1 m2 m3 m4... m32 
+</code></pre><p>xor lại với nhau và đếm bit 1, thì vấn đề đặt ra là làm sao ta biết được bit nào là bit 1 và bit nào là 0 rồi sao lại cộng lại, đơn giản là: </p>
+<pre><code class="hljs language-py">s1 &amp; m1  ---&gt; tương đương  s1 * m1 (trong trường GF(<span class="hljs-number">2</span>))
+</code></pre><p>và nếu có n lẻ tổng các tích các bit --&gt; 1, Suy lận 1 tí:
+Gọi : 
+\begin{equation}
+f(x \mid x_i,; i\in{0,\ldots,31})=\mathrm{feedback}.
+\end{equation}</p>
+<p>Ta có bản chân trị - ta làm với 3 biến bit cho dễ hình dung, từ đó rút ra được phương trình chính: </p>
+<table>
+<thead>
+<tr>
+<th>x_1</th>
+<th>x_2</th>
+<th>x_3</th>
+<th>f(x)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p>Rút gọn k-map: </p>
+<table>
+<thead>
+<tr>
+<th>x_1/x_2x_3</th>
+<th>00</th>
+<th>01</th>
+<th>11</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p>Nhóm các ô: </p>
+<ul>
+<li>Ô <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">)</mo><mo>→</mo><mover accent="true"><msub><mi>x</mi><mn>1</mn></msub><mo stretchy="true">‾</mo></mover><mtext>  </mtext><mover accent="true"><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="true">‾</mo></mover><msub><mi>x</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">(0, 0, 1) \rightarrow \overline{x_1}\;\overline{x_2}x_3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7806em;vertical-align:-0.15em;"></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6306em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.5506em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6306em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.5506em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></li>
+<li>Ô <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>0</mn><mo stretchy="false">)</mo><mo>→</mo><mover accent="true"><msub><mi>x</mi><mn>1</mn></msub><mo stretchy="true">‾</mo></mover><msub><mi>x</mi><mn>2</mn></msub><mover accent="true"><msub><mi>x</mi><mn>3</mn></msub><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">(0, 1, 0) \rightarrow \overline{x_1}x_2\overline{x_3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7806em;vertical-align:-0.15em;"></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6306em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.5506em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6306em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.5506em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></li>
+<li>Ô <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mn>1</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo stretchy="false">)</mo><mo>→</mo><msub><mi>x</mi><mn>1</mn></msub><mover accent="true"><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="true">‾</mo></mover><mtext>  </mtext><mover accent="true"><msub><mi>x</mi><mn>3</mn></msub><mo stretchy="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">(1, 0, 0) \rightarrow x_1\overline{x_2}\;\overline{x_3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6306em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.5506em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord overline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6306em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.5506em;"><span class="pstrut" style="height:3em;"></span><span class="overline-line" style="border-bottom-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></li>
+<li>Ô <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">)</mo><mo>→</mo><msub><mi>x</mi><mn>1</mn></msub><msub><mi>x</mi><mn>2</mn></msub><msub><mi>x</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">(1, 1, 1) \rightarrow x_1x_2x_3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></li>
+</ul>
+<p>Hàm dưới dạng tổng các tích  là:
+\begin{aligned}
+f(x_1, x_2, x_3) &amp;= \overline{x_1};\overline{x_2}x_3 + \overline{x_1}x_2\overline{x_3} + x_1\overline{x_2};\overline{x_3} + x_1x_2x_3\
+&amp;= \overline{x_1}(\overline{x_2}x_3 + x_2\overline{x_3}) + x_1(\overline{x_2};\overline{x_3} + x_2x_3)\
+&amp;= \overline{x_1}(x_2 \oplus x_3) + x_1(\overline{x_2 \oplus x_3})\
+&amp;= x_1 \oplus x_2 \oplus x_3\ \  (\overline{x_1}Y + x_1\overline{Y} = x_1 \oplus Y)\
+&amp;\downarrow\
+f(x) = \sum_{i=0}^{31}x_i 
+\end{aligned}</p>
+<p>Và phép <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⊕</mo></mrow><annotation encoding="application/x-tex">\oplus</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">⊕</span></span></span></span> chính là phép cộng trong trường GF(2), vậy ta có thể viết lại hoàn chỉnh, công thức cho phần feedback là: </p>
+<p>\begin{aligned}
+\text{feedback} &amp;= \text{(self.state &amp; self.mask).bit_count() &amp; one}\
+&amp;\downarrow\
+G(s|secret,m|mask)&amp;= \sum_{i=0}^{31}(s_i\cdot m_i) 
+\end{aligned}</p>
+<p>và ta được cho hơn 96 phương trình nên có thể dùng z3 (hoặc GF(2), Boolean - PolynomialRing().objgens ở cách giải như vậy nhưng mà hơi lâu lúc build)</p>
+<p>solve z3: </p>
+<details>
+<summary>```py</summary>
+
+<p>#!/usr/bin/env sage
+from sage.all import *
+from z3 import * 
+from hashlib import sha256
+from importlib import util
+from itertools import cycle
+from pathlib import Path</p>
+<p>SCRIPT_DIR = Path(<strong>file</strong>).resolve().parent
+ROOT = SCRIPT_DIR.parent
+DIST_DIR = ROOT / &quot;dist&quot;</p>
+<p>secret_spec = util.spec_from_file_location(&quot;secret&quot;, SCRIPT_DIR / &quot;secret.py&quot;)
+secret = util.module_from_spec(secret_spec)
+secret_spec.loader.exec_module(secret)</p>
+<p>P = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
+N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+GX = 55066263022277343669578718895168534326250603453777594175500187360389116729240
+GY = 32670510020758816978083085130507043184471273380659243275938904335757337482424</p>
+<p>E = EllipticCurve(GF(P), [0, 7])
+G = E(GX, GY)
+print(G.order())</p>
+<h1>print(bin(secret.SECRET_LFSR_MASK))</h1>
+<h1>print(secret.SECRET_LFSR_MASK.bit_count())</h1>
+<h1># exit()</h1>
+<p>print()
+class LFSR:
+    def <strong>init</strong>(self, state, mask, width=32):
+        state = int(state)
+        mask = int(mask)
+        width = int(width)
+        one = int(1)
+        self.state = state &amp; ((one &lt;&lt; width) - one)
+        # print(bin(self.state)[::-1])
+        # print(self.state.bit_length())
+        # exit(0)
+        self.mask = mask &amp; ((one &lt;&lt; width) - one)
+        self.width = width</p>
+<pre><code>def bit(<span class="hljs-literal">self</span>):
+    one = int(<span class="hljs-number">1</span>)
+    <span class="hljs-keyword">out</span> = <span class="hljs-literal">self</span>.<span class="hljs-keyword">state</span> &amp; one
+    <span class="hljs-comment"># print(f&#x27;first = {bin(self.state &amp; self.mask)}&#x27;)</span>
+    <span class="hljs-comment"># print(f&#x27;first = {(self.state &amp; self.mask).bit_count()}&#x27;)</span>
+    <span class="hljs-comment"># print(f&#x27;first = {bin(self.state)}&#x27;)</span>
+    <span class="hljs-comment"># print(f&#x27;frist = {bin(self.mask) = }&#x27;)</span>
+    feedback = (<span class="hljs-literal">self</span>.<span class="hljs-keyword">state</span> &amp; <span class="hljs-literal">self</span>.mask).bit_count() &amp; one
+    <span class="hljs-literal">self</span>.<span class="hljs-keyword">state</span> = (<span class="hljs-literal">self</span>.<span class="hljs-keyword">state</span> &gt;&gt; one) | (feedback <span class="hljs-variable">&lt;&lt; (self.width - one))
+    # print(f&#x27;{bin((feedback &lt;&lt; (self.width - one))) = }&#x27;)
+    # print(f&#x27;{bin(self.state)= }&#x27;)
+    # print(f&#x27;{feedback = }&#x27;)
+    # print(f&#x27;{feedback.bit_count()= }&#x27;)
+    # print(f&#x27;{out = }&#x27;)
+    # print()
+    return out
+
+def bits(self, count):
+    return [self.bit() for _ in range(count)]</span>
+</code></pre><p>p = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f
+n = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
+Gx = 0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
+Gy = 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8
+message = b&#39;give me the flag&#39;
+lfsr_output = &#39;010000100111011111111111000000111010011010000101011101101001000100101111000111110000100011001011&#39;
+public_key_x = 0x2823a4a1e19df5c95e472857c16bd012605d9ad5a93b1fdc5c3d180ef7aa585e
+public_key_y = 0xa2874fa3fa7044ae9882fd4f025bb52920aeae199d163416b55e4f467c798db2
+r = 0x2127c19135a1b2df658dbfc9f1a829b3af622e258163ef5c71beefef72a109ea
+s = 0x273b6c6521dd5db6a183bdb5dc64b8288c11c49b7d5abc817a95deff41dbae7b
+ciphertext = &#39;2c9ac7e94a38f1efb4c23758eac7fa00e3e618f408fde7b37e59bf15925918be6ac983ed&#39;</p>
+<p>st = [BitVec(f&#39;s_{i}&#39;,1) for i in range(32)]
+ms = [BitVec(f&#39;m_{i}&#39;,1) for i in range(32)]</p>
+<p>tmp_st = st
+tmp_ms = ms </p>
+<p>res =list( map(int,lfsr_output))</p>
+<p>S = Solver()
+for id1 in range(96): 
+    bitt = st[-1]
+    tmp = sum([st[i] * ms[i] for i in range(32)])
+    st = [tmp] + st[:-1]
+    S.add(bitt==res[id1])</p>
+<p>print(S.check())
+m = S.model()
+print(m)
+res_st = [m[tmp_st[i]]for i in range(32)]
+res_ms = [m[tmp_ms[i]]for i in range(32)]</p>
+<p>print()
+print(res_st)
+print(res_ms)
+print(lfsr_output)</p>
+<p>res_st = &quot;&quot;.join(map(str,res_st))
+res_ms = &quot;&quot;.join(map(str,res_ms))</p>
+<p>print(res_st)
+print(res_ms)</p>
+<p>res_st = int(res_st,2)
+res_ms = int(res_ms,2)</p>
+<p>print(res_st)
+print(res_ms)</p>
+<p>from hall import lfsr_int, point_mul  </p>
+<p>message = b&quot;give me the flag&quot;
+def sign(message, private_key, lfsr):
+    z = int.from_bytes(sha256(message).digest(), &quot;big&quot;) % N
+    k = lfsr_int(lfsr, 256) % N
+    if k == 0:
+        raise RuntimeError(&quot;zero nonce&quot;)
+    r = point_mul(k)[0] % N
+    s = inverse_mod(k, N) * (z + r * private_key) % N
+    return int(r), int(s)</p>
+<p>lfsr = LFSR(res_st,res_ms)
+lfsr_output = &quot;&quot;.join(map(str, lfsr.bits(96)))</p>
+<p>k = lfsr_int(lfsr, 256) % N</p>
+<p>r1 = point_mul(k)[0] %N
+print(r1)
+print(r)
+z = int.from_bytes(sha256(message).digest(), &quot;big&quot;) % N</p>
+<p>&quot;&quot;&quot;
+s = k^-1 * (z + r *d )% N
+s * k = z + r * d 
+s * k - z = r * d 
+&quot;&quot;&quot;</p>
+<p>F = GF(N)</p>
+<p>d = inverse_mod(r,N) * (s * k - z)
+d = d % N 
+print(d)
+P  = G * d 
+print(P.xy())
+print(public_key_x)
+print(public_key_y)
+key = sha256(int(ZZ(d)).to_bytes(int(32), &quot;big&quot;)).digest()
+ciphertext=bytes.fromhex( ciphertext)</p>
+<p>print(ciphertext)</p>
+<p>ciphertext = bytes(a ^ b for a, b in zip(ciphertext, cycle(key)))
+print(ciphertext.decode())</p>
+<pre><code>
+&lt;/<span class="hljs-selector-tag">details</span>&gt;
+
+pseudocode cho sagemath: 
+
+&lt;details&gt;
+&lt;summary&gt;```py&lt;/summary&gt;
+
+R,fi = <span class="hljs-built_in">BooleanPolynomialRing</span>(<span class="hljs-number">64</span>,<span class="hljs-string">&#x27;x&#x27;</span>).<span class="hljs-built_in">objgens</span>()
+
+state_sym = <span class="hljs-built_in">list</span>(fi[:<span class="hljs-number">32</span>])
+mask_sym = <span class="hljs-built_in">list</span>(fi[<span class="hljs-number">32</span>:])
+
+assert <span class="hljs-built_in">len</span>(state_sym)== <span class="hljs-number">32</span> 
+assert <span class="hljs-built_in">len</span>(mask_sym)== <span class="hljs-number">32</span> 
+lfsr_output = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(int,lfsr_output))
+# <span class="hljs-built_in">print</span>(lfsr_output)
+# <span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>)
+
+zeros = []
+for t in <span class="hljs-built_in">range</span>(<span class="hljs-number">96</span>):
+    <span class="hljs-built_in">print</span>(t) 
+    bit = state_sym[-<span class="hljs-number">1</span>]
+    # <span class="hljs-built_in">print</span>(bit)
+    s1 = <span class="hljs-built_in">sum</span>([state_sym[i] * mask_sym[i] for i in <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>)])
+    # <span class="hljs-built_in">print</span>(s1)
+    state_sym = [s1] + state_sym[:-<span class="hljs-number">1</span>]
+    zeros.<span class="hljs-built_in">append</span>(bit - lfsr_output[t])
+    # <span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>)
+
+sol = <span class="hljs-built_in">ideal</span>(zeros).<span class="hljs-built_in">groebner_basis</span>()
+
+for i in sol:
+    <span class="hljs-built_in">print</span>(i)
+</code></pre></details>
+
+<p>Còn một hướng tìm luôn được secret. </p>
+<h3>Cách 2</h3>
+<pre><code class="hljs language-py">one = <span class="hljs-built_in">int</span>(<span class="hljs-number">1</span>)
+out = <span class="hljs-variable language_">self</span>.state &amp; one
+feedback = (<span class="hljs-variable language_">self</span>.state &amp; <span class="hljs-variable language_">self</span>.mask).bit_count() &amp; one
+<span class="hljs-variable language_">self</span>.state = (<span class="hljs-variable language_">self</span>.state &gt;&gt; one) | (feedback &lt;&lt; (<span class="hljs-variable language_">self</span>.width - one))
+</code></pre><p>tương đương với: </p>
+<pre><code class="hljs language-py">state = bit | state&gt;&gt;<span class="hljs-number">1</span> 
+output --&gt; state &amp; <span class="hljs-number">1</span>
+</code></pre><p>Và hơn hết đề cho mình 96bits đầu tiên luôn :) 
+clm trôn vl, đúng theo lí thuyết là phải cho theo n steps để mất đi cái giá trị của secret</p>
+<p>tức là với n bits đầu của lfsr_output thì chính là sercet luôn. 
+Và hơi ảo chắc do ông author bị gì.... khó nói :) </p>
+<p>solve: </p>
+<details>
+<summary>```python</summary>
+
+<p>def solve(state_sym, mask_sym, lfsr_output):
+    state_int = int(&quot;&quot;.join(map(str, state_sym)), 2)</p>
+<pre><code>lfsr_output = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">int</span>,lfsr_output))
+
+S = Solver()
+<span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> (<span class="hljs-built_in">range</span>(<span class="hljs-number">96</span>)):
+    bit = state_sym[-<span class="hljs-number">1</span>]
+    s1 = <span class="hljs-built_in">sum</span>([state_sym[i] * mask_sym[i] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>)])
+    state_sym = [s1] + state_sym[:-<span class="hljs-number">1</span>]
+    S.add(bit == lfsr_output[t])
+<span class="hljs-keyword">if</span> (S.check())!= sat: 
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span> 
+m = S.model()
+<span class="hljs-built_in">print</span>(m)
+mask_int = <span class="hljs-built_in">int</span>(<span class="hljs-string">&quot;&quot;</span>.join([<span class="hljs-built_in">str</span>(m.<span class="hljs-built_in">eval</span>(mask_sym[i], model_completion=<span class="hljs-literal">True</span>).as_long()) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>)]),<span class="hljs-number">2</span>)
+lfsr = LFSR(state_int, mask_int)
+
+lfsr_output = <span class="hljs-string">&quot;&quot;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-built_in">str</span>, lfsr.bits(<span class="hljs-number">96</span>)))
+
+k = lfsr_int(lfsr, <span class="hljs-number">256</span>) % N
+
+r1 = point_mul(k)[<span class="hljs-number">0</span>] %N
+<span class="hljs-built_in">print</span>(r1)
+<span class="hljs-built_in">print</span>(r)
+z = <span class="hljs-built_in">int</span>.from_bytes(sha256(message).digest(), <span class="hljs-string">&quot;big&quot;</span>) % N
+
+<span class="hljs-string">&quot;&quot;&quot;
+s = k^-1 * (z + r *d )% N
+s * k = z + r * d 
+s * k - z = r * d 
+&quot;&quot;&quot;</span>
+
+F = GF(N)
+
+d = inverse_mod(r,N) * (s * k - z)
+d = d % N 
+<span class="hljs-built_in">print</span>(d)
+P  = G * d 
+<span class="hljs-built_in">print</span>(P.xy())
+<span class="hljs-built_in">print</span>(public_key_x)
+<span class="hljs-built_in">print</span>(public_key_y)
+key = sha256(<span class="hljs-built_in">int</span>(ZZ(d)).to_bytes(<span class="hljs-built_in">int</span>(<span class="hljs-number">32</span>), <span class="hljs-string">&quot;big&quot;</span>)).digest()
+ct = <span class="hljs-built_in">bytes</span>.fromhex(ciphertext)
+
+<span class="hljs-built_in">print</span>(ct)
+
+plaintext = <span class="hljs-built_in">bytes</span>(a ^ b <span class="hljs-keyword">for</span> a, b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(ct, cycle(key)))
+<span class="hljs-built_in">print</span>(plaintext.decode())
+exit(<span class="hljs-number">0</span>)
+</code></pre><p>for length in range(1,33):
+    state_sym = lfsr_output[:length][::-1].zfill(32)
+    state_int = list(map(int,state_sym))</p>
+<pre><code><span class="hljs-function"><span class="hljs-title">solve</span><span class="hljs-params">(state_int, mask_sym, lfsr_output)</span></span>
+</code></pre><pre><code>
+&lt;/details&gt;
+
+### Fun facts 
+
+khá là dui khi mình bị nhũng não ở bài này hơn <span class="hljs-number">5</span> tiếng chẳng hiểu sao, chắc do ...
+
+## Half Bit Wonder
+ 
+![image](https:<span class="hljs-comment">//hackmd.io/_uploads/Hk2VzEAzze.png)</span>
+</code></pre><p>.
+├── README.md
+├── chall.py ---- debug
+├── chall.sage
+├── output.json
+├── solve.py---- debug
+└── vd.py ---- debug</p>
+<pre><code>### chall
+
+<span class="hljs-operator">&lt;</span>details<span class="hljs-operator">&gt;</span>
+<span class="hljs-operator">&lt;</span>summary<span class="hljs-operator">&gt;</span>```py<span class="hljs-operator">&lt;/</span>summary<span class="hljs-operator">&gt;</span>
+
+<span class="hljs-keyword">import</span> hashlib
+<span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> random
+from pathlib <span class="hljs-keyword">import</span> Path
+
+<span class="hljs-type">ROOT</span> <span class="hljs-operator">=</span> <span class="hljs-type">Path</span>(__file__).resolve().parents[<span class="hljs-number">1</span>]
+<span class="hljs-type">DIST</span> <span class="hljs-operator">=</span> <span class="hljs-type">ROOT</span> <span class="hljs-operator">/</span> <span class="hljs-string">&quot;dist&quot;</span>
+<span class="hljs-type">CHALL</span> <span class="hljs-operator">=</span> <span class="hljs-type">ROOT</span> <span class="hljs-operator">/</span> <span class="hljs-string">&quot;chall&quot;</span>
+
+from secret <span class="hljs-keyword">import</span> FLAG, BASE_SEED
+
+q <span class="hljs-operator">=</span> int(<span class="hljs-number">0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141</span>)
+<span class="hljs-type">L</span> <span class="hljs-operator">=</span> int(<span class="hljs-number">2</span><span class="hljs-operator">**</span><span class="hljs-number">20</span>)
+<span class="hljs-type">T</span> <span class="hljs-operator">=</span> int(<span class="hljs-number">20</span>)
+<span class="hljs-type">M_PER_BLOCK</span> <span class="hljs-operator">=</span> int(<span class="hljs-number">4096</span>)
+
+def xor_bytes(a, b):
+    <span class="hljs-keyword">return</span> bytes(x <span class="hljs-operator">^</span> y <span class="hljs-keyword">for</span> x, y <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(a, b))
+
+def stream_for_sk(sk, nbytes):
+    label <span class="hljs-operator">=</span> (<span class="hljs-string">&quot;nothing to see here:&quot;</span> <span class="hljs-operator">+</span> str(sk)).encode()
+    <span class="hljs-keyword">return</span> hashlib.shake_256(label).digest(nbytes)
+
+def build_instance(attempt):
+    rng <span class="hljs-operator">=</span> random.<span class="hljs-type">Random</span>(int(<span class="hljs-type">BASE_SEED</span> <span class="hljs-operator">+</span> attempt))
+    sk <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), q)
+    blocks <span class="hljs-operator">=</span> []
+    ys <span class="hljs-operator">=</span> []
+    all_nonces <span class="hljs-operator">=</span> []
+    used_r <span class="hljs-operator">=</span> <span class="hljs-keyword">set</span>()
+
+    <span class="hljs-keyword">for</span> <span class="hljs-keyword">_</span> <span class="hljs-keyword">in</span> range(<span class="hljs-type">T</span>):
+        r <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), q)
+        <span class="hljs-keyword">while</span> r <span class="hljs-keyword">in</span> used_r:
+            r <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), q)
+        used_r.add(r)
+
+        y <span class="hljs-operator">=</span> (r <span class="hljs-operator">*</span> sk) <span class="hljs-operator">%</span> q
+        ys.append(y)
+        samples <span class="hljs-operator">=</span> []
+        nonces <span class="hljs-operator">=</span> []
+
+        <span class="hljs-keyword">for</span> <span class="hljs-keyword">_</span> <span class="hljs-keyword">in</span> range(<span class="hljs-type">M_PER_BLOCK</span>):
+            a <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), <span class="hljs-type">L</span>)
+            
+            k <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">0</span>), q <span class="hljs-comment">// 2)</span>
+            z <span class="hljs-operator">=</span> (k <span class="hljs-operator">-</span> a <span class="hljs-operator">*</span> y) <span class="hljs-operator">%</span> q
+            samples.append([a, str(z)])
+            nonces.append(str(k))
+
+        blocks.append({<span class="hljs-string">&quot;r&quot;</span>: str(r), <span class="hljs-string">&quot;samples&quot;</span>: samples})
+        all_nonces.append(nonces)
+
+    stream <span class="hljs-operator">=</span> stream_for_sk(sk, len(<span class="hljs-type">FLAG</span>))
+    ciphertext <span class="hljs-operator">=</span> xor_bytes(<span class="hljs-type">FLAG</span>, stream)
+    <span class="hljs-keyword">public</span> <span class="hljs-operator">=</span> {
+        <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Half Bit Wonder&quot;</span>,
+        <span class="hljs-string">&quot;q&quot;</span>: str(q),
+        <span class="hljs-string">&quot;L&quot;</span>: <span class="hljs-type">L</span>,
+        <span class="hljs-string">&quot;T&quot;</span>: <span class="hljs-type">T</span>,
+        <span class="hljs-string">&quot;M_per_block&quot;</span>: <span class="hljs-type">M_PER_BLOCK</span>,
+        <span class="hljs-string">&quot;blocks&quot;</span>: blocks,
+        <span class="hljs-string">&quot;ciphertext_hex&quot;</span>: ciphertext.hex(),
+        <span class="hljs-string">&quot;kdf_hint&quot;</span>: <span class="hljs-string">&quot;key = SHAKE256(&#x27;nothing to see here:&#x27; || decimal(sk))&quot;</span>,
+    }
+    <span class="hljs-keyword">private</span> <span class="hljs-operator">=</span> {
+        <span class="hljs-string">&quot;flag&quot;</span>: <span class="hljs-type">FLAG</span>.decode(),
+        <span class="hljs-string">&quot;sk&quot;</span>: str(sk),
+        <span class="hljs-string">&quot;q&quot;</span>: str(q),
+        <span class="hljs-string">&quot;L&quot;</span>: <span class="hljs-type">L</span>,
+        <span class="hljs-string">&quot;T&quot;</span>: <span class="hljs-type">T</span>,
+        <span class="hljs-string">&quot;M_per_block&quot;</span>: <span class="hljs-type">M_PER_BLOCK</span>,
+        <span class="hljs-string">&quot;ys&quot;</span>: [str(y) <span class="hljs-keyword">for</span> y <span class="hljs-keyword">in</span> ys],
+        <span class="hljs-string">&quot;nonces&quot;</span>: all_nonces,
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">public</span>, <span class="hljs-keyword">private</span>
+
+def main():
+    <span class="hljs-type">DIST</span>.mkdir(parents<span class="hljs-operator">=</span><span class="hljs-type">True</span>, exist_ok<span class="hljs-operator">=</span><span class="hljs-type">True</span>)
+    <span class="hljs-type">CHALL</span>.mkdir(parents<span class="hljs-operator">=</span><span class="hljs-type">True</span>, exist_ok<span class="hljs-operator">=</span><span class="hljs-type">True</span>)
+
+    <span class="hljs-keyword">public</span>, <span class="hljs-keyword">private</span> <span class="hljs-operator">=</span> build_instance(<span class="hljs-number">0</span>)
+
+    with (<span class="hljs-type">DIST</span> <span class="hljs-operator">/</span> <span class="hljs-string">&quot;output.json&quot;</span>).open(<span class="hljs-string">&quot;w&quot;</span>) <span class="hljs-keyword">as</span> f:
+        json.dump(<span class="hljs-keyword">public</span>, f, indent<span class="hljs-operator">=</span><span class="hljs-number">2</span>)
+        f.write(<span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span>)
+
+    with (<span class="hljs-type">CHALL</span> <span class="hljs-operator">/</span> <span class="hljs-string">&quot;private.json&quot;</span>).open(<span class="hljs-string">&quot;w&quot;</span>) <span class="hljs-keyword">as</span> f:
+        json.dump(<span class="hljs-keyword">private</span>, f, indent<span class="hljs-operator">=</span><span class="hljs-number">2</span>)
+        f.write(<span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span>)
+
+    <span class="hljs-built_in">print</span>(f<span class="hljs-string">&quot;wrote {DIST / &#x27;output.json&#x27;}&quot;</span>)
+    <span class="hljs-built_in">print</span>(f<span class="hljs-string">&quot;wrote {CHALL / &#x27;private.json&#x27;}&quot;</span>)
+    <span class="hljs-built_in">print</span>(f<span class="hljs-string">&quot;q = {q} ({q.bit_length()} bits)&quot;</span>)
+    <span class="hljs-built_in">print</span>(f<span class="hljs-string">&quot;L = {L}, T = {T}, M_per_block = {M_PER_BLOCK}&quot;</span>)
+    <span class="hljs-built_in">print</span>(f<span class="hljs-string">&quot;total samples = {T * M_PER_BLOCK}, q//L = {q // L}&quot;</span>)
+
+<span class="hljs-keyword">if</span> __name__ <span class="hljs-operator">==</span> <span class="hljs-string">&quot;__main__&quot;</span>:
+    main()
+```
+
+
+<span class="hljs-operator">&lt;/</span>details<span class="hljs-operator">&gt;</span>
+
+ở chall này thì họ cho: 
+```python
+def build_instance(attempt):
+    rng <span class="hljs-operator">=</span> random.<span class="hljs-type">Random</span>(int(<span class="hljs-type">BASE_SEED</span> <span class="hljs-operator">+</span> attempt))
+    sk <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), q)
+    blocks <span class="hljs-operator">=</span> []
+    ys <span class="hljs-operator">=</span> []
+    all_nonces <span class="hljs-operator">=</span> []
+    used_r <span class="hljs-operator">=</span> <span class="hljs-keyword">set</span>()
+
+    <span class="hljs-keyword">for</span> <span class="hljs-keyword">_</span> <span class="hljs-keyword">in</span> range(<span class="hljs-type">T</span>):
+        r <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), q)
+        <span class="hljs-keyword">while</span> r <span class="hljs-keyword">in</span> used_r:
+            r <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), q)
+        used_r.add(r)
+
+        y <span class="hljs-operator">=</span> (r <span class="hljs-operator">*</span> sk) <span class="hljs-operator">%</span> q
+        ys.append(y)
+        samples <span class="hljs-operator">=</span> []
+        nonces <span class="hljs-operator">=</span> []
+
+        <span class="hljs-keyword">for</span> <span class="hljs-keyword">_</span> <span class="hljs-keyword">in</span> range(<span class="hljs-type">M_PER_BLOCK</span>):
+            a <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), <span class="hljs-type">L</span>)
+            
+            k <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">0</span>), q <span class="hljs-comment">// 2)</span>
+            z <span class="hljs-operator">=</span> (k <span class="hljs-operator">-</span> a <span class="hljs-operator">*</span> y) <span class="hljs-operator">%</span> q
+            samples.append([a, str(z)])
+            nonces.append(str(k))
+
+        blocks.append({<span class="hljs-string">&quot;r&quot;</span>: str(r), <span class="hljs-string">&quot;samples&quot;</span>: samples})
+        all_nonces.append(nonces)
+
+    stream <span class="hljs-operator">=</span> stream_for_sk(sk, len(<span class="hljs-type">FLAG</span>))
+    ciphertext <span class="hljs-operator">=</span> xor_bytes(<span class="hljs-type">FLAG</span>, stream)
+    <span class="hljs-keyword">public</span> <span class="hljs-operator">=</span> {
+        <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Half Bit Wonder&quot;</span>,
+        <span class="hljs-string">&quot;q&quot;</span>: str(q),
+        <span class="hljs-string">&quot;L&quot;</span>: <span class="hljs-type">L</span>,
+        <span class="hljs-string">&quot;T&quot;</span>: <span class="hljs-type">T</span>,
+        <span class="hljs-string">&quot;M_per_block&quot;</span>: <span class="hljs-type">M_PER_BLOCK</span>,
+        <span class="hljs-string">&quot;blocks&quot;</span>: blocks,
+        <span class="hljs-string">&quot;ciphertext_hex&quot;</span>: ciphertext.hex(),
+        <span class="hljs-string">&quot;kdf_hint&quot;</span>: <span class="hljs-string">&quot;key = SHAKE256(&#x27;nothing to see here:&#x27; || decimal(sk))&quot;</span>,
+    }
+    <span class="hljs-keyword">private</span> <span class="hljs-operator">=</span> {
+        <span class="hljs-string">&quot;flag&quot;</span>: <span class="hljs-type">FLAG</span>.decode(),
+        <span class="hljs-string">&quot;sk&quot;</span>: str(sk),
+        <span class="hljs-string">&quot;q&quot;</span>: str(q),
+        <span class="hljs-string">&quot;L&quot;</span>: <span class="hljs-type">L</span>,
+        <span class="hljs-string">&quot;T&quot;</span>: <span class="hljs-type">T</span>,
+        <span class="hljs-string">&quot;M_per_block&quot;</span>: <span class="hljs-type">M_PER_BLOCK</span>,
+        <span class="hljs-string">&quot;ys&quot;</span>: [str(y) <span class="hljs-keyword">for</span> y <span class="hljs-keyword">in</span> ys],
+        <span class="hljs-string">&quot;nonces&quot;</span>: all_nonces,
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">public</span>, <span class="hljs-keyword">private</span>
+```
+
+Đề cho các khối và  <span class="hljs-variable">$t</span>$:
+<span class="hljs-operator">-</span>  <span class="hljs-variable">$y_t</span> <span class="hljs-operator">=</span> r_t \cdot sk \pmod q$ (với <span class="hljs-variable">$r_t</span>$ công khai, <span class="hljs-variable">$sk</span>$ cần tìm).
+<span class="hljs-operator">-</span> <span class="hljs-type">Với</span> mỗi sample <span class="hljs-variable">$i</span>$ trong khối đó,  phương trình:
+
+$<span class="hljs-variable">$k_i</span> <span class="hljs-operator">=</span> z_i <span class="hljs-operator">+</span> a_i \cdot y_t \pmod q$$
+
+<span class="hljs-operator">-</span> Đề cho : <span class="hljs-type">Nonce</span> <span class="hljs-variable">$k_i</span>$ bị mất bit cao nhất , nghĩa là <span class="hljs-variable">$k_i</span>$ luôn nằm ở nửa khoảng dưới:
+
+$<span class="hljs-variable">$0</span> \le k_i <span class="hljs-operator">&lt;</span> \frac{q}{<span class="hljs-number">2</span>}$$
+
+<span class="hljs-operator">-</span>  <span class="hljs-variable">$q</span>$, <span class="hljs-variable">$L</span>$, <span class="hljs-variable">$r_t</span>$, <span class="hljs-variable">$a_i</span>$, <span class="hljs-variable">$z_i</span>$ mình biết ở output.json. <span class="hljs-type">Các</span> hệ số <span class="hljs-variable">$a_i</span>$ đã được thu nhỏ về khoảng $[<span class="hljs-number">0</span>, <span class="hljs-type">L</span>)$.
+
+Ông ra đề có nói về <span class="hljs-type">Bleichenbacher</span> (<span class="hljs-type">Collision</span><span class="hljs-operator">-</span>search <span class="hljs-operator">/</span> <span class="hljs-type">Range</span><span class="hljs-operator">-</span>reduction). <span class="hljs-type">Do</span> <span class="hljs-variable">$k_i</span> <span class="hljs-operator">&lt;</span> q<span class="hljs-operator">/</span><span class="hljs-number">2</span>$, hiệu số giữa <span class="hljs-variable">$k_i</span>$ và một giá trị nào đó sẽ tạo ra một độ lệch thống kê (modular bias).
+
+<span class="hljs-type">Và</span> tìm theo cái bleichenbacher kia thì ra cái này: 
+https:<span class="hljs-comment">//fog.misty.com/perry/Bleichenbacher/Bleich-JCE-2014.pdf</span>
+:))))
+
+<span class="hljs-type">Có</span> nhiều mẫu $(a_i, z_i)$, có thể thiết lập một <span class="hljs-type">Hệ</span> lưới (<span class="hljs-type">Lattice</span>).
+
+<span class="hljs-type">Nhưng</span> mình không làm v :))))))) 
+
+### <span class="hljs-type">Solve</span> 
+
+nhìn vào build_instance ở trên thấy được vì nó có quá nhiều <span class="hljs-type">PRNG</span> nên mình <span class="hljs-keyword">break</span> nó luôn, ai ngờ được, và bài này mình làm trong 3p :)))))) : 
+<span class="hljs-operator">&lt;</span>details<span class="hljs-operator">&gt;</span>
+<span class="hljs-operator">&lt;</span>summary<span class="hljs-operator">&gt;</span>```py<span class="hljs-operator">&lt;/</span>summary<span class="hljs-operator">&gt;</span>
+
+from gf2bv <span class="hljs-keyword">import</span> LinearSystem
+from gf2bv.crypto.mt <span class="hljs-keyword">import</span> MT19937
+<span class="hljs-keyword">import</span> json 
+<span class="hljs-keyword">import</span> hashlib
+<span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> random
+from pathlib <span class="hljs-keyword">import</span> Path
+
+<span class="hljs-keyword">import</span> random,copy 
+
+q <span class="hljs-operator">=</span> int(<span class="hljs-number">0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141</span>)
+<span class="hljs-type">L</span> <span class="hljs-operator">=</span> int(<span class="hljs-number">2</span><span class="hljs-operator">**</span><span class="hljs-number">20</span>)
+<span class="hljs-type">T</span> <span class="hljs-operator">=</span> int(<span class="hljs-number">20</span>)
+<span class="hljs-type">M_PER_BLOCK</span> <span class="hljs-operator">=</span> int(<span class="hljs-number">4096</span>)
+
+<span class="hljs-built_in">print</span>(q.bit_length())
+
+f <span class="hljs-operator">=</span> <span class="hljs-keyword">open</span>(&#x27;output.json&#x27;,&#x27;r&#x27;)
+
+c <span class="hljs-operator">=</span> json.loads(f.read())
+f.close()
+
+<span class="hljs-type">T</span> <span class="hljs-operator">=</span> c[&#x27;<span class="hljs-type">T</span>&#x27;]
+
+<span class="hljs-built_in">print</span>(<span class="hljs-type">T</span>)
+
+def xor_bytes(a, b):
+    <span class="hljs-keyword">return</span> bytes(x <span class="hljs-operator">^</span> y <span class="hljs-keyword">for</span> x, y <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(a, b))
+
+def stream_for_sk(sk, nbytes):
+    label <span class="hljs-operator">=</span> (<span class="hljs-string">&quot;nothing to see here:&quot;</span> <span class="hljs-operator">+</span> str(sk)).encode()
+    <span class="hljs-keyword">return</span> hashlib.shake_256(label).digest(nbytes)
+
+def build_instance(attempt):
+    
+    rng <span class="hljs-operator">=</span> random.<span class="hljs-type">Random</span>(int(<span class="hljs-number">123123</span> <span class="hljs-operator">+</span> attempt))
+    lin <span class="hljs-operator">=</span> <span class="hljs-type">LinearSystem</span>([<span class="hljs-number">32</span>] <span class="hljs-operator">*</span> <span class="hljs-number">624</span>)
+    mt <span class="hljs-operator">=</span> lin.gens()
+
+    prng <span class="hljs-operator">=</span> <span class="hljs-type">MT19937</span>(mt)
+    zeros <span class="hljs-operator">=</span> []
+
+    sk <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), q) #<span class="hljs-operator">&lt;----------</span>
+    tmp <span class="hljs-operator">=</span> prng.getrandbits(<span class="hljs-number">256</span>)
+
+    blocks <span class="hljs-operator">=</span> c[&#x27;blocks&#x27;]
+    ys <span class="hljs-operator">=</span> []
+    all_nonces <span class="hljs-operator">=</span> []
+    used_r <span class="hljs-operator">=</span> <span class="hljs-keyword">set</span>()
+
+    <span class="hljs-keyword">for</span> <span class="hljs-keyword">_</span> <span class="hljs-keyword">in</span> range(<span class="hljs-number">1</span>):
+        
+        r <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), q)#<span class="hljs-operator">&lt;-------------</span>
+        <span class="hljs-keyword">while</span> r <span class="hljs-keyword">in</span> used_r:
+            r <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), q)
+        used_r.add(r)
+        r <span class="hljs-operator">=</span> int(blocks[<span class="hljs-keyword">_</span>][<span class="hljs-string">&quot;r&quot;</span>])
+        zeros.append(prng.getrandbits(<span class="hljs-number">256</span>)<span class="hljs-operator">^</span> (r<span class="hljs-operator">-</span><span class="hljs-number">1</span>))
+        #<span class="hljs-operator">&lt;-----------</span>
+
+        samples <span class="hljs-operator">=</span> blocks[<span class="hljs-keyword">_</span>][&#x27;samples&#x27;]
+        <span class="hljs-keyword">for</span> <span class="hljs-keyword">_</span> <span class="hljs-keyword">in</span> range(<span class="hljs-type">M_PER_BLOCK</span>):
+            az <span class="hljs-operator">=</span> samples[<span class="hljs-keyword">_</span>]
+            a <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">1</span>), <span class="hljs-type">L</span>)
+            a  <span class="hljs-operator">=</span> int(az[<span class="hljs-number">0</span>])
+            zeros.append(prng.getrandbits(<span class="hljs-number">20</span>)<span class="hljs-operator">^</span>(a <span class="hljs-operator">-</span><span class="hljs-number">1</span>))
+
+            k <span class="hljs-operator">=</span> rng.randrange(int(<span class="hljs-number">0</span>), q <span class="hljs-comment">// 2)</span>
+            tmp <span class="hljs-operator">=</span> prng.getrandbits(<span class="hljs-number">255</span>)
+
+    <span class="hljs-built_in">print</span>(&#x27;all done&#x27;)
+    sol <span class="hljs-operator">=</span> lin.solve_one(zeros)
+    <span class="hljs-built_in">print</span>(sol)
+    rng <span class="hljs-operator">=</span> <span class="hljs-type">MT19937</span>(sol)
+    pyrand <span class="hljs-operator">=</span> rng.to_python_random()
+    sk <span class="hljs-operator">=</span>pyrand.randrange(int(<span class="hljs-number">1</span>), q)
+    cipher <span class="hljs-operator">=</span> c[&#x27;ciphertext_hex&#x27;]
+
+    <span class="hljs-built_in">print</span>(cipher)
+    ciphertext <span class="hljs-operator">=</span> bytes.fromhex(cipher)
+
+    <span class="hljs-built_in">print</span>(ciphertext)
+    stream <span class="hljs-operator">=</span> stream_for_sk(sk, len(ciphertext))
+    ciphertext <span class="hljs-operator">=</span> xor_bytes(ciphertext, stream)
+    <span class="hljs-built_in">print</span>(ciphertext)
+
+build_instance(<span class="hljs-number">0</span>)
+
+```
+
+<span class="hljs-operator">&lt;/</span>details<span class="hljs-operator">&gt;</span>
+
+## random brainrot
+
+<span class="hljs-operator">!</span>[image](https:<span class="hljs-comment">//hackmd.io/_uploads/H1wNrVCzMl.png)</span>
+
+```py
+<span class="hljs-operator">├──</span> server.py
+<span class="hljs-operator">├──</span> solve.py
+<span class="hljs-operator">├──</span> tmp.py <span class="hljs-operator">----</span> debug
+<span class="hljs-operator">└──</span> vd.py <span class="hljs-operator">-----</span> debug
+```
+
+### chall 
+
+<span class="hljs-operator">&lt;</span>details<span class="hljs-operator">&gt;</span>
+<span class="hljs-operator">&lt;</span>summary<span class="hljs-operator">&gt;</span>```py<span class="hljs-operator">&lt;/</span>summary<span class="hljs-operator">&gt;</span>
+
+<span class="hljs-keyword">import</span> random
+from itertools <span class="hljs-keyword">import</span> cycle
+
+<span class="hljs-type">FLAG</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;grey{REDACTED}&quot;</span>
+
+<span class="hljs-keyword">class</span> PRNG:
+    r <span class="hljs-operator">=</span> <span class="hljs-number">0</span>
+    x <span class="hljs-operator">=</span> <span class="hljs-number">0</span>
+    ct <span class="hljs-operator">=</span> <span class="hljs-number">0</span>
+    
+    def __init__(<span class="hljs-keyword">self</span>, r, x):
+        <span class="hljs-keyword">self</span>.r <span class="hljs-operator">=</span> r
+        <span class="hljs-keyword">self</span>.x <span class="hljs-operator">=</span> x
+        
+        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">1000</span>):
+            <span class="hljs-keyword">self</span>.step()
+            
+    def step(<span class="hljs-keyword">self</span>):
+        <span class="hljs-keyword">self</span>.x <span class="hljs-operator">=</span> <span class="hljs-keyword">self</span>.r <span class="hljs-operator">*</span> <span class="hljs-keyword">self</span>.x <span class="hljs-operator">*</span> (<span class="hljs-number">1</span><span class="hljs-operator">-</span><span class="hljs-keyword">self</span>.x)
+        <span class="hljs-keyword">self</span>.ct <span class="hljs-operator">+=</span> <span class="hljs-number">1</span>
+        
+    def generate(<span class="hljs-keyword">self</span>):
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.ct <span class="hljs-operator">&lt;=</span> <span class="hljs-number">3000</span>:
+            <span class="hljs-keyword">self</span>.step()
+            byte <span class="hljs-operator">=</span> int(<span class="hljs-keyword">self</span>.x <span class="hljs-operator">*</span> <span class="hljs-number">256</span>)
+            yield byte
+
+<span class="hljs-type">RR</span> <span class="hljs-operator">=</span> <span class="hljs-number">3.676</span> <span class="hljs-operator">+</span> random.random() <span class="hljs-operator">*</span> <span class="hljs-number">0.000767676767</span>
+
+<span class="hljs-type">RR</span> <span class="hljs-operator">=</span> float(<span class="hljs-string">&quot;%.15f&quot;</span><span class="hljs-operator">%</span><span class="hljs-type">RR</span>)
+
+start <span class="hljs-operator">=</span> random.random()
+
+<span class="hljs-type">SECRET</span> <span class="hljs-operator">=</span> random.randbytes(<span class="hljs-number">16</span>)
+<span class="hljs-built_in">print</span>(<span class="hljs-type">SECRET</span>) #debug
+<span class="hljs-built_in">print</span>(<span class="hljs-type">RR</span>)
+
+p <span class="hljs-operator">=</span> <span class="hljs-type">PRNG</span>(<span class="hljs-type">RR</span>, start)
+
+xor <span class="hljs-operator">=</span> lambda x, y : bytes(a<span class="hljs-operator">^</span>b <span class="hljs-keyword">for</span> a, b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(x, y))
+
+def encrypt(pt):
+    ct <span class="hljs-operator">=</span> xor(xor(p.generate(), pt), cycle(<span class="hljs-type">SECRET</span>))
+    <span class="hljs-keyword">return</span> ct
+
+try:
+    <span class="hljs-keyword">while</span> True:
+        
+            msg <span class="hljs-operator">=</span> bytes.fromhex(input(<span class="hljs-string">&quot;Enter message (in hex): &quot;</span>))
+
+            <span class="hljs-keyword">if</span> (msg <span class="hljs-operator">==</span> <span class="hljs-type">SECRET</span>):
+                <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;stop hacking!!!!!!!!1&quot;</span>)
+                <span class="hljs-built_in">print</span>(<span class="hljs-type">FLAG</span>)
+                <span class="hljs-keyword">break</span>
+                
+            t <span class="hljs-operator">=</span> encrypt(msg)
+
+            <span class="hljs-keyword">if</span> (len(t) <span class="hljs-operator">==</span> <span class="hljs-number">0</span>):
+                <span class="hljs-keyword">break</span>
+
+            <span class="hljs-built_in">print</span>(t.hex())
+    
+except <span class="hljs-type">Exception</span> <span class="hljs-keyword">as</span> e:
+    pass
+
+```
+
+<span class="hljs-operator">&lt;/</span>details<span class="hljs-operator">&gt;</span>
+
+bài này lúc đầu mình cũng không phải biết giải sau thì mình có đi mò thử các blog nào đó thì mình phát hiện được: 
+<span class="hljs-operator">!</span>[image](https:<span class="hljs-comment">//hackmd.io/_uploads/SkGsw4Azzx.png)</span>
+
+thì mình tìm được cái này :)))) 
+
+### logistic map 
+<span class="hljs-operator">&gt;</span> https:<span class="hljs-comment">//en.wikipedia.org/wiki/Logistic_map</span>
+
+#### khái niệm 
+
+<span class="hljs-type">Phương</span> trình của <span class="hljs-type">Logistic</span> <span class="hljs-type">Map</span> được định nghĩa bằng công thức đệ quy sau:
+
+$<span class="hljs-variable">$x_</span>{n<span class="hljs-operator">+</span><span class="hljs-number">1</span>} <span class="hljs-operator">=</span> r \cdot x_n \cdot (<span class="hljs-number">1</span> <span class="hljs-operator">-</span> x_n)$$
+
+<span class="hljs-type">Trong</span> đó:
+<span class="hljs-operator">-</span> <span class="hljs-variable">$x_n</span>$: trạng thái của hệ tại bước n (ví dụ: tỉ lệ quần thể so với sức chứa môi trường). 
+<span class="hljs-operator">-</span> <span class="hljs-variable">$x_</span>{n<span class="hljs-operator">+</span><span class="hljs-number">1</span>}$ <span class="hljs-type">Trạng</span> thái bước tiêp theo.
+<span class="hljs-operator">-</span> <span class="hljs-variable">$r</span>$: tham số điều khiển.
+
+#### <span class="hljs-type">Tính</span> chất
+<span class="hljs-type">Miền</span> giá trị: 
+\begin{equation}
+\begin{aligned}
+<span class="hljs-number">0</span> \le x_0 \le <span class="hljs-number">1</span>,\qquad
+<span class="hljs-number">0</span> \le r \le <span class="hljs-number">4</span>
+\quad\<span class="hljs-type">Longrightarrow</span>\quad
+<span class="hljs-number">0</span> \le x_n \le <span class="hljs-number">1</span>,\qquad
+\forall n.
+\end{aligned}
+\end{equation}
+
+đạo hàm: 
+\begin{equation}
+f&#x27;(x)<span class="hljs-operator">=</span>r(<span class="hljs-number">1</span><span class="hljs-operator">-</span>2x).
+\end{equation}
+
+<span class="hljs-type">Một</span> điểm cố định ổn định nếu
+
+\begin{equation}
+\left<span class="hljs-operator">|</span>f&#x27;(x)\right<span class="hljs-operator">|&lt;</span><span class="hljs-number">1</span>.
+\end{equation}
+
+<span class="hljs-operator">-</span> (<span class="hljs-number">0</span><span class="hljs-operator">&lt;</span>r<span class="hljs-operator">&lt;</span><span class="hljs-number">1</span>): hội tụ về (<span class="hljs-number">0</span>).
+<span class="hljs-operator">-</span> (<span class="hljs-number">1</span><span class="hljs-operator">&lt;</span>r<span class="hljs-operator">&lt;</span><span class="hljs-number">3</span>): hội tụ về $(<span class="hljs-number">1</span><span class="hljs-operator">-</span>\dfrac{<span class="hljs-number">1</span>}{r})$.
+<span class="hljs-operator">-</span> (r<span class="hljs-operator">&gt;</span><span class="hljs-number">3</span>): bắt đầu mất ổn định.
+
+<span class="hljs-type">Các</span> bạn muốn biết thêm thì có thể xem ở wiki và hơn hết thì ở blog này mình chỉ tập chung là r <span class="hljs-operator">&gt;</span><span class="hljs-number">3</span> (trong chall bảo thế :)))) ). 
+
+#### r <span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span> <span class="hljs-type">Hỗn</span> loạn 
+<span class="hljs-operator">&gt;</span> https:<span class="hljs-comment">//en.wikipedia.org/wiki/Logistic_map#Characterization_of_the_logistic_map</span>
+<span class="hljs-operator">&gt;</span> 
+$$
+r<span class="hljs-operator">&gt;</span><span class="hljs-number">3.5699456</span><span class="hljs-operator">...</span>
+$$
+
+hệ bắt đầu bước vào vùng hỗn loạn.
+
+<span class="hljs-type">Lúc</span> này:
+
+<span class="hljs-operator">-</span> không hội tụ
+<span class="hljs-operator">-</span> không chu kỳ đơn giản
+<span class="hljs-operator">-</span> rất nhạy với điều kiện ban đầu
+
+<span class="hljs-type">Và</span> nhìn vào đoạn này: 
+<span class="hljs-operator">!</span>[image](https:<span class="hljs-comment">//hackmd.io/_uploads/HJNF_Txmze.png)</span>
+
+<span class="hljs-type">Tức</span> là nếu r gần với <span class="hljs-number">3</span>,<span class="hljs-number">678</span><span class="hljs-operator">...</span>, x gần với <span class="hljs-number">0</span>,<span class="hljs-number">728</span> và x <span class="hljs-operator">=</span> <span class="hljs-number">1</span><span class="hljs-operator">-</span> <span class="hljs-number">1</span><span class="hljs-regexp">/r. Hai dải hỗn loạn của biểu đồ phân nhánh giao nhau tại điểm [Misiurewicz](https:/</span><span class="hljs-regexp">/en.wikipedia.org/</span>wiki<span class="hljs-operator">/</span><span class="hljs-type">Misiurewicz_point</span>) đầu tiên đối với bản đồ logistic. <span class="hljs-type">Nó</span> thỏa mãn các phương trình: 
+
+\begin{equation}
+r<span class="hljs-operator">^</span><span class="hljs-number">3</span> <span class="hljs-operator">-</span> 2r<span class="hljs-operator">^</span><span class="hljs-number">2</span> <span class="hljs-operator">-</span> 4r <span class="hljs-operator">-</span> <span class="hljs-number">8</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>
+\end{equation}
+
+Ở vùng này có điều gì đặc biệt: 
+<span class="hljs-operator">!</span>[image](https:<span class="hljs-comment">//hackmd.io/_uploads/SJdzqpeXfl.png)</span>
+
+<span class="hljs-type">Như</span> ta có thể thấy được khi vào vùng gần r <span class="hljs-operator">=</span> <span class="hljs-number">3</span>,<span class="hljs-number">678</span><span class="hljs-operator">...</span> thì lúc này, tại giá trị r gần vùng này, attractor có dạng hai dải hỗn loạn trên biểu đồ phân nhánh, một cái đi lên <span class="hljs-number">1</span> cái đi xuống và hội tụ về <span class="hljs-number">1</span> miền: 
+<span class="hljs-type">Ta</span> xét: 
+<span class="hljs-number">1</span>. <span class="hljs-type">Vùng</span> cao: 
+
+\begin{aligned}
+f(x_{n}) <span class="hljs-operator">&amp;&gt;</span> x_n\\
+<span class="hljs-operator">&amp;</span>\<span class="hljs-type">Longleftrightarrow</span> r x_{n}(<span class="hljs-number">1</span><span class="hljs-operator">-</span>x_{n}) <span class="hljs-operator">&gt;</span> x_n\\
+<span class="hljs-operator">&amp;</span>\<span class="hljs-type">Longleftrightarrow</span> <span class="hljs-number">1</span><span class="hljs-operator">-</span>x_{n} <span class="hljs-operator">&gt;</span> \frac{<span class="hljs-number">1</span>}{r}\\
+<span class="hljs-operator">&amp;</span>\<span class="hljs-type">Longleftrightarrow</span> x_{n} <span class="hljs-operator">&lt;</span> <span class="hljs-number">1</span><span class="hljs-operator">-</span>\frac{<span class="hljs-number">1</span>}{r}\\
+<span class="hljs-operator">&amp;</span>\<span class="hljs-type">Longrightarrow</span> x_{n} <span class="hljs-operator">&lt;</span> <span class="hljs-number">0.72802197</span>
+\end{aligned}
+
+<span class="hljs-operator">!</span>[image](https:<span class="hljs-comment">//hackmd.io/_uploads/ByvjA6g7Gl.png)</span>
+
+<span class="hljs-type">Tức</span> là với giá trị x_n <span class="hljs-operator">&lt;</span> <span class="hljs-number">0.72802197</span> thì mình sẽ có là f(x_n)<span class="hljs-operator">&gt;</span> x_n.
+và tỷ lệ để x_n <span class="hljs-operator">&lt;</span> <span class="hljs-number">0</span>,<span class="hljs-number">72</span><span class="hljs-operator">...</span> là <span class="hljs-number">72</span> phần trăm chắc v <span class="hljs-operator">...</span> 
+
+<span class="hljs-number">2</span>. <span class="hljs-type">Vùng</span> thấp
+
+tương tự<span class="hljs-operator">...</span>, tại mình không có quan tâm lắm mình coi vùng cao thôi :))) 
+
+### solve 
+
+#### <span class="hljs-type">Math</span>
+như ta dễ thấy nhất thì: 
+```py
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">PRNG</span>:
+    r = 0
+    x = 0
+    ct = 0
+    
+    def __init__(<span class="hljs-keyword">self</span>, r, x):
+        <span class="hljs-keyword">self</span>.r = r
+        <span class="hljs-keyword">self</span>.x = x
+        
+        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(1000):
+            <span class="hljs-keyword">self</span>.step()
+            
+    def step(<span class="hljs-keyword">self</span>):
+        <span class="hljs-keyword">self</span>.x = <span class="hljs-keyword">self</span>.r * <span class="hljs-keyword">self</span>.x * (1-<span class="hljs-keyword">self</span>.x)
+        <span class="hljs-keyword">self</span>.ct += 1
+        
+    def generate(<span class="hljs-keyword">self</span>):
+        <span class="hljs-keyword">while</span> <span class="hljs-keyword">self</span>.ct &lt;= 3000:
+            <span class="hljs-keyword">self</span>.step()
+            byte = int(<span class="hljs-keyword">self</span>.x * 256)
+            yield byte
+
+<span class="hljs-title class_ inherited__">RR</span> = 3.676 + random.random() * 0.000767676767
+
+<span class="hljs-title class_ inherited__">RR</span> = float(&quot;%.15f&quot;%<span class="hljs-title class_ inherited__">RR</span>)
+
+start = random.random()
+p = <span class="hljs-title class_ inherited__">PRNG</span>(<span class="hljs-title class_ inherited__">RR</span>, start)
+
+```
+
+ở khởi tạo ta có như trên. thì vấn đề là ta sẽ được <span class="hljs-keyword">in</span> ra : 
+
+```
+byte = x * 256 với x thuộc khoảng 0 - 1 
+```
+
+một tính chất đặc biết ở hàm int(), nó sẽ làm tròn xuống: 
+https://stackoverflow.com/questions/79417379/can-you-explain-how-int-functionint-works-<span class="hljs-keyword">in</span>-python
+
+tức  là ví dụ 2.05 -&gt; 2 . 
+
+vậy ta nhận xét được điều gì??? 
+
+<span class="hljs-title class_ inherited__">Nếu</span> ta gửi payload một giá trị `b&#x27;\0` thì nhận được: 
+
+\begin{aligned}
+b_i <span class="hljs-operator">&amp;=</span> c_i \oplus key_i\\
+b_i <span class="hljs-operator">&amp;=</span> \left\lfloor 256x_n \right\rfloor\\
+<span class="hljs-operator">&amp;</span>\<span class="hljs-type">Longleftrightarrow</span> b_i \le 256x_n <span class="hljs-operator">&lt;</span> b_i <span class="hljs-operator">+</span> <span class="hljs-number">1</span>\\
+<span class="hljs-operator">&amp;</span>\<span class="hljs-type">Longleftrightarrow</span> \frac{b_i}{<span class="hljs-number">256</span>} \le x_n <span class="hljs-operator">&lt;</span> \frac{b_i<span class="hljs-operator">+</span><span class="hljs-number">1</span>}{<span class="hljs-number">256</span>}\\
+<span class="hljs-operator">&amp;</span>\<span class="hljs-type">Longleftrightarrow</span> i_{\min} \le x_n <span class="hljs-operator">&lt;</span> i_{\max}\\
+<span class="hljs-operator">&amp;</span>\<span class="hljs-type">Rightarrow</span> <span class="hljs-built_in">min</span>(f(i_{min}),f(i_{max}))\le f(x_n) <span class="hljs-operator">&lt;</span> <span class="hljs-built_in">max</span>(f(i_{max}),f(i_{max}))
+\end{aligned}
+
+tại sao lại có tìm min max trong công thức như thế, nhìn vào đây: 
+<span class="hljs-operator">!</span>[image](https:<span class="hljs-comment">//hackmd.io/_uploads/HJ_q4AlmMg.png)</span>
+
+đây là một đồ thị parabol: 
+<span class="hljs-operator">!</span>[image](https:<span class="hljs-comment">//hackmd.io/_uploads/rkP0VRl7fl.png)</span>
+
+nên giá trị nó không đồng biến hay nghịch biến, hình như nó biến thiên theo điểm thì phải :)))) 
+
+#### <span class="hljs-type">Solve</span>
+
+<span class="hljs-type">Và</span> khi ta kết hợp <span class="hljs-number">2</span> thứ lại ( về logistic map và int ) thì ta có một attack vector như sau: 
+
+đầu tiên: 
+<span class="hljs-operator">-</span> chúng ta sẽ tìm giá trị: 
+
+\begin{aligned}
+f_{min}(x) \ f_{max}(x) \leftarrow x_n, \ x_{n<span class="hljs-operator">+</span><span class="hljs-number">1</span>}
+\end{aligned}
+
+như ta đã phân tích ta sẽ sẽ miền <span class="hljs-type">Vùng</span> <span class="hljs-type">Cao</span> thôi: 
+
+\begin{array}
+\ <span class="hljs-operator">&amp;</span>f(x_{n}) <span class="hljs-operator">&gt;</span> x_n\\
+<span class="hljs-operator">&amp;</span>\<span class="hljs-type">Longleftrightarrow</span>
+\left\{
+\begin{aligned}
+{\min}(x_{n<span class="hljs-operator">+</span><span class="hljs-number">1</span>})<span class="hljs-operator">&lt;</span> f_{\max}(x_{n})\\
+{\max}(x_{n<span class="hljs-operator">+</span><span class="hljs-number">1</span>}) <span class="hljs-operator">&amp;&lt;</span> f_{\min}(x_n) 
+\end{aligned}
+\right.\<span class="hljs-type">Longrightarrow</span> \text{<span class="hljs-type">Sai</span>}
+\end{array}
+
+<span class="hljs-type">Và</span> hơn hết ta chỉ biết được x_n khi và chỉ khi biết dược key_i, nên mình có một ý nghĩ là brute theo dạng tìm key_i nào rồi chúng ta sẽ áp dụng điều kiện trên nếu đúng thì chúng ta đúng key_i. 
+
+solve: 
+
+:::spoiler
+```py
+<span class="hljs-keyword">import</span> random
+from itertools <span class="hljs-keyword">import</span> cycle
+<span class="hljs-keyword">import</span> copy 
+from pwn <span class="hljs-keyword">import</span> * 
+from <span class="hljs-type">Crypto</span>.<span class="hljs-type">Util</span>.number <span class="hljs-keyword">import</span> * 
+<span class="hljs-type">FLAG</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;grey{REDACTED}&quot;</span>
+
+<span class="hljs-string">&quot;&quot;&quot;
+
+equation = -rx^2 + rx ( negative parabol )
+f(x_n) &gt; x_n)
+=&gt; r * x_n * (1 - x_n) &gt; x_n 
+=&gt; r  * (1 - x_n) &gt; 1 
+=&gt; x_n&lt; 1 - 1/r 
+
+c[i] xor key[i] = xn * 256  &lt;--   imin = ( c[i] xor key[i] ) / 256  &lt;= xn &lt; imax = ( c[i] xor key[i] ) + 1 / 256 
+c[i+1] = xn+1 xor key[i+1]
+
+f(x) = r * x * (1-x)
+
+value min = f(imin) 
+value max = f(max)
+
+r in { 3.676 ,  3.676767676767 }
+x in {0,1}
+low , high 
+
+&quot;&quot;&quot;</span> 
+
+# context.log_level <span class="hljs-operator">=</span> <span class="hljs-string">&quot;debug&quot;</span>
+# context.log_level <span class="hljs-operator">=</span> <span class="hljs-string">&quot;info&quot;</span>
+
+def f_x(x, r):
+    <span class="hljs-keyword">return</span> r <span class="hljs-operator">*</span> x <span class="hljs-operator">*</span> (<span class="hljs-number">1</span> <span class="hljs-operator">-</span> x)
+
+def cal(imin, imax, r):
+    vmin <span class="hljs-operator">=</span> f_x(imin, r)
+    vmax <span class="hljs-operator">=</span> f_x(imax, r)
+
+    fmin <span class="hljs-operator">=</span> <span class="hljs-built_in">min</span>(vmin, vmax)
+    fmax <span class="hljs-operator">=</span> <span class="hljs-built_in">max</span>(vmin, vmax)
+
+    <span class="hljs-keyword">if</span> imin <span class="hljs-operator">&lt;=</span> <span class="hljs-number">0.5</span> <span class="hljs-operator">&lt;=</span> imax:
+        fmax <span class="hljs-operator">=</span> f_x(<span class="hljs-number">0.5</span>, r)
+
+    <span class="hljs-keyword">return</span> fmin, fmax
+
+def caln(imin, imax, r, n):
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(n):
+        imin, imax <span class="hljs-operator">=</span> cal(imin, imax, r)
+    <span class="hljs-keyword">return</span> imin, imax
+
+io <span class="hljs-operator">=</span> process([<span class="hljs-string">&quot;python3&quot;</span>, <span class="hljs-string">&quot;server.py&quot;</span>])
+s <span class="hljs-operator">=</span> (io.recvline().strip())
+# <span class="hljs-built_in">print</span>(s)
+
+r <span class="hljs-operator">=</span> float(io.recvline().strip())
+# <span class="hljs-built_in">print</span>( r)
+
+def send_line(n<span class="hljs-operator">=</span><span class="hljs-number">1</span>):
+    io.sendlineafter(b<span class="hljs-string">&quot;: &quot;</span>, b<span class="hljs-string">&quot;00&quot;</span><span class="hljs-operator">*</span>n)
+    line <span class="hljs-operator">=</span> io.recvline().strip().decode()
+    <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;stop hacking&quot;</span> <span class="hljs-keyword">in</span> line:
+        <span class="hljs-built_in">print</span>(io.recvall().decode())
+        exit(<span class="hljs-number">0</span>)
+    <span class="hljs-keyword">return</span> bytes.fromhex(line)
+
+c <span class="hljs-operator">=</span> [(send_line(<span class="hljs-number">2</span>)) <span class="hljs-keyword">for</span> <span class="hljs-keyword">_</span> <span class="hljs-keyword">in</span> range(<span class="hljs-number">30</span>)]
+# <span class="hljs-built_in">print</span>(c)
+sec <span class="hljs-operator">=</span> []
+# exit(<span class="hljs-number">0</span>)
+
+<span class="hljs-keyword">for</span> g0 <span class="hljs-keyword">in</span> range(<span class="hljs-number">256</span>):
+    <span class="hljs-keyword">for</span> g1 <span class="hljs-keyword">in</span> range(<span class="hljs-number">256</span>):
+        tmp <span class="hljs-operator">=</span> <span class="hljs-type">True</span>
+        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> range(len(c)):
+            c1 <span class="hljs-operator">=</span> c[j]
+            p0 <span class="hljs-operator">=</span> bytes_to_long(xor(c1[<span class="hljs-number">0</span>], g0))
+            p1 <span class="hljs-operator">=</span> bytes_to_long(xor(c1[<span class="hljs-number">1</span>], g1))
+            # <span class="hljs-built_in">print</span>(p1,p0)
+            tmpmin <span class="hljs-operator">=</span> p0 <span class="hljs-operator">/</span> <span class="hljs-number">256</span>
+            tmpmax <span class="hljs-operator">=</span> (p0<span class="hljs-operator">+</span><span class="hljs-number">1</span>) <span class="hljs-operator">/</span> <span class="hljs-number">256</span>
+            fmin, fmax <span class="hljs-operator">=</span> cal(tmpmin, tmpmax, r)
+            tmpmin <span class="hljs-operator">=</span> p1<span class="hljs-operator">/</span><span class="hljs-number">256</span>
+            tmpmax <span class="hljs-operator">=</span> (p1<span class="hljs-operator">+</span><span class="hljs-number">1</span>)<span class="hljs-operator">/</span><span class="hljs-number">256</span>
+            <span class="hljs-keyword">if</span> fmax<span class="hljs-operator">&lt;</span> tmpmin or fmin <span class="hljs-operator">&gt;</span> tmpmax:
+                tmp <span class="hljs-operator">=</span> <span class="hljs-type">False</span>
+                <span class="hljs-keyword">break</span>
+        <span class="hljs-keyword">if</span> tmp:
+            sec.append(g0)
+            sec.append(g1)
+            <span class="hljs-keyword">break</span>
+    <span class="hljs-keyword">if</span> len(sec) <span class="hljs-operator">&gt;=</span> <span class="hljs-number">2</span>:
+        <span class="hljs-keyword">break</span>
+
+<span class="hljs-built_in">print</span>(sec)
+<span class="hljs-keyword">for</span> m <span class="hljs-keyword">in</span> range(<span class="hljs-number">2</span>, <span class="hljs-number">16</span>):
+    cand <span class="hljs-operator">=</span> list(range(<span class="hljs-number">256</span>))
+    <span class="hljs-keyword">while</span> len(cand) <span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>:
+        res <span class="hljs-operator">=</span> send_line(m <span class="hljs-operator">+</span> <span class="hljs-number">1</span>)
+        tmp <span class="hljs-operator">=</span> []
+
+        <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> cand:
+            ok <span class="hljs-operator">=</span> <span class="hljs-type">True</span>
+            p0 <span class="hljs-operator">=</span> bytes_to_long (xor(res[<span class="hljs-number">0</span>], sec[<span class="hljs-number">0</span>]))
+            imin <span class="hljs-operator">=</span> p0 <span class="hljs-operator">/</span> <span class="hljs-number">256</span>
+            imax <span class="hljs-operator">=</span> (p0<span class="hljs-operator">+</span><span class="hljs-number">1</span>) <span class="hljs-operator">/</span> <span class="hljs-number">256</span>
+            <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> range(<span class="hljs-number">1</span>, m):
+                fmin, fmax <span class="hljs-operator">=</span> cal(imin, imax, r)
+                p1 <span class="hljs-operator">=</span> bytes_to_long(xor(res[j], sec[j]))
+                tmpmin <span class="hljs-operator">=</span> p1<span class="hljs-operator">/</span><span class="hljs-number">256</span>
+                tmpmax <span class="hljs-operator">=</span> (p1<span class="hljs-operator">+</span><span class="hljs-number">1</span>)<span class="hljs-operator">/</span><span class="hljs-number">256</span>
+                <span class="hljs-keyword">if</span> fmax<span class="hljs-operator">&lt;</span> tmpmin or fmin <span class="hljs-operator">&gt;</span> tmpmax:
+                    ok <span class="hljs-operator">=</span> <span class="hljs-type">False</span>
+                    <span class="hljs-keyword">break</span>
+                imin <span class="hljs-operator">=</span> <span class="hljs-built_in">max</span>(fmin, tmpmin)
+                imax <span class="hljs-operator">=</span> <span class="hljs-built_in">min</span>(fmax, tmpmax)
+            <span class="hljs-keyword">if</span> not ok:
+                <span class="hljs-keyword">continue</span>
+            fmin, fmax <span class="hljs-operator">=</span> cal(imin, imax, r)
+            p1 <span class="hljs-operator">=</span> bytes_to_long(xor(res[m], k))
+            tmpmin <span class="hljs-operator">=</span> p1<span class="hljs-operator">/</span><span class="hljs-number">256</span>
+            tmpmax <span class="hljs-operator">=</span> (p1<span class="hljs-operator">+</span><span class="hljs-number">1</span>)<span class="hljs-operator">/</span><span class="hljs-number">256</span>
+            <span class="hljs-keyword">if</span> not (fmax<span class="hljs-operator">&lt;</span> tmpmin or fmin <span class="hljs-operator">&gt;</span> tmpmax):
+                tmp.append(k)
+        cand <span class="hljs-operator">=</span> tmp
+    sec.append(cand[<span class="hljs-number">0</span>])
+
+sec <span class="hljs-operator">=</span> bytes(sec)
+<span class="hljs-built_in">print</span>(sec)
+io.sendlineafter(b<span class="hljs-string">&quot;: &quot;</span>, sec.hex().encode())
+<span class="hljs-built_in">print</span>(io.recvall().decode())
+```
+</code></pre>
+</article>
+    </main>
+
+    <script src="../assets/js/common.js"></script>
+</body>
+</html>
