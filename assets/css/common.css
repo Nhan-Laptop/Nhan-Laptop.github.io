@@ -835,6 +835,19 @@ tbody tr:last-child td {
     color: var(--brand);
 }
 
+.markdown-content table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.markdown-content p,
+.markdown-content li {
+    overflow-wrap: anywhere;
+}
+
 /* Fix loi tran man hinh cho cong thuc va code */
 .markdown-content pre,
 .markdown-content math,

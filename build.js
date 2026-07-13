@@ -263,7 +263,7 @@ function preprocessHackmdMarkdown(input) {
         return `<details>\n<summary>${safeTitle}</summary>\n\n${body}\n\n</details>`;
     });
 
-    // 3) Wrap bare LaTeX block lines
+    // 3) Normalize inline LaTeX delimiters and wrap bare LaTeX block lines
     const lines = text.split("\n");
     const out = [];
     let inCodeFence = false;
@@ -295,38 +295,66 @@ function preprocessHackmdMarkdown(input) {
             continue;
         }
 
-        const beginMatch = line.match(/\\begin\{(array|bmatrix|aligned)\}/);
+        let normalizedInlineMath = line.replace(/\\\((.+?)\\\)/g, (_, expr) => `$${expr}$`);
+        normalizedInlineMath = normalizedInlineMath.replace(
+            /\\begin\{([A-Za-z*]+)\}(.+?)\\end\{\1\}/g,
+            (_, env, body) => `$\\begin{${env}}${body}\\end{${env}}$`
+        );
+        const normalizedTrimmed = normalizedInlineMath.trim();
+        const beginMatch = normalizedTrimmed.match(/^\\\\begin\{([^}]+)\}/);
 
         if (beginMatch) {
             const env = beginMatch[1];
-            const block = [line];
+            const block = [normalizedInlineMath];
             let j = i;
-            const endRegex = new RegExp(`\\\\end\\{${env}\\}`);
-            while (j + 1 < lines.length && !endRegex.test(lines[j])) {
+            const endRegex = new RegExp(`\\\\\\\\end\\{${env.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\}`);
+            while (j + 1 < lines.length && !endRegex.test(block[block.length - 1].trim())) {
                 j += 1;
-                block.push(lines[j]);
-                if (endRegex.test(lines[j])) {
-                    break;
-                }
+                block.push(lines[j].replace(/\\\((.+?)\\\)/g, (_, expr) => `$${expr}$`));
             }
+            out.push("");
             out.push("$$");
             out.push(...block);
             out.push("$$");
+            out.push("");
             i = j;
             continue;
         }
 
-        if (/^\\fbox\{/.test(trimmed)) {
+        if (/^\\\\fbox\{/.test(normalizedTrimmed)) {
+            out.push("");
             out.push("$$");
-            out.push(line);
+            out.push(normalizedInlineMath);
             out.push("$$");
+            out.push("");
             continue;
         }
 
-        out.push(line);
+        out.push(normalizedInlineMath);
     }
 
-    return out.join("\n");
+    let normalized = out.join("\n");
+    const protectedBlocks = [];
+
+    normalized = normalized.replace(/```[\s\S]*?```|\$\$[\s\S]*?\$\$/g, (block) => {
+        const token = `@@BLOCK_${protectedBlocks.length}@@`;
+        protectedBlocks.push(block);
+        return token;
+    });
+
+    normalized = normalized.replace(
+        /(^|\n)(\\begin\{([A-Za-z*]+)\}[\s\S]*?\\end\{\3\})(?=\n|$)/g,
+        (_, prefix, block) => `${prefix}\n$$\n${block}\n$$\n`
+    );
+
+    normalized = normalized.replace(
+        /(^|\n)(\\fbox\{[\s\S]*?\})(?=\n|$)/g,
+        (_, prefix, block) => `${prefix}\n$$\n${block}\n$$\n`
+    );
+
+    normalized = normalized.replace(/@@BLOCK_(\d+)@@/g, (_, index) => protectedBlocks[Number(index)]);
+
+    return normalized;
 }
 
 function setupMarkdownRenderer() {
