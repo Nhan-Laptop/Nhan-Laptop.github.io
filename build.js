@@ -42,28 +42,84 @@ function formatDate(dateLike) {
     return date.toISOString().slice(0, 10);
 }
 
+function parseYamlScalar(value = "") {
+    const trimmed = String(value).trim();
+    if (
+        trimmed.length >= 2 &&
+        ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+            (trimmed.startsWith("'") && trimmed.endsWith("'")))
+    ) {
+        return trimmed.slice(1, -1);
+    }
+    return trimmed;
+}
+
+function parseFrontmatter(markdown) {
+    const match = markdown.match(/^\s*---\s*\n([\s\S]*?)\n---\s*(?:\n|$)/);
+    if (!match) {
+        return { found: false, date: "", tags: [], summary: "" };
+    }
+
+    const metadata = { found: true, date: "", tags: [], summary: "" };
+    let currentKey = "";
+
+    for (const line of match[1].split("\n")) {
+        const keyMatch = line.match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/);
+        if (keyMatch) {
+            currentKey = keyMatch[1].toLowerCase();
+            const value = parseYamlScalar(keyMatch[2]);
+
+            if (currentKey === "date") metadata.date = value;
+            if (currentKey === "summary") metadata.summary = value;
+            if (currentKey === "tags" && /^\[.*\]$/.test(value)) {
+                metadata.tags = value
+                    .slice(1, -1)
+                    .split(",")
+                    .map(parseYamlScalar)
+                    .filter(Boolean);
+            }
+            continue;
+        }
+
+        const listItemMatch = line.match(/^\s*-\s*(.+)$/);
+        if (currentKey === "tags" && listItemMatch) {
+            metadata.tags.push(parseYamlScalar(listItemMatch[1]));
+        }
+    }
+
+    return metadata;
+}
+
 function parseMarkdownMetadata(markdown) {
+    const frontmatter = parseFrontmatter(markdown);
     const dateMatch = markdown.match(/^\s*(?:\*\*)?Date:\s*(?:\*\*)?(.+)$/im);
     const tagsMatch = markdown.match(/^\s*(?:\*\*)?Tags:\s*(?:\*\*)?(.+)$/im);
     const summaryMatch = markdown.match(/^\s*(?:\*\*)?Summary:\s*(?:\*\*)?(.+)$/im);
 
-    const rawDate = dateMatch ? dateMatch[1].trim() : "";
+    const rawDate = frontmatter.date || (dateMatch ? dateMatch[1].trim() : "");
     const dateIsoMatch = rawDate.match(/\b(20\d{2}-\d{2}-\d{2})\b/);
 
     const rawTags = tagsMatch ? tagsMatch[1].trim() : "";
-    const tags = Array.from(new Set(rawTags.match(/#[A-Za-z0-9_-]+/g) || []));
+    const frontmatterTags = frontmatter.tags.map((tag) =>
+        tag.startsWith("#") ? tag : `#${tag}`
+    );
+    const tags = Array.from(
+        new Set(frontmatterTags.length > 0 ? frontmatterTags : rawTags.match(/#[A-Za-z0-9_-]+/g) || [])
+    );
 
-    const summary = summaryMatch ? summaryMatch[1].trim() : "";
+    const summary = frontmatter.summary || (summaryMatch ? summaryMatch[1].trim() : "");
 
     return {
         date: dateIsoMatch ? dateIsoMatch[1] : "",
         tags,
         summary,
+        hasFrontmatter: frontmatter.found,
     };
 }
 
 function stripMetadataLines(markdown) {
     return markdown
+        .replace(/^\s*---\s*\n[\s\S]*?\n---\s*(?:\n|$)/, "")
         .replace(/^\s*(?:\*\*)?Date:\s*(?:\*\*)?.*\n?/gim, "")
         .replace(/^\s*(?:\*\*)?Tags:\s*(?:\*\*)?.*\n?/gim, "")
         .replace(/^\s*(?:\*\*)?Summary:\s*(?:\*\*)?.*\n?/gim, "")
@@ -307,12 +363,12 @@ function injectRenderedHtmlIntoTemplate(templateHtml, articleHtml) {
     if (/<article\b[^>]*id=["']markdownRoot["'][^>]*>[\s\S]*?<\/article>/i.test(templateHtml)) {
         return templateHtml.replace(
             /<article\b[^>]*id=["']markdownRoot["'][^>]*>[\s\S]*?<\/article>/i,
-            articleWithClass
+            () => articleWithClass
         );
     }
 
     if (/<article\b[^>]*>[\s\S]*?<\/article>/i.test(templateHtml)) {
-        return templateHtml.replace(/<article\b[^>]*>[\s\S]*?<\/article>/i, articleWithClass);
+        return templateHtml.replace(/<article\b[^>]*>[\s\S]*?<\/article>/i, () => articleWithClass);
     }
 
     if (/<main\b[^>]*>[\s\S]*?<\/main>/i.test(templateHtml)) {
@@ -323,7 +379,7 @@ function injectRenderedHtmlIntoTemplate(templateHtml, articleHtml) {
 }
 
 // [MỚI] Hàm lấy tiêu đề từ Markdown và đắp vào HTML Template
-function injectMetadata(html, markdown) {
+function injectMetadata(html, markdown, fallbackDate) {
     // Tìm dòng H1 đầu tiên trong Markdown (VD: "# N1CTF 2025")
     const titleMatch = markdown.match(/^#\s+(.*)$/m);
     const title = titleMatch ? titleMatch[1].trim() : "Untitled Writeup";
@@ -333,6 +389,42 @@ function injectMetadata(html, markdown) {
 
     // 2. Thay thế chữ "[WRITEUP] TITLE HERE" bên trong thẻ <h1> của giao diện
     newHtml = newHtml.replace(/\[WRITEUP\] TITLE HERE/gi, title);
+
+    const metadata = parseMarkdownMetadata(markdown);
+    if (!metadata.hasFrontmatter) {
+        return newHtml;
+    }
+
+    const date = metadata.date || fallbackDate;
+    const tagsHtml = metadata.tags
+        .map((tag) => `<a href="../tags/index.html">${escapeHtml(tag)}</a>`)
+        .join("\n                ");
+    const postMetaHtml = [
+        '<div class="post-meta" style="margin-top: 10px;">',
+        `                <span>${escapeHtml(date)}</span>`,
+        '                <a href="../categories/writeup.html">Writeup</a>',
+        tagsHtml ? `                ${tagsHtml}` : "",
+        "            </div>",
+    ]
+        .filter(Boolean)
+        .join("\n");
+
+    newHtml = newHtml.replace(
+        /<div class="post-meta" style="margin-top: 10px;">[\s\S]*?<\/div>/i,
+        () => postMetaHtml
+    );
+    newHtml = newHtml.replace(/<span>Template<\/span>/i, () => `<span>${escapeHtml(title)}</span>`);
+    newHtml = newHtml.replace(
+        '<a class="is-active" href="writeup-template.html">Template</a>',
+        '<a class="is-active" href="../categories/writeup.html">Writeup</a>'
+    );
+
+    if (metadata.summary) {
+        newHtml = newHtml.replace(
+            /<p class="lead">[\s\S]*?<\/p>/i,
+            () => `<p class="lead">${escapeHtml(metadata.summary)}</p>`
+        );
+    }
 
     return newHtml;
 }
@@ -405,6 +497,8 @@ async function build() {
             const outputPath = path.join(PATHS.postsDir, outputFileName);
 
             const rawMarkdown = await fs.readFile(inputPath, "utf8");
+            const stats = await fs.stat(inputPath);
+            const fallbackDate = formatDate(stats.mtime);
             const markdownWithoutMetadata = stripMetadataLines(rawMarkdown);
             const cleanedMarkdown = preprocessHackmdMarkdown(markdownWithoutMetadata);
 
@@ -425,16 +519,15 @@ async function build() {
             let outputHtml = injectRenderedHtmlIntoTemplate(templateHtml, renderedArticle);
             
             // [MỚI] Gọi hàm đắp MetaData (Title) vào file HTML
-            outputHtml = injectMetadata(outputHtml, rawMarkdown);
+            outputHtml = injectMetadata(outputHtml, rawMarkdown, fallbackDate);
             
             outputHtml = removeClientSideMarkdownScripts(outputHtml);
             outputHtml = injectLocalCssLinks(outputHtml);
 
             await fs.writeFile(outputPath, outputHtml, "utf8");
 
-            const stats = await fs.stat(inputPath);
             allPosts.push(
-                extractPostMetadata(rawMarkdown, outputFileName, formatDate(stats.mtime))
+                extractPostMetadata(rawMarkdown, outputFileName, fallbackDate)
             );
 
             console.log(`✅ Đã build xong: ${file} -> ${outputFileName}`);
