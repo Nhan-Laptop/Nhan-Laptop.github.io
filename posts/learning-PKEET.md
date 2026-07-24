@@ -369,18 +369,11 @@ Thus equal messages always match, while unequal messages match only when they ca
 
 ## 6. Security analysis
 
-The complete reductions are lengthy, but their structure is more important than the bookkeeping constants.
-
 ### 6.1 IND-CCA2 against Type-II adversaries
 
 **Theorem 2.** If the two-level HIBE scheme is IND-sID-CPA secure and the one-time signature is strongly unforgeable, then the PKEET construction is IND-CCA2 secure against Type-II adversaries.
 
-Using the notation:
-
-- $\epsilon_{HIBE}$ for the best relevant HIBE distinguishing advantage; and
-- $\epsilon_{Sig}$ for the best strong one-time-signature forgery advantage,
-
-the proof in these notes gives:
+Let $\epsilon_{HIBE}$ be an upper bound on the advantage of any PPT adversary against the IND-sID-CPA security of HIBE, and let $\epsilon_{Sig}$ be an upper bound on the probability of breaking the strong unforgeability of the one-time signature. Then:
 
 $$
 Adv_{\mathcal{A}}^{IND\text{-}CCA2}
@@ -388,33 +381,202 @@ Adv_{\mathcal{A}}^{IND\text{-}CCA2}
 2\epsilon_{HIBE}+\frac32\epsilon_{Sig}.
 $$
 
-#### Game 0: the real experiment
+#### Security games
 
-The challenge ciphertext is:
+Let $N$ be the number of users, let $t$ be the target user's index, and write the challenge ciphertext as:
+
+$$
+ct_t^*=(vk_{s,t}^*,C_{t,0}^*,C_{t,1}^*,\sigma_t^*).
+$$
+
+**Game 0.** This is the original IND-CCA2 game against a Type-II adversary. The real challenge is:
 
 $$
 ct_t^*=
-(vk_s^*,C_{0,b}^*,C_{1,b}^*,\sigma^*),
+(vk_{s,t}^*,C_{t,0,b}^*,C_{t,1,b}^*,\sigma_t^*),
 $$
 
 where:
 
 $$
 \begin{aligned}
-C_{0,b}^*&\leftarrow HIBE.Enc(mpk_t,[0.vk_s^*],M_b),\\
-C_{1,b}^*&\leftarrow HIBE.Enc(mpk_t,[1.vk_s^*],H(M_b)).
+(vk_{s,t}^*,sk_{s,t}^*)&\leftarrow Sig.KGen(1^\lambda),\\
+C_{t,0,b}^*&\leftarrow HIBE.Enc(pk_t,[0.vk_{s,t}^*],M_b),\\
+C_{t,1,b}^*&\leftarrow HIBE.Enc(pk_t,[1.vk_{s,t}^*],H(M_b)),\\
+\sigma_t^*&\leftarrow Sig.Sign(
+    sk_{s,t}^*,
+    C_{t,0,b}^*\mathbin\Vert C_{t,1,b}^*
+).
 \end{aligned}
 $$
 
-#### Game 1: abort on a same-key forgery
-
-Define the bad event $E_{sig}$: the adversary submits a new valid ciphertext to the target decryption oracle with verification key $vk_s^*$.
-
-The query cannot equal the challenge ciphertext itself. Therefore, if it verifies, it contains a new valid signature pair under the one-time verification key. Strong unforgeability gives:
+**Game 1.** This game is identical to Game 0, except for the following abort rule. Suppose $\mathcal{A}$ queries $O^{Dec}(t,\cdot)$ on:
 
 $$
-\Pr[E_{sig}]\leq\epsilon_{Sig}.
+ct_t=(vk_{s,t},C_{t,0},C_{t,1},\sigma_t)
 $$
+
+such that:
+
+- $vk_{s,t}=vk_{s,t}^*$;
+- $ct_t\neq ct_t^*$; and
+- $Sig.Verify(vk_{s,t},C_{t,0}\mathbin\Vert C_{t,1},\sigma_t)=1$.
+
+The challenger stops the interaction and replaces the adversary's answer by a random bit.
+
+**Game 2.** This game is identical to Game 1 except for the challenge ciphertext. The challenger samples two independent uniform bits $a,b\in\{0,1\}$ and constructs the two HIBE components as:
+
+$$
+\begin{array}{c|c|c}
+a & C_{t,0}^*\text{ encrypts} & C_{t,1}^*\text{ encrypts}\\
+\hline
+0 & M_b & H(M_{1-b})\\
+1 & M_{1-b} & H(M_b)
+\end{array}
+$$
+
+Let $\mathcal{G}_i$ be the event that $\mathcal{A}$ wins Game $i$, and define:
+
+$$
+\epsilon_i=
+\left|
+\Pr[\mathcal{G}_i]-\frac12
+\right|,
+\qquad i\in\{0,1,2\}.
+$$
+
+The proof proceeds through three lemmas.
+
+#### Lemma 1: replacing same-key decryption queries
+
+$$
+\epsilon_0-\epsilon_1
+\leq
+\frac32\epsilon_{Sig}.
+$$
+
+Let $E_1$ be the event that $\mathcal{A}$ makes a decryption query satisfying the Game 1 abort rule. We first relate the two game advantages:
+
+$$
+\begin{aligned}
+\epsilon_1
+&= \left|\Pr[\mathcal{G}_1]-\frac{1}{2}\right| \\[2mm]
+&= \left|
+    \Pr[\mathcal{G}_1\mid E_1]\Pr[E_1]
+    +
+    \Pr[\mathcal{G}_1\mid \neg E_1]\Pr[\neg E_1]
+    -
+    \frac{1}{2}
+   \right| \\[2mm]
+&= \left|
+    \frac{1}{2}\Pr[E_1]
+    +
+    \Pr[\mathcal{G}_0\wedge \neg E_1]
+    -
+    \frac{1}{2}
+   \right| \\[2mm]
+&= \left|
+    \frac{1}{2}\Pr[E_1]
+    +
+    \Pr[\mathcal{G}_0]
+    -
+    \Pr[\mathcal{G}_0\wedge E_1]
+    -
+    \frac{1}{2}
+   \right| \\[2mm]
+&= \left|
+    \left(\Pr[\mathcal{G}_0]-\frac{1}{2}\right)
+    +
+    \left(
+        \frac{1}{2}\Pr[E_1]
+        -
+        \Pr[\mathcal{G}_0\wedge E_1]
+    \right)
+   \right| \\[2mm]
+&\ge
+   \left|\Pr[\mathcal{G}_0]-\frac{1}{2}\right|
+   -
+   \left|
+        \frac{1}{2}\Pr[E_1]
+        -
+        \Pr[\mathcal{G}_0\wedge E_1]
+   \right| \\[2mm]
+&\ge
+   \epsilon_0
+   -
+   \frac{3}{2}\Pr[E_1].
+\end{aligned}
+$$
+
+The third equality uses the definition of Game 1:
+
+$$
+\Pr[\mathcal{G}_1\mid E_1]=\frac12.
+$$
+
+When $E_1$ does not occur, Games 0 and 1 are identical from the adversary's point of view:
+
+$$
+\Pr[\mathcal{G}_1\wedge\neg E_1]
+=
+\Pr[\mathcal{G}_0\wedge\neg E_1].
+$$
+
+We also use:
+
+$$
+\Pr[\mathcal{G}_0\wedge\neg E_1]
+=
+\Pr[\mathcal{G}_0]
+-
+\Pr[\mathcal{G}_0\wedge E_1].
+$$
+
+The reverse triangle inequality gives:
+
+$$
+|X+Y|\geq |X|-|Y|.
+$$
+
+Finally:
+
+$$
+\mathcal{G}_0\wedge E_1\subseteq E_1,
+\qquad
+\Pr[\mathcal{G}_0\wedge E_1]\leq\Pr[E_1],
+$$
+
+and hence:
+
+$$
+\begin{aligned}
+\left|
+\frac12\Pr[E_1]
+-
+\Pr[\mathcal{G}_0\wedge E_1]
+\right|
+&\leq
+\frac12\Pr[E_1]
++
+\Pr[\mathcal{G}_0\wedge E_1]\\
+&\leq
+\frac12\Pr[E_1]+\Pr[E_1]\\
+&=
+\frac32\Pr[E_1].
+\end{aligned}
+$$
+
+Therefore:
+
+$$
+\boxed{
+\epsilon_1
+\geq
+\epsilon_0-\frac32\Pr[E_1]
+}.
+$$
+
+It remains to bound the bad event. A signature simulator $\mathcal{S}_{Sig}$ receives $vk_{s,t}^*$ from its strong-unforgeability challenger and embeds it into the PKEET challenge.
 
 <figure class="proof-figure">
   <a href="../assets/pkeet/figure-1-signature-forgery.png">
@@ -423,7 +585,32 @@ $$
   <figcaption>Figure 1. The simulator embeds the signature challenge verification key in the PKEET challenge. A valid same-key decryption query that triggers the bad event becomes a strong-unforgeability forgery.</figcaption>
 </figure>
 
-Conditioned on $\neg E_{sig}$, Games 0 and 1 are identical. The proof's probability accounting yields:
+More explicitly:
+
+1. $\mathcal{S}_{Sig}$ receives $vk_{s,t}^*$ and runs Game 1 for $\mathcal{A}$.
+2. It generates $C_{t,0}^*$ and $C_{t,1}^*$ normally.
+3. It asks its signing oracle to sign:
+
+   $$
+   m^*=C_{t,0}^*\mathbin\Vert C_{t,1}^*.
+   $$
+
+4. It returns the resulting challenge ciphertext to $\mathcal{A}$.
+5. If $E_1$ occurs, it extracts:
+
+   $$
+   m'=C_{t,0}'\mathbin\Vert C_{t,1}'
+   $$
+
+   and returns $(m',\sigma')$ as a signature forgery.
+
+The query is different from the original challenge ciphertext, and strong unforgeability also forbids a new signature on the same message. Thus:
+
+$$
+\Pr[E_1]\leq\epsilon_{Sig}.
+$$
+
+Combining this with the previous inequality yields:
 
 $$
 \epsilon_0-\epsilon_1
@@ -431,15 +618,15 @@ $$
 \frac32\epsilon_{Sig}.
 $$
 
-This is the exact point at which **strong** unforgeability matters: merely changing the signature on the same $(C_0,C_1)$ must also be infeasible.
+#### Lemma 2: replacing one HIBE branch
 
-#### Game 2: decouple the two branches
+$$
+\epsilon_1-\epsilon_2
+\leq
+2\epsilon_{HIBE}.
+$$
 
-Game 2 replaces one HIBE component so that the two branches no longer consistently encode the same challenge bit. A simulator chooses one of the identities:
-
-$$[0.vk_s^*]\qquad\text{or}\qquad[1.vk_s^*]$$
-
-as its selective HIBE target. It embeds the HIBE challenge in that branch and generates the other branch normally.
+Construct a simulator $\mathcal{S}_{HIBE}$ that uses $\mathcal{A}$ to attack the IND-sID-CPA security of HIBE. Let $\mathcal{C}_{HIBE}$ denote the HIBE challenger.
 
 <figure class="proof-figure">
   <a href="../assets/pkeet/figure-2-hibe-lemma2.png">
@@ -448,23 +635,125 @@ as its selective HIBE target. It embeds the HIBE challenge in that branch and ge
   <figcaption>Figure 2. The HIBE simulator commits to one of the two branch identities, embeds the HIBE challenge in that branch, and constructs the other component normally.</figcaption>
 </figure>
 
-If the adversary notices the transition, the simulator distinguishes the HIBE challenge. Accounting for the randomly selected branch gives:
+**Setup.**
+
+1. $\mathcal{S}_{HIBE}$ generates $(vk_{s,t}^*,sk_{s,t}^*)$ and samples:
+
+   $$
+   \alpha\xleftarrow{\$}\{0,1\}.
+   $$
+
+2. It commits to the selective target identity:
+
+   $$
+   [\alpha.vk_{s,t}^*].
+   $$
+
+3. $\mathcal{C}_{HIBE}$ returns $mpk$. The simulator sets $pk_t=mpk$.
+4. For every $i\neq t$, the simulator generates $(pk_i,sk_i)$ normally and gives all public keys to $\mathcal{A}$.
+
+**Phase 1.** The simulator answers oracle queries using the HIBE challenger and the known secret keys for all $i\neq t$. If $\mathcal{A}$ submits a valid decryption query under $vk_{s,t}^*$, the simulator aborts and outputs a random bit, exactly as in Game 1.
+
+**Challenge.** The adversary returns $M_0,M_1$.
+
+- If $\alpha=0$, $\mathcal{S}_{HIBE}$ submits $M_0,M_1$ to $\mathcal{C}_{HIBE}$ and receives $C_{t,0,b}^*$. It samples $\beta\leftarrow\{0,1\}$ and constructs:
+
+  $$
+  C_{t,1,\beta}^*
+  \leftarrow
+  HIBE.Enc(pk_t,[1.vk_{s,t}^*],H(M_\beta)).
+  $$
+
+- If $\alpha=1$, it submits $H(M_1),H(M_0)$ to obtain $C_{t,1,b}^*$ and constructs the branch-$0$ component normally.
+
+It signs the two components and sends the resulting $ct_t^*$ to $\mathcal{A}$.
+
+**Guess.** If the HIBE challenge bit matches the simulator's independent bit, the PKEET challenge has the distribution of Game 1; otherwise it has the distribution of Game 2. Therefore:
 
 $$
-\epsilon_1-\epsilon_2\leq2\epsilon_{HIBE}.
+\begin{aligned}
+\epsilon_{HIBE}
+&\geq
+Adv_{\mathcal{S}_{HIBE},HIBE}^{IND\text{-}sID\text{-}CPA}(\lambda)\\
+&=
+\left|
+\Pr[b'=b]-\frac12
+\right|\\
+&=
+\left|
+\frac12
+\left(
+\Pr[b'=b\mid b=\beta]
++
+\Pr[b'=b\mid b\neq\beta]
+\right)
+-
+\frac12
+\right|\\
+&=
+\frac12
+\left|
+\Pr[\mathcal{G}_1]+\Pr[\mathcal{G}_2]-1
+\right|\\
+&=
+\frac12
+\left|
+\left(\Pr[\mathcal{G}_1]-\frac12\right)
++
+\left(\Pr[\mathcal{G}_2]-\frac12\right)
+\right|\\
+&\geq
+\frac12
+\left|
+\Pr[\mathcal{G}_1]-\frac12
+\right|
+-
+\frac12
+\left|
+\Pr[\mathcal{G}_2]-\frac12
+\right|\\
+&=
+\frac12\epsilon_1-\frac12\epsilon_2.
+\end{aligned}
 $$
 
-In the final game, the hidden switch makes the adversary's view independent of the challenge bit, so:
+Rearranging gives:
 
-$$\epsilon_2=0.$$
+$$
+\epsilon_1-\epsilon_2
+\leq
+2\epsilon_{HIBE}.
+$$
 
-Combining the transitions proves the stated bound.
+#### Lemma 3: the final game
+
+$$
+\epsilon_2=0.
+$$
+
+In Game 2, the challenger computes the challenge according to the hidden bit $a$. For $a=0$, it uses the pair $(M_b,H(M_{1-b}))$. For $a=1$, it uses $(M_{1-b},H(M_b))$. The bit $a$ is completely hidden from $\mathcal{A}$, so the adversary's view is independent of $b$ and:
+
+$$
+\Pr[\mathcal{G}_2]=\frac12.
+$$
+
+Combining Lemmas 1–3:
+
+$$
+\boxed{
+\epsilon_0
+\leq
+2\epsilon_{HIBE}
++
+\frac32\epsilon_{Sig}
+}.
+$$
 
 ### 6.2 OW-CCA2 against Type-I adversaries
 
 **Theorem 3.** If HIBE is IND-sID-CPA secure, $H$ is one-way, and the one-time signature is strongly unforgeable, then the PKEET construction is OW-CCA2 secure against Type-I adversaries.
 
-Let $\epsilon_H$ denote the best advantage against the one-wayness of $H$. The proof gives:
+Let $\epsilon_H$ be an upper bound on the probability of inverting $H$. Then:
 
 $$
 Adv_{\mathcal{A}}^{OW\text{-}CCA2}
@@ -472,7 +761,86 @@ Adv_{\mathcal{A}}^{OW\text{-}CCA2}
 4\epsilon_{HIBE}+\epsilon_H+\epsilon_{Sig}.
 $$
 
-The Type-I proof first isolates the information exposed by the hash branch. In the pre-simulation, the hash challenger supplies a value $y=H(x)$. The simulator places $y$ in the second HIBE ciphertext component and uses a successfully recovered plaintext as a candidate preimage.
+#### Transition from Game 0 to Game 1
+
+**Game 0** is the original OW-CCA2 game.
+
+**Game 1** uses the same abort event $E_1$ as the Type-II proof: if $\mathcal{A}$ submits a new valid target-user ciphertext under $vk_{s,t}^*$, the challenger stops and replaces the answer by a uniform message from $\mathcal{M}$.
+
+For the OW experiment, define:
+
+$$
+\epsilon_i=\Pr[\mathcal{G}_i].
+$$
+
+The corresponding success-probability calculation is:
+
+$$
+\begin{aligned}
+\epsilon_1
+&=
+\Pr[\mathcal{G}_1]\\
+&=
+\Pr[\mathcal{G}_1\mid E_1]\Pr[E_1]
++
+\Pr[\mathcal{G}_1\mid\neg E_1]\Pr[\neg E_1]\\
+&=
+\frac{1}{|\mathcal{M}|}\Pr[E_1]
++
+\Pr[\mathcal{G}_0\wedge\neg E_1]\\
+&\geq
+\frac{1}{|\mathcal{M}|}\Pr[E_1]
++
+\Pr[\mathcal{G}_0]-\Pr[E_1]\\
+&\geq
+\epsilon_0-\Pr[E_1].
+\end{aligned}
+$$
+
+The same signature reduction as in Lemma 1 gives:
+
+$$
+\Pr[E_1]\leq\epsilon_{Sig}.
+$$
+
+Therefore:
+
+$$
+\boxed{
+\epsilon_0-\epsilon_1
+\leq
+\epsilon_{Sig}
+}.
+$$
+
+#### Pre-simulation and hash one-wayness
+
+The pre-simulation $PS$ chooses independent messages $M_0',M_1'$ with $M_0'\neq M_1'$ and returns the anomalous ciphertext:
+
+$$
+\begin{aligned}
+C_{t,0}^{\prime *}
+&\leftarrow
+HIBE.Enc(pk_t,[0.vk_{s,t}^*],M_0'),\\
+C_{t,1}^{\prime *}
+&\leftarrow
+HIBE.Enc(pk_t,[1.vk_{s,t}^*],H(M_1')),\\
+\sigma_t^{\prime *}
+&\leftarrow
+Sig.Sign(
+    sk_{s,t}^*,
+    C_{t,0}^{\prime *}\mathbin\Vert C_{t,1}^{\prime *}
+).
+\end{aligned}
+$$
+
+If $\mathcal{A}$ returns $M_1'$ from this ciphertext, then it has recovered a preimage of the hash value in the second branch. Hence:
+
+$$
+\Pr[\mathcal{A}\rightarrow M_1'\text{ in }PS]
+\leq
+\epsilon_H.
+$$
 
 <figure class="proof-figure">
   <a href="../assets/pkeet/figure-3-hash-presimulation.png">
@@ -481,7 +849,13 @@ The Type-I proof first isolates the information exposed by the hash branch. In t
   <figcaption>Figure 3. The pre-simulation embeds the one-way hash challenge in the equality-test branch and checks whether the adversary returns a valid preimage.</figcaption>
 </figure>
 
-The anomalous challenge used later in the game follows the same idea in a smaller experiment: the message branch encrypts an independently sampled value, while the hash branch contains the challenge value $y$.
+To see the reduction explicitly, the hash challenger samples $x\leftarrow\mathcal{M}$ and sends:
+
+$$
+y=H(x)
+$$
+
+to a simulator $\mathcal{S}_H$. The simulator replaces $H(M_1')$ by $y$ in the second HIBE component. If $\mathcal{A}$ returns $M'\neq\perp$ satisfying $H(M')=y$, then $\mathcal{S}_H$ outputs $M'$ as a preimage of $y$.
 
 <figure class="proof-figure">
   <a href="../assets/pkeet/figure-4-hash-one-way.png">
@@ -490,7 +864,42 @@ The anomalous challenge used later in the game follows the same idea in a smalle
   <figcaption>Figure 4. If the adversary recovers a message whose hash is the embedded challenge value, the simulator wins the hash one-wayness game.</figcaption>
 </figure>
 
-The main simulation then embeds a selectively chosen HIBE identity in the message branch and uses the adversary's message-recovery result to distinguish the underlying HIBE challenge.
+#### Main HIBE simulation
+
+Construct $\mathcal{S}_{HIBE}$ as follows:
+
+1. Generate $(vk_{s,t}^*,sk_{s,t}^*)$ and commit to:
+
+   $$
+   ID^*=[0.vk_{s,t}^*].
+   $$
+
+2. Receive $mpk$ from $\mathcal{C}_{HIBE}$, set $pk_t=mpk$, and generate all other users' key pairs normally.
+3. Answer $O^{Dec}$, $O^{sk}$, and $O^{Td}$ as in the proof of Theorem 2. In particular, $O^{Td}(t)$ can be answered with the level-one HIBE key for identity $[1]$, which does not violate the selective target $[0.vk_{s,t}^*]$.
+4. Choose random $M_0,M_1$ and submit them to the HIBE challenger. Receive:
+
+   $$
+   C_{t,0,b}^*.
+   $$
+
+5. Sample $\beta\leftarrow\{0,1\}$ and construct:
+
+   $$
+   C_{t,1,\beta}^*
+   \leftarrow
+   HIBE.Enc(pk_t,[1.vk_{s,t}^*],H(M_\beta)).
+   $$
+
+6. Sign the pair and send:
+
+   $$
+   ct_t^*
+   =
+   (vk_{s,t}^*,C_{t,0,b}^*,C_{t,1,\beta}^*,\sigma_t^*)
+   $$
+
+   to $\mathcal{A}$.
+7. If $\mathcal{A}$ returns $M'=M_\beta$, output $b'=\beta$; otherwise output a uniform bit.
 
 <figure class="proof-figure">
   <a href="../assets/pkeet/figure-5-hibe-theorem3.png">
@@ -499,14 +908,205 @@ The main simulation then embeds a selectively chosen HIBE identity in the messag
   <figcaption>Figure 5. Main HIBE simulation for Theorem 3. The target user's trapdoor queries remain answerable through the level-one key for branch 1.</figcaption>
 </figure>
 
-At a high level, the proof proceeds as follows:
+#### Advantage of the HIBE simulator
 
-1. abort if the adversary creates a new valid ciphertext under $vk_s^*$;
-2. reduce that event to strong signature unforgeability;
-3. embed an HIBE challenge in the message branch; and
-4. show that recovering the message from the remaining hash value in the final game inverts $H$.
+The advantage of $\mathcal{S}_{HIBE}$ is:
 
-The factor $4$ comes from the simulator's guesses and the conversion between the adversary's message-recovery probability and its HIBE distinguishing advantage. The security meaning is simpler than the constant: every non-negligible Type-I attack yields either an HIBE distinguisher, a hash inverter, or a signature forger.
+$$
+\begin{aligned}
+\left|\Pr[b'=b]-\frac{1}{2}\right|
+&=
+\left|
+\frac{1}{2}
+\left(
+\Pr[b'=b\mid b=\beta]
++
+\Pr[b'=b\mid b\neq\beta]
+\right)
+-
+\frac{1}{2}
+\right| \\[2mm]
+&=
+\left|
+\frac{1}{2}
+\left(
+\Pr[
+    \mathcal{A}\to M_b
+    \vee
+    (\mathcal{A}\nrightarrow M_b\wedge b'=b)
+    \mid b=\beta
+]
++
+\Pr[b'=b\mid b\neq\beta]
+\right)
+-
+\frac{1}{2}
+\right| \\[2mm]
+&=
+\left|
+\frac{1}{2}
+\left(
+\Pr[\mathcal{A}\to M_b\mid b=\beta]
++
+\Pr[
+    \mathcal{A}\nrightarrow M_b
+    \wedge b'=b
+    \mid b=\beta
+]
++
+\Pr[b'=b\mid b\neq\beta]
+\right)
+-
+\frac{1}{2}
+\right| \\[2mm]
+&=
+\left|
+\frac{1}{2}
+\left(
+\Pr[\mathcal{G}_1]
++
+\frac{1}{2}
+\Pr[\mathcal{A}\nrightarrow M_b\mid b=\beta]
++
+\Pr[b'=b\mid b\neq\beta]
+\right)
+-
+\frac{1}{2}
+\right| \\[2mm]
+&=
+\left|
+\frac{1}{2}
+\left(
+\Pr[\mathcal{G}_1]
++
+\frac{1}{2}
+\left(1-\Pr[\mathcal{G}_1]\right)
++
+\Pr[b'=b\mid b\neq\beta]
+\right)
+-
+\frac{1}{2}
+\right| \\[2mm]
+&=
+\frac{1}{2}
+\left|
+\frac{1}{2}\Pr[\mathcal{G}_1]
++
+\Pr[b'=b\mid b\neq\beta]
+-
+\frac{1}{2}
+\right| \\[2mm]
+&=
+\frac{1}{2}
+\left|
+\frac{1}{2}\Pr[\mathcal{G}_1]
++
+\Pr[
+    \mathcal{A}\nrightarrow M_\beta
+    \wedge b'=b
+    \mid b\neq\beta
+]
+-
+\frac{1}{2}
+\right| \\[2mm]
+&=
+\frac{1}{2}
+\left|
+\frac{1}{2}\Pr[\mathcal{G}_1]
++
+\frac{1}{2}
+\Pr[
+    \mathcal{A}\nrightarrow M_\beta
+    \mid b\neq\beta
+]
+-
+\frac{1}{2}
+\right| \\[2mm]
+&=
+\frac{1}{2}
+\left|
+\frac{1}{2}\Pr[\mathcal{G}_1]
++
+\frac{1}{2}
+\left(
+1-
+\Pr[\mathcal{A}\to M_\beta\mid b\neq\beta]
+\right)
+-
+\frac{1}{2}
+\right| \\[2mm]
+&=
+\frac{1}{4}
+\left|
+\Pr[\mathcal{G}_1]
+-
+\Pr[\mathcal{A}\to M_\beta\mid b\neq\beta]
+\right| \\[2mm]
+&>
+\frac{1}{4}
+\left(
+\Pr[\mathcal{G}_1]-\epsilon_H
+\right).
+\end{aligned}
+$$
+
+The last inequality follows from the pre-simulation:
+
+$$
+\Pr[\mathcal{A}\to M_\beta\mid b\neq\beta]
+<
+\epsilon_H.
+$$
+
+Therefore:
+
+$$
+Adv_{\mathcal{S}_{HIBE},HIBE}^{IND\text{-}sID\text{-}CPA}(\lambda)
+>
+\frac14
+\left(
+\Pr[\mathcal{G}_1]-\epsilon_H
+\right).
+$$
+
+Since $\epsilon_1=\Pr[\mathcal{G}_1]$:
+
+$$
+Adv_{\mathcal{S}_{HIBE},HIBE}^{IND\text{-}sID\text{-}CPA}(\lambda)
+>
+\frac14
+(\epsilon_1-\epsilon_H).
+$$
+
+By IND-sID-CPA security:
+
+$$
+\frac14(\epsilon_1-\epsilon_H)
+<
+\epsilon_{HIBE},
+$$
+
+or equivalently:
+
+$$
+\epsilon_1
+<
+4\epsilon_{HIBE}+\epsilon_H.
+$$
+
+Finally, combining this with the Game 0 to Game 1 transition:
+
+$$
+\boxed{
+\epsilon_0
+<
+4\epsilon_{HIBE}
++
+\epsilon_H
++
+\epsilon_{Sig}
+}.
+$$
 
 ## 7. What the construction does and does not hide
 
