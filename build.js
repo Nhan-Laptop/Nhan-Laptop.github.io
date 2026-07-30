@@ -418,6 +418,10 @@ function inferPostCategory(fileName = "") {
         return { label: "Learning", href: "../categories/learning.html" };
     }
 
+    if (lower.startsWith("project-")) {
+        return { label: "Project", href: "../categories/project.html" };
+    }
+
     if (lower.startsWith("daily-") || lower.startsWith("life-")) {
         return { label: "Life", href: "../categories/life.html" };
     }
