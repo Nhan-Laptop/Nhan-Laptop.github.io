@@ -333,6 +333,10 @@ img {
     z-index: 1;
 }
 
+body.universe-showcase-page {
+    min-height: 760vh;
+}
+
 .stat {
     border-radius: 16px;
     border: 1px solid rgba(125, 183, 229, 0.16);

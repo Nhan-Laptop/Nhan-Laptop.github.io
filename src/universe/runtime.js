@@ -55,6 +55,35 @@ function startCategory(controller) {
     };
 }
 
+function startShowcase(controller) {
+    let ticking = false;
+
+    function update() {
+        ticking = false;
+        controller.setProgress(getScrollProgress());
+    }
+
+    function scheduleUpdate() {
+        if (ticking) {
+            return;
+        }
+
+        ticking = true;
+        window.requestAnimationFrame(update);
+    }
+
+    update();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+
+    return {
+        kill() {
+            window.removeEventListener("scroll", scheduleUpdate);
+            window.removeEventListener("resize", scheduleUpdate);
+        },
+    };
+}
+
 export function bootUniverseBackground() {
     const body = document.body;
 
@@ -68,10 +97,13 @@ export function bootUniverseBackground() {
     }
 
     const mode = body.classList.contains("universe-home") ? "home" : "category";
+    const isShowcase = body.classList.contains("universe-showcase-page");
 
     try {
         const controller = createUniverseRenderer({ mode });
-        const scrollController = mode === "home"
+        const scrollController = isShowcase
+            ? startShowcase(controller)
+            : mode === "home"
             ? startHome(controller)
             : startCategory(controller);
 
