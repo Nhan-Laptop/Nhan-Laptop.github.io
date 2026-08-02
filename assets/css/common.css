@@ -76,8 +76,78 @@ body::after {
     z-index: -3;
     background:
         radial-gradient(circle, rgba(77, 143, 250, 0.18), transparent 64%),
-        radial-gradient(circle at 70% 40%, rgba(242, 194, 107, 0.1), transparent 46%);
+    radial-gradient(circle at 70% 40%, rgba(242, 194, 107, 0.1), transparent 46%);
     filter: blur(56px);
+}
+
+body.universe-page {
+    background:
+        radial-gradient(70% 55% at 72% 72%, rgba(78, 53, 122, 0.12), transparent 70%),
+        radial-gradient(50% 45% at 42% 38%, rgba(49, 68, 112, 0.09), transparent 75%),
+        radial-gradient(circle at 16% 22%, rgba(119, 193, 255, 0.19), transparent 27%),
+        radial-gradient(circle at 74% 74%, rgba(242, 194, 107, 0.08), transparent 30%),
+        linear-gradient(180deg, #03060f 0%, var(--bg) 48%, #070d1b 100%);
+}
+
+body.universe-page::before {
+    opacity: 0.52;
+}
+
+body.has-universe-webgl::before {
+    opacity: 0.24;
+}
+
+body.universe-page::after {
+    opacity: 0.86;
+}
+
+.universe-canvas-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+}
+
+body.has-universe-webgl .universe-canvas-shell {
+    opacity: 1;
+}
+
+.universe-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+body.universe-page .page-shell,
+body.universe-page .article-wrap {
+    position: relative;
+    z-index: 1;
+}
+
+body.universe-page .site-header {
+    z-index: 20;
+}
+
+body.has-universe-webgl .hero {
+    background:
+        linear-gradient(140deg, rgba(10, 20, 38, 0.82), rgba(9, 26, 45, 0.68)),
+        radial-gradient(circle at top right, rgba(118, 213, 255, 0.14), transparent 40%);
+    backdrop-filter: blur(14px) saturate(116%);
+}
+
+body.has-universe-webgl .panel {
+    background: linear-gradient(180deg, rgba(10, 17, 30, 0.82), rgba(8, 16, 29, 0.72));
+    backdrop-filter: blur(12px) saturate(112%);
+}
+
+body.has-universe-webgl .post-item,
+body.has-universe-webgl .contact-item,
+body.has-universe-webgl .card,
+body.has-universe-webgl .quick-links a {
+    background: rgba(4, 10, 20, 0.48);
 }
 
 a {
@@ -1296,6 +1366,10 @@ tbody tr:last-child td {
     *, *::before, *::after {
         animation: none !important;
         transition: none !important;
+    }
+
+    .universe-canvas-shell {
+        display: none !important;
     }
 
     .reveal {

@@ -4,13 +4,19 @@
   "private": true,
   "description": "Static build pipeline for markdown writeups",
   "scripts": {
-    "build:n1ctf": "node build.js"
+    "build:universe": "esbuild src/universe/index.js --bundle --format=iife --global-name=NhanUniverse --target=es2020 --minify --outfile=assets/js/universe-background.bundle.js",
+    "build:n1ctf": "npm run build:universe && node build.js"
   },
   "dependencies": {
+    "gsap": "^3.15.0",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.22",
     "marked": "^15.0.12",
     "marked-highlight": "^2.2.1",
-    "marked-katex-extension": "^5.1.5"
+    "marked-katex-extension": "^5.1.5",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
   }
 }
