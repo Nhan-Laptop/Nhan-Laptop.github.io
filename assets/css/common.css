@@ -327,6 +327,46 @@ img {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.universe-stage {
+    position: relative;
+    min-height: clamp(520px, 78vh, 820px);
+    margin: 18px 0;
+    display: grid;
+    align-items: start;
+    overflow: hidden;
+    border-block: 1px solid rgba(125, 183, 229, 0.18);
+}
+
+.universe-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, rgba(3, 6, 15, 0.68), transparent 34%, transparent 74%, rgba(3, 6, 15, 0.38)),
+        radial-gradient(circle at 52% 48%, transparent 0 34%, rgba(3, 6, 15, 0.18) 72%);
+}
+
+.universe-stage-copy {
+    position: relative;
+    z-index: 1;
+    width: min(360px, 100%);
+    margin-top: clamp(28px, 7vh, 72px);
+    padding: 0 4px;
+}
+
+.universe-stage-copy h2 {
+    font-size: clamp(1.75rem, 4vw, 3.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+}
+
+.universe-stage-copy p:last-child {
+    margin-top: 12px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+}
+
 .stat {
     border-radius: 16px;
     border: 1px solid rgba(125, 183, 229, 0.16);
@@ -1263,6 +1303,21 @@ tbody tr:last-child td {
         line-height: 1.6;
     }
 
+    .universe-stage {
+        min-height: min(640px, 72vh);
+    }
+
+    .universe-stage::before {
+        background:
+            linear-gradient(180deg, rgba(3, 6, 15, 0.76), transparent 34%, rgba(3, 6, 15, 0.24)),
+            radial-gradient(circle at 50% 50%, transparent 0 38%, rgba(3, 6, 15, 0.22) 76%);
+    }
+
+    .universe-stage-copy {
+        width: min(320px, 86vw);
+        margin-top: 24px;
+    }
+
     .main-nav {
         display: none;
     }
@@ -1332,6 +1387,14 @@ tbody tr:last-child td {
 
     .hero h1 {
         font-size: clamp(1.55rem, 10vw, 2rem);
+    }
+
+    .universe-stage {
+        min-height: 540px;
+    }
+
+    .universe-stage-copy p:last-child {
+        font-size: 0.94rem;
     }
 
     .hero-actions .secondary-btn,
