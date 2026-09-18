@@ -1,4 +1,5 @@
 const fs = require("fs/promises");
+const { addLocalImageDimensions } = require('./scripts/image-dimensions');
 const path = require("path");
 const { marked } = require("marked");
 const { markedHighlight } = require("marked-highlight");
@@ -186,69 +187,42 @@ function extractPostMetadata(markdown, outputFileName, fallbackDate) {
         title,
         date: normalizedDate,
         tags: metadata.tags,
-        summary: metadata.summary || "",
+        summary: metadata.summary || extractDescription(stripMetadataLines(markdown)),
         link: `../posts/${outputFileName}`,
         sourceFile: outputFileName,
     };
 }
 
 function renderCategoryPostItem(post) {
-    const tagsHtml = (post.tags || [])
-        .map(tag => `<span class="tag">${escapeHtml(tag)}</span>`)
-        .join(" ");
-
-    return [
-        "                <li class=\"post-item\">",
-        `                    <h3><a href=\"${escapeHtml(post.link)}\">[Writeup] ${escapeHtml(post.title)}</a></h3>`,
-        "                    <div class=\"post-meta\">",
-        `                        <span>${escapeHtml(post.date)}</span>`,
-        "                    </div>",
-        tagsHtml ? `                    <div class=\"post-tags\">${tagsHtml}</div>` : "",
-        "                    <p>",
-        `                        ${escapeHtml(post.summary)}`,
-        "                    </p>",
-        "                </li>",
-    ]
-        .filter(Boolean)
-        .join("\n");
+    const category = inferPostCategory(post.sourceFile);
+    const tags = (post.tags || []).map(t => t.replace(/^#/, '').toLowerCase());
+    return `<article class="post-card" data-tag-post data-tags="${escapeHtml(tags.join(' '))}">
+        <div class="post-card-topline"><a class="category-badge" href="${category.href}">${category.label}</a><time datetime="${escapeHtml(post.date)}">${escapeHtml(post.date)}</time></div>
+        <h3><a href="${escapeHtml(post.link)}">${escapeHtml(post.title)}</a></h3>
+        <p>${escapeHtml(post.summary)}</p>
+        <div class="post-card-tags">${tags.map(t => `<a href="../tags/index.html#${encodeURIComponent(t)}">#${escapeHtml(t)}</a>`).join('')}</div>
+    </article>`;
 }
 
 async function generateWriteupCategoryPage(allPosts) {
-    let categoryTemplate;
-    try {
-        categoryTemplate = await fs.readFile(PATHS.categoryTemplateHtml, "utf8");
-    } catch {
-        // Backward-compatible fallback: if category template does not exist yet,
-        // reuse current category page as the layout template.
-        categoryTemplate = await fs.readFile(PATHS.categoryWriteupHtml, "utf8");
+    const template = await fs.readFile(PATHS.categoryTemplateHtml, 'utf8');
+    const descriptions = {
+        writeup: 'CTF analysis, implementation notes, and reproducible verification.',
+        learning: 'Notes from cryptography papers, books, protocols, and experiments.',
+        project: 'Research prototypes and security systems I build.',
+        life: 'Competition travel, academic milestones, and life beyond the terminal.',
+    };
+    const sorted = [...allPosts].sort((a,b) => b.date.localeCompare(a.date));
+    for (const [slug, description] of Object.entries(descriptions)) {
+        const posts = sorted.filter(p => inferPostCategory(p.sourceFile).label.toLowerCase() === slug);
+        const values = { CATEGORY_NAME: slug[0].toUpperCase()+slug.slice(1), CATEGORY_SLUG: slug, CATEGORY_DESCRIPTION: description, POST_COUNT: posts.length, POST_LIST: posts.map(renderCategoryPostItem).join('\n') };
+        const html = template.replace(/\{\{([A-Z_]+)\}\}/g, (m,k) => values[k] ?? m);
+        await fs.writeFile(path.join(ROOT, 'categories', `${slug}.html`), html);
     }
-
-    const writeupPosts = allPosts.filter((post) => /^writeup-/i.test(post.sourceFile || ""));
-
-    const sortedPosts = [...(writeupPosts.length > 0 ? writeupPosts : allPosts)].sort((a, b) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-
-    const postsHtml = sortedPosts.map(renderCategoryPostItem).join("\n");
-
-    const postListBlock = [
-        "            <ul class=\"post-list\">",
-        postsHtml,
-        "            </ul>",
-    ].join("\n");
-
-    let output = categoryTemplate;
-
-    if (output.includes("{{POST_LIST}}")) {
-        output = output.replace(/{{POST_LIST}}/g, postsHtml);
-    } else if (/<ul\s+class=["']post-list["'][^>]*>[\s\S]*?<\/ul>/i.test(output)) {
-        output = output.replace(/<ul\s+class=["']post-list["'][^>]*>[\s\S]*?<\/ul>/i, postListBlock);
-    } else {
-        output = output.replace(/<\/main>/i, `\n${postListBlock}\n    </main>`);
-    }
-
-    await fs.writeFile(PATHS.categoryWriteupHtml, output, "utf8");
-    console.log(`✅ Đã cập nhật trang category: ${path.relative(ROOT, PATHS.categoryWriteupHtml)}`);
+    const tagTemplate = await fs.readFile(path.join(ROOT, 'templates', 'tags-template.html'), 'utf8');
+    const tags = [...new Set(sorted.flatMap(p => p.tags.map(t => t.replace(/^#/, '').toLowerCase())))].sort();
+    const buttons = tags.map(t => `<button type="button" class="tag-filter" data-tag-filter="${escapeHtml(t)}">#${escapeHtml(t)}</button>`).join('\n');
+    await fs.writeFile(path.join(ROOT, 'tags', 'index.html'), tagTemplate.replace('{{TAG_FILTERS}}', () => buttons).replace('{{POST_LIST}}', () => sorted.map(renderCategoryPostItem).join('\n')));
 }
 
 function preprocessHackmdMarkdown(input) {
@@ -430,54 +404,30 @@ function inferPostCategory(fileName = "") {
 }
 
 function injectMetadata(html, markdown, fallbackDate, outputFileName = "") {
-    // Tìm dòng H1 đầu tiên trong Markdown (VD: "# N1CTF 2025")
-    const titleMatch = markdown.match(/^#\s+(.*)$/m);
-    const title = titleMatch ? titleMatch[1].trim() : "Untitled Writeup";
-
-    // 1. Thay thế nội dung thẻ <title> trên tab trình duyệt
-    let newHtml = html.replace(/<title>.*?<\/title>/i, `<title>${title} - Nhan's Security Log</title>`);
-
-    // 2. Thay thế chữ "[WRITEUP] TITLE HERE" bên trong thẻ <h1> của giao diện
-    newHtml = newHtml.replace(/\[WRITEUP\] TITLE HERE/gi, title);
-
+    const title = (markdown.match(/^#\s+(.*)$/m) || [null, "Untitled"])[1].trim();
     const metadata = parseMarkdownMetadata(markdown);
-    if (!metadata.hasFrontmatter) {
-        return newHtml;
-    }
-
     const date = metadata.date || fallbackDate;
     const category = inferPostCategory(outputFileName);
-    const tagsHtml = metadata.tags
-        .map((tag) => `<a href="../tags/index.html">${escapeHtml(tag)}</a>`)
-        .join("\n                ");
-    const postMetaHtml = [
-        '<div class="post-meta" style="margin-top: 10px;">',
-        `                <span>${escapeHtml(date)}</span>`,
-        `                <a href="${escapeHtml(category.href)}">${escapeHtml(category.label)}</a>`,
-        tagsHtml ? `                ${tagsHtml}` : "",
-        "            </div>",
-    ]
-        .filter(Boolean)
-        .join("\n");
-
-    newHtml = newHtml.replace(
-        /<div class="post-meta" style="margin-top: 10px;">[\s\S]*?<\/div>/i,
-        () => postMetaHtml
-    );
-    newHtml = newHtml.replace(/<span>Template<\/span>/i, () => `<span>${escapeHtml(title)}</span>`);
-    newHtml = newHtml.replace(
-        '<a class="is-active" href="writeup-template.html">Template</a>',
-        `<a class="is-active" href="${escapeHtml(category.href)}">${escapeHtml(category.label)}</a>`
-    );
-
-    if (metadata.summary) {
-        newHtml = newHtml.replace(
-            /<p class="lead">[\s\S]*?<\/p>/i,
-            () => `<p class="lead">${escapeHtml(metadata.summary)}</p>`
-        );
-    }
-
-    return newHtml;
+    const summary = metadata.summary || extractDescription(stripMetadataLines(markdown));
+    const canonical = `https://nhan-laptop.github.io/posts/${encodeURIComponent(outputFileName)}`;
+    const documentTitle = `${title} | Nhan's Security Log`;
+    const minutes = Math.max(1, Math.ceil(markdown.split(/\s+/).length / 220));
+    const seo = [
+        `<meta name="description" content="${escapeHtml(summary)}">`,
+        `<link rel="canonical" href="${canonical}">`,
+        `<meta property="og:title" content="${escapeHtml(documentTitle)}">`,
+        `<meta property="og:description" content="${escapeHtml(summary)}">`,
+        '<meta property="og:type" content="article">',
+        `<meta property="og:url" content="${canonical}">`,
+        '<meta name="twitter:card" content="summary">',
+    ].join('\n    ');
+    const values = {
+        DOCUMENT_TITLE: escapeHtml(documentTitle), SEO_META: seo,
+        CATEGORY_HREF: category.href, CATEGORY_NAME: category.label,
+        POST_TITLE: escapeHtml(title), POST_SUMMARY: escapeHtml(summary),
+        POST_META: `<time datetime="${escapeHtml(date)}">${escapeHtml(date)}</time><span>${minutes} min read</span>` + metadata.tags.map(tag => `<a href="../tags/index.html">${escapeHtml(tag)}</a>`).join(''),
+    };
+    return html.replace(/\{\{([A-Z_]+)\}\}/g, (match, key) => values[key] ?? match);
 }
 
 function removeClientSideMarkdownScripts(html) {
@@ -529,7 +479,8 @@ async function build() {
         setupMarkdownRenderer();
 
         const files = await fs.readdir(PATHS.postsDir);
-        const mdFiles = files.filter(file => file.endsWith(".md"));
+        const excluded = new Set((process.env.BLOG_SKIP_POSTS || '').split(',').filter(Boolean));
+        const mdFiles = files.filter(file => file.endsWith('.md') && !excluded.has(file));
 
         if (mdFiles.length === 0) {
             console.log("⚠️ Không tìm thấy file .md nào trong thư mục posts.");
@@ -562,11 +513,18 @@ async function build() {
 
             let renderedArticle;
             try {
-                renderedArticle = marked.parse(cleanedMarkdown);
+                renderedArticle = marked.parse(cleanedMarkdown).replace(/^\s*<h1>.*?<\/h1>\s*/i, '');
+                renderedArticle = renderedArticle.replace(/<img\b[^>]*>/gi, tag => {
+                    let enhanced = tag;
+                    if (!/\bloading=/.test(tag)) enhanced = enhanced.replace('<img', '<img loading="lazy"');
+                    if (!/\bdecoding=/.test(tag)) enhanced = enhanced.replace('<img', '<img decoding="async"');
+                    return enhanced;
+                });
             } finally {
                 console.warn = originalWarn;
             }
 
+            renderedArticle = await addLocalImageDimensions(renderedArticle, PATHS.postsDir, ROOT);
             let outputHtml = injectRenderedHtmlIntoTemplate(templateHtml, renderedArticle);
             
             // [MỚI] Gọi hàm đắp MetaData (Title) vào file HTML

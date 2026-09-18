@@ -1,283 +1,219 @@
 import * as THREE from "three";
-import { createUniverseData } from "./formations.js";
+import { createStarData } from "./formations.js";
 
-const VERTEX_SHADER = `
-attribute vec3 aFrom;
-attribute vec3 aTo;
-attribute vec3 aColorFrom;
-attribute vec3 aColorTo;
-attribute float aScale;
+const STAR_VERTEX = `
+attribute float aSize;
 attribute float aSeed;
-
-uniform float uMorph;
+attribute float aBrightness;
 uniform float uTime;
-uniform float uScatter;
-
-varying vec3 vColor;
-varying float vDepthFade;
-
-float easeInOut(float t) {
-    return t * t * (3.0 - 2.0 * t);
-}
-
-void main() {
-    float morph = easeInOut(clamp(uMorph, 0.0, 1.0));
-    vec3 center = mix(aFrom, aTo, morph);
-    float energy = 1.0 - abs(morph * 2.0 - 1.0);
-    vec3 direction = normalize(center + vec3(0.001, 0.003, 0.002));
-    float wave = sin(uTime * 0.74 + aSeed * 6.283185) * energy * uScatter;
-    float pulse = 1.0 + sin(uTime * 0.82 + aSeed * 8.5) * 0.055;
-
-    center += direction * wave;
-
-    vec3 localPosition = position * aScale * pulse;
-    vec4 viewPosition = modelViewMatrix * vec4(center + localPosition, 1.0);
-
-    vColor = mix(aColorFrom, aColorTo, morph);
-    vDepthFade = 1.0 - smoothstep(6.0, 28.0, -viewPosition.z);
-
-    gl_Position = projectionMatrix * viewPosition;
-}
-`;
-
-const FRAGMENT_SHADER = `
-precision highp float;
-
+uniform float uPixelRatio;
 uniform float uOpacity;
-
 varying vec3 vColor;
-varying float vDepthFade;
-
+varying float vAlpha;
 void main() {
-    float alpha = uOpacity * (0.34 + vDepthFade * 0.66);
-    vec3 color = vColor * (0.72 + vDepthFade * 0.42);
-
-    gl_FragColor = vec4(color, alpha);
+    vColor = color;
+    // Slow, low-amplitude scintillation, not blinking or flashing.
+    vAlpha = aBrightness * uOpacity * (0.88 + 0.12 * sin(uTime * 0.45 + aSeed));
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    gl_PointSize = aSize * uPixelRatio;
+}`;
+const STAR_FRAGMENT = `
+varying vec3 vColor;
+varying float vAlpha;
+void main() {
+    float d = length(gl_PointCoord - 0.5) * 2.0;
+    float halo = exp(-4.5 * d * d) * (1.0 - smoothstep(0.75, 1.0, d));
+    gl_FragColor = vec4(vColor, halo * vAlpha);
+}`;
+const HAZE_VERTEX = `
+varying vec2 vPosition;
+void main() {
+    vPosition = position.xy;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`;
+const HAZE_FRAGMENT = `
+varying vec2 vPosition;
+uniform float uOpacity;
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p) {
+    vec2 i = floor(p), f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(i), hash(i + vec2(1.,0.)), u.x),
+               mix(hash(i + vec2(0.,1.)), hash(i + vec2(1.,1.)), u.x), u.y);
 }
-`;
-
-const CAMERA_STATES = [
-    { position: [0, 1.0, 12.5], target: [0, 0.0, 0], fov: 42 },
-    { position: [3.7, 1.2, 10.2], target: [0.4, 0.1, 0], fov: 40 },
-    { position: [-2.8, 2.7, 10.4], target: [0, 0.2, 0], fov: 39 },
-    { position: [4.1, 0.8, 8.2], target: [0.2, 0.0, 0], fov: 45 },
-    { position: [-3.8, 1.7, 10.4], target: [0, 0.2, 0], fov: 43 },
-    { position: [0.4, 1.0, 8.8], target: [0, 0.0, -1.2], fov: 47 },
-    { position: [3.4, 1.0, 8.6], target: [0.2, -0.7, 0], fov: 42 },
-    { position: [0.5, 1.1, 9.8], target: [0, 0.0, 0], fov: 38 },
-];
-
-function chooseCount(mode) {
-    const width = window.innerWidth;
-
-    if (mode === "category") {
-        if (width < 640) return 460;
-        if (width < 1024) return 760;
-        return 1100;
-    }
-
-    if (width < 640) return 820;
-    if (width < 1024) return 1400;
-    return 2400;
+float cloud(vec2 p) {
+    return noise(p) * 0.57 + noise(p * 2.1) * 0.28 + noise(p * 4.3) * 0.15;
 }
+void main() {
+    vec2 p = vPosition;
+    float r = length(p);
+    float theta = atan(p.y, p.x);
+    float n = cloud(p * 2.0);
+    float arms = pow(0.5 + 0.5 * cos(3.0 * (theta - r * 1.22)), 5.0);
+    float disk = exp(-r * 0.65) * (1.0 - smoothstep(3.5, 5.6, r));
+    float core = exp(-r * r * 1.4);
+    float dust = smoothstep(0.2, 0.8, n);
+    vec3 outer = mix(vec3(0.20, 0.28, 0.52), vec3(0.42, 0.32, 0.52), n);
+    vec3 light = outer * disk * (0.22 + arms * dust * 1.7);
+    light += vec3(0.73, 0.58, 0.42) * core * 0.3;
+    gl_FragColor = vec4(light, uOpacity * (1.0 - smoothstep(4.8, 6.0, r)));
+}`;
 
-function createInstancedGeometry(count, data) {
-    const source = new THREE.BoxGeometry(1, 1, 1);
-    const geometry = new THREE.InstancedBufferGeometry();
-
-    geometry.setIndex(source.index.clone());
-    geometry.setAttribute("position", source.getAttribute("position").clone());
-    geometry.setAttribute("aFrom", new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3));
-    geometry.setAttribute("aTo", new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3));
-    geometry.setAttribute("aColorFrom", new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3));
-    geometry.setAttribute("aColorTo", new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3));
-    geometry.setAttribute("aScale", new THREE.InstancedBufferAttribute(data.scales, 1));
-    geometry.setAttribute("aSeed", new THREE.InstancedBufferAttribute(data.seeds, 1));
-    geometry.instanceCount = count;
-    source.dispose();
-
-    return geometry;
-}
-
-function markSegmentAttributes(geometry, data, index) {
-    const nextIndex = Math.min(index + 1, data.positions.length - 1);
-    const aFrom = geometry.getAttribute("aFrom");
-    const aTo = geometry.getAttribute("aTo");
-    const aColorFrom = geometry.getAttribute("aColorFrom");
-    const aColorTo = geometry.getAttribute("aColorTo");
-
-    aFrom.array.set(data.positions[index]);
-    aTo.array.set(data.positions[nextIndex]);
-    aColorFrom.array.set(data.colors[index]);
-    aColorTo.array.set(data.colors[nextIndex]);
-
-    aFrom.needsUpdate = true;
-    aTo.needsUpdate = true;
-    aColorFrom.needsUpdate = true;
-    aColorTo.needsUpdate = true;
-}
-
-function createOrbitLine(radiusX, radiusY, color, rotation) {
-    const points = [];
-
-    for (let i = 0; i <= 160; i += 1) {
-        const t = (i / 160) * Math.PI * 2;
-        points.push(new THREE.Vector3(Math.cos(t) * radiusX, Math.sin(t) * radiusY, 0));
-    }
-
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({
-        color,
-        transparent: true,
-        opacity: 0.18,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-    });
-    const line = new THREE.Line(geometry, material);
-
-    line.rotation.set(rotation[0], rotation[1], rotation[2]);
-    return line;
-}
-
-function lerp(a, b, t) {
-    return a + (b - a) * t;
-}
-
-function smooth(t) {
-    return t * t * (3 - 2 * t);
-}
-
-function applyCamera(camera, progress) {
-    const maxSegment = CAMERA_STATES.length - 1;
-    const total = Math.min(progress, 0.9999) * maxSegment;
-    const index = Math.min(Math.floor(total), maxSegment - 1);
-    const t = smooth(total - index);
-    const from = CAMERA_STATES[index];
-    const to = CAMERA_STATES[index + 1];
-    const target = new THREE.Vector3(
-        lerp(from.target[0], to.target[0], t),
-        lerp(from.target[1], to.target[1], t),
-        lerp(from.target[2], to.target[2], t)
-    );
-
-    camera.position.set(
-        lerp(from.position[0], to.position[0], t),
-        lerp(from.position[1], to.position[1], t),
-        lerp(from.position[2], to.position[2], t)
-    );
-    camera.fov = lerp(from.fov, to.fov, t);
-    camera.lookAt(target);
-    camera.updateProjectionMatrix();
-}
-
-export function createUniverseRenderer({ mode }) {
-    const shell = document.createElement("div");
-    const canvas = document.createElement("canvas");
-    const count = chooseCount(mode);
-    const data = createUniverseData(count, mode);
+export function createUniverseRenderer({ showcase = false, mode = "home" } = {}) {
+    const mobile = window.innerWidth < 760;
+    const lowPower = (navigator.hardwareConcurrency || 8) <= 4;
+    const count = mobile || lowPower ? 4800 : 12000;
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80);
-    const renderer = new THREE.WebGLRenderer({
-        canvas,
-        alpha: true,
-        antialias: false,
-        powerPreference: "high-performance",
-    });
-    const geometry = createInstancedGeometry(count, data);
-    const material = new THREE.ShaderMaterial({
-        vertexShader: VERTEX_SHADER,
-        fragmentShader: FRAGMENT_SHADER,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        uniforms: {
-            uMorph: { value: mode === "category" ? 0.45 : 0 },
-            uTime: { value: 0 },
-            uOpacity: { value: mode === "category" ? 0.42 : 0.58 },
-            uScatter: { value: mode === "category" ? 0.12 : 0.22 },
-        },
-    });
-    const mesh = new THREE.Mesh(geometry, material);
-    const orbitGroup = new THREE.Group();
-    const clock = new THREE.Clock();
-    let animationFrame = 0;
-    let currentSegment = mode === "category" ? 4 : 0;
-    let currentProgress = mode === "category" ? 0.62 : 0;
-
+    const camera = new THREE.OrthographicCamera(-10, 10, 6, -6, 0.1, 50);
+    camera.position.z = 20;
+    const canvas = document.createElement("canvas");
+    canvas.className = "universe-canvas";
+    const shell = document.createElement("div");
     shell.className = "universe-canvas-shell";
     shell.setAttribute("aria-hidden", "true");
-    canvas.className = "universe-canvas";
     shell.appendChild(canvas);
-    document.body.prepend(shell);
-
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: "low-power" });
     renderer.setClearColor(0x000000, 0);
-    markSegmentAttributes(geometry, data, currentSegment);
-    mesh.frustumCulled = false;
-    mesh.rotation.z = mode === "category" ? -0.12 : 0;
-    scene.add(mesh);
+    const resources = [];
+    const materials = [];
+    const galaxy = new THREE.Group();
+    const disk = new THREE.Group();
+    galaxy.add(disk);
+    scene.add(galaxy);
+    const intensity = showcase ? 1 : mode === "category" ? 0.42 : 0.58;
 
-    orbitGroup.add(createOrbitLine(4.2, 1.15, 0x76d5ff, [0.42, 0.0, -0.16]));
-    orbitGroup.add(createOrbitLine(5.4, 1.38, 0xf2c26b, [-0.26, 0.24, 0.22]));
-    orbitGroup.add(createOrbitLine(3.5, 0.96, 0x9a7dff, [0.72, -0.32, 0.1]));
-    orbitGroup.add(createOrbitLine(6.2, 1.65, 0x5ca8ff, [-0.12, 0.52, -0.34]));
-    scene.add(orbitGroup);
+    function stars(amount, inGalaxy) {
+        const data = createStarData(amount, inGalaxy);
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute("position", new THREE.BufferAttribute(data.positions, 3));
+        geometry.setAttribute("color", new THREE.BufferAttribute(data.colors, 3));
+        geometry.setAttribute("aSize", new THREE.BufferAttribute(data.sizes, 1));
+        geometry.setAttribute("aSeed", new THREE.BufferAttribute(data.seeds, 1));
+        geometry.setAttribute("aBrightness", new THREE.BufferAttribute(data.brightness, 1));
+        const material = new THREE.ShaderMaterial({
+            vertexShader: STAR_VERTEX, fragmentShader: STAR_FRAGMENT,
+            vertexColors: true, transparent: true, depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            uniforms: { uTime: { value: 0 }, uPixelRatio: { value: 1 }, uOpacity: { value: inGalaxy ? intensity : 0.75 } },
+        });
+        resources.push(geometry, material);
+        materials.push(material);
+        return new THREE.Points(geometry, material);
+    }
+
+    const field = stars(mobile ? 420 : 1000, false);
+    scene.add(field);
+    disk.add(stars(count, true));
+    const hazeGeometry = new THREE.PlaneGeometry(12, 12);
+    const hazeMaterial = new THREE.ShaderMaterial({
+        vertexShader: HAZE_VERTEX, fragmentShader: HAZE_FRAGMENT,
+        transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+        uniforms: { uOpacity: { value: intensity * 0.7 } },
+    });
+    resources.push(hazeGeometry, hazeMaterial);
+    const haze = new THREE.Mesh(hazeGeometry, hazeMaterial);
+    haze.position.z = -0.5;
+    disk.add(haze);
+    // Tilt the disk as a whole; stars and diffuse arms stay aligned.
+    galaxy.rotation.set(0.82, -0.2, -0.38);
+
+    let elapsed = 0;
+    let progress = 0;
+    let targetProgress = 0;
+    let frame = 0;
+    let paused = true;
+    let destroyed = false;
+    let lastTime = 0;
+    let aspect = 1;
+    const pointer = { x: 0, y: 0 };
+    const currentPointer = { x: 0, y: 0 };
+    const interval = 1000 / (showcase && !mobile && !lowPower ? 45 : 30);
+
+    function draw() {
+        const scale = aspect < 1 ? 0.78 : showcase ? 1.12 : 1.25;
+        galaxy.scale.setScalar(scale);
+        galaxy.position.set(showcase ? 0 : aspect < 1 ? 1.1 : aspect * 2.2, showcase ? 0 : 0.7, 0);
+        galaxy.position.x += currentPointer.x * 0.12;
+        galaxy.position.y += currentPointer.y * 0.08 - progress * 0.6;
+        disk.rotation.z = elapsed * 0.012 + progress * 0.12;
+        field.position.x = currentPointer.x * 0.04;
+        field.position.y = currentPointer.y * 0.03 - progress * 0.14;
+        for (const material of materials) material.uniforms.uTime.value = elapsed;
+        renderer.render(scene, camera);
+    }
+
+    function tick(time) {
+        if (destroyed || paused) return;
+        frame = requestAnimationFrame(tick);
+        if (time - lastTime < interval) return;
+        const delta = Math.min((time - lastTime) / 1000, 0.08);
+        lastTime = time;
+        elapsed += delta;
+        const blend = 1 - Math.exp(-delta * 2);
+        progress += (targetProgress - progress) * blend;
+        currentPointer.x += (pointer.x - currentPointer.x) * blend;
+        currentPointer.y += (pointer.y - currentPointer.y) * blend;
+        draw();
+    }
+
+    function setPaused(value) {
+        if (destroyed || value === paused) return;
+        paused = value;
+        cancelAnimationFrame(frame);
+        if (!paused) {
+            lastTime = performance.now();
+            frame = requestAnimationFrame(tick);
+        }
+    }
 
     function resize() {
-        const width = window.innerWidth;
+        const width = document.documentElement.clientWidth;
         const height = window.innerHeight;
-        const pixelRatio = Math.min(window.devicePixelRatio || 1, width < 760 ? 1.1 : 1.45);
-
-        renderer.setPixelRatio(pixelRatio);
-        renderer.setSize(width, height, false);
-        camera.aspect = width / height;
+        aspect = width / Math.max(height, 1);
+        camera.left = -6 * aspect;
+        camera.right = 6 * aspect;
         camera.updateProjectionMatrix();
+        const ratio = Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.5);
+        renderer.setPixelRatio(ratio);
+        renderer.setSize(width, height, false);
+        materials.forEach(material => { material.uniforms.uPixelRatio.value = ratio; });
+        draw();
     }
-
-    function setProgress(progress) {
-        currentProgress = Math.max(0, Math.min(progress, 1));
-        const maxSegment = data.positions.length - 1;
-        const total = Math.min(currentProgress, 0.9999) * maxSegment;
-        const segment = Math.min(Math.floor(total), maxSegment - 1);
-        const morph = total - segment;
-
-        if (segment !== currentSegment) {
-            currentSegment = segment;
-            markSegmentAttributes(geometry, data, currentSegment);
-        }
-
-        material.uniforms.uMorph.value = morph;
-        applyCamera(camera, currentProgress);
+    function movePointer(event) {
+        pointer.x = event.clientX / Math.max(window.innerWidth, 1) - 0.5;
+        pointer.y = 0.5 - event.clientY / Math.max(window.innerHeight, 1);
     }
-
-    function render() {
-        const elapsed = clock.getElapsedTime();
-        const homeEnergy = mode === "home" ? currentProgress : 0.48;
-
-        material.uniforms.uTime.value = elapsed;
-        mesh.rotation.y = elapsed * (mode === "category" ? 0.035 : 0.022) + homeEnergy * 0.68;
-        mesh.rotation.x = Math.sin(elapsed * 0.13) * 0.05 + homeEnergy * 0.12;
-        orbitGroup.rotation.y = elapsed * 0.045 + homeEnergy * 0.55;
-        orbitGroup.rotation.x = Math.sin(elapsed * 0.08) * 0.09;
-        orbitGroup.visible = mode === "home" || currentSegment < 6;
-
-        renderer.render(scene, camera);
-        animationFrame = window.requestAnimationFrame(render);
+    function contextLost(event) {
+        event.preventDefault();
+        setPaused(true);
+        shell.style.display = "none";
     }
-
+    function contextRestored() {
+        shell.style.display = "";
+        resize();
+        // The runtime owns the user's pause preference.
+        window.dispatchEvent(new Event("universe-restored"));
+    }
+    document.body.prepend(shell);
     resize();
-    setProgress(currentProgress);
-    render();
     window.addEventListener("resize", resize);
+    if (window.matchMedia("(pointer: fine)").matches) window.addEventListener("pointermove", movePointer, { passive: true });
+    canvas.addEventListener("webglcontextlost", contextLost);
+    canvas.addEventListener("webglcontextrestored", contextRestored);
 
     return {
-        setProgress,
+        setPaused,
+        setProgress(value) { targetProgress = Math.max(0, Math.min(value, 1)); },
         destroy() {
-            window.cancelAnimationFrame(animationFrame);
+            setPaused(true);
+            destroyed = true;
             window.removeEventListener("resize", resize);
-            shell.remove();
-            geometry.dispose();
-            material.dispose();
+            window.removeEventListener("pointermove", movePointer);
+            canvas.removeEventListener("webglcontextlost", contextLost);
+            canvas.removeEventListener("webglcontextrestored", contextRestored);
+            resources.forEach(resource => resource.dispose());
             renderer.dispose();
+            shell.remove();
         },
     };
 }

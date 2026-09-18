@@ -1,170 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tags</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/common.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore topics | Nhan's Security Log</title>
+<meta name="description" content="Search cryptography notes and CTF writeups by topic.">
+<link rel="canonical" href="https://nhan-laptop.github.io/tags/index.html">
+<link rel="stylesheet" href="../assets/css/common.css"><link rel="stylesheet" href="../assets/css/redesign.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <header class="site-header">
-        <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
-                <a href="../index.html">Home</a>
-                <a href="../universe.html">Universe</a>
-                <a href="../categories/index.html">Categories</a>
-                <a class="is-active" href="index.html">Tags</a>
-            </nav>
-        </div>
-    </header>
-
-    <main class="article-wrap">
-        <section class="hero reveal is-visible">
-            <p class="section-label">Tags</p>
-            <h1>All Tags</h1>
-            <p class="lead">Tag pages duoc tach rieng de filter bai viet de dang hon.</p>
-        </section>
-
-        <section class="cosmic-container reveal is-visible">
-            <div class="starfield"></div>
-            <div class="tags-universe">
-                <a class="planet-tag" style="--color:#76d5ff; --float-duration:7.2s;" href="../posts/learning-symmetric-ciphers.html">
-                    <span class="tag-name">#AES</span>
-                    <span class="tag-count">1</span>
-                </a>
-               
-                <a class="planet-tag" style="--color:#88f5d2; --float-duration:9.6s;" href="../posts/learning-z3-api-python.html">
-                    <span class="tag-name">#Z3</span>
-                    <span class="tag-count">1</span>
-                </a>
-                <a class="planet-tag" style="--color:#9cb8ff; --float-duration:11.7s;" href="../posts/learning-he-bfv.html">
-                    <span class="tag-name">#FHE</span>
-                    <span class="tag-count">1</span>
-                </a>
-                <a class="planet-tag" style="--color:#ff9bd3; --float-duration:6.4s;" href="../posts/learning-breaking-random.html">
-                    <span class="tag-name">#PRNG</span>
-                    <span class="tag-count">1</span>
-                </a>
-                
-                
-            </div>
-        </section>
-    </main>
-
-    <script src="../assets/js/common.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const arena = document.querySelector('.tags-universe');
-            const tags = Array.from(document.querySelectorAll('.planet-tag'));
-            const DAMPING = 0.999;
-            const MIN_SPEED = 0.18;
-            const MAX_SPEED = 1.8;
-            const RESTITUTION = 0.98;
-
-            let planets = tags.map(tag => {
-                const rect = tag.getBoundingClientRect();
-                const radius = rect.width / 2;
-                return {
-                    el: tag,
-                    x: Math.random() * arena.clientWidth,
-                    y: Math.random() * arena.clientHeight,
-                    vx: (Math.random() - 0.5) * 2,
-                    vy: (Math.random() - 0.5) * 2,
-                    radius,
-                    isHovered: false
-                };
-            });
-
-            planets.forEach(p => {
-                p.el.addEventListener('mouseenter', () => {
-                    p.isHovered = true;
-                    p.el.style.transform = `scale(1.15)`;
-                });
-                p.el.addEventListener('mouseleave', () => {
-                    p.isHovered = false;
-                    p.el.style.transform = `scale(1)`;
-                });
-            });
-
-            function animate() {
-                const arenaWidth = arena.clientWidth;
-                const arenaHeight = arena.clientHeight;
-
-                planets.forEach(p => {
-                    if (p.isHovered) return;
-
-                    p.vx *= DAMPING;
-                    p.vy *= DAMPING;
-                    if (Math.abs(p.vx) < MIN_SPEED) p.vx = MIN_SPEED * Math.sign(p.vx || (Math.random() - 0.5));
-                    if (Math.abs(p.vy) < MIN_SPEED) p.vy = MIN_SPEED * Math.sign(p.vy || (Math.random() - 0.5));
-                    p.vx = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, p.vx));
-                    p.vy = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, p.vy));
-
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    // Infinite wrap-around (toroidal space)
-                    if (p.x > arenaWidth + p.radius) p.x = -p.radius;
-                    if (p.x < -p.radius) p.x = arenaWidth + p.radius;
-                    if (p.y > arenaHeight + p.radius) p.y = -p.radius;
-                    if (p.y < -p.radius) p.y = arenaHeight + p.radius;
-                });
-
-                for (let i = 0; i < planets.length; i++) {
-                    for (let j = i + 1; j < planets.length; j++) {
-                        let p1 = planets[i];
-                        let p2 = planets[j];
-
-                        if (p1.isHovered || p2.isHovered) continue;
-
-                        let dx = p2.x - p1.x;
-                        let dy = p2.y - p1.y;
-                        if (Math.abs(dx) > arenaWidth / 2) dx -= Math.sign(dx) * arenaWidth;
-                        if (Math.abs(dy) > arenaHeight / 2) dy -= Math.sign(dy) * arenaHeight;
-                        const distance = Math.sqrt(dx * dx + dy * dy) || 0.0001;
-                        const minDistance = p1.radius + p2.radius;
-
-                        if (distance < minDistance) {
-                            const nx = dx / distance;
-                            const ny = dy / distance;
-
-                            // Push apart to prevent overlap sticking
-                            const overlap = minDistance - distance;
-                            p1.x -= nx * (overlap * 0.5);
-                            p1.y -= ny * (overlap * 0.5);
-                            p2.x += nx * (overlap * 0.5);
-                            p2.y += ny * (overlap * 0.5);
-
-                            // Elastic collision along normal
-                            const rvx = p2.vx - p1.vx;
-                            const rvy = p2.vy - p1.vy;
-                            const velAlongNormal = rvx * nx + rvy * ny;
-
-                            if (velAlongNormal < 0) {
-                                const impulse = -((1 + RESTITUTION) * velAlongNormal) / 2;
-                                p1.vx -= impulse * nx;
-                                p1.vy -= impulse * ny;
-                                p2.vx += impulse * nx;
-                                p2.vy += impulse * ny;
-                            }
-                        }
-                    }
-                }
-
-                planets.forEach(p => {
-                    p.el.style.left = (p.x - p.radius) + 'px';
-                    p.el.style.top = (p.y - p.radius) + 'px';
-                });
-
-                requestAnimationFrame(animate);
-            }
-
-            animate();
-        });
-    </script>
-</body>
-</html>
+<body class="universe-page universe-category">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="header-inner">
+<a class="brand" href="../index.html">Nhan's Security Log</a>
+<nav class="main-nav" aria-label="Primary navigation"><a href="../index.html">Home</a><a href="../universe.html">Universe</a><a href="../categories/index.html">Categories</a><a class="is-active" href="index.html">Tags</a></nav>
+</div></header>
+<main id="main-content" class="article-wrap archive-page" data-tag-explorer>
+<section class="hero archive-hero"><p class="section-label">Connected ideas</p><h1>Explore by topic</h1><p class="lead">Follow a concept across research notes, projects, and CTF writeups.</p></section>
+<section class="archive-section">
+<label for="tag-search">Search posts and topics</label><input id="tag-search" class="tag-search" type="search" data-tag-search placeholder="Try lattices, PRNG, or encryption…">
+<div class="tag-filters" aria-label="Filter by topic"><button type="button" class="tag-filter" data-tag-filter="all">All posts</button><button type="button" class="tag-filter" data-tag-filter="aes">#aes</button>
+<button type="button" class="tag-filter" data-tag-filter="cca2">#cca2</button>
+<button type="button" class="tag-filter" data-tag-filter="chosen-plaintext">#chosen-plaintext</button>
+<button type="button" class="tag-filter" data-tag-filter="ckks">#ckks</button>
+<button type="button" class="tag-filter" data-tag-filter="client-puzzles">#client-puzzles</button>
+<button type="button" class="tag-filter" data-tag-filter="crypto">#crypto</button>
+<button type="button" class="tag-filter" data-tag-filter="cryptography">#cryptography</button>
+<button type="button" class="tag-filter" data-tag-filter="ctf">#ctf</button>
+<button type="button" class="tag-filter" data-tag-filter="ctf-notes">#ctf-notes</button>
+<button type="button" class="tag-filter" data-tag-filter="dos">#dos</button>
+<button type="button" class="tag-filter" data-tag-filter="dsa">#dsa</button>
+<button type="button" class="tag-filter" data-tag-filter="greycat">#greycat</button>
+<button type="button" class="tag-filter" data-tag-filter="groebner-basis">#groebner-basis</button>
+<button type="button" class="tag-filter" data-tag-filter="hash">#hash</button>
+<button type="button" class="tag-filter" data-tag-filter="hibe">#hibe</button>
+<button type="button" class="tag-filter" data-tag-filter="ibe">#ibe</button>
+<button type="button" class="tag-filter" data-tag-filter="langgraph">#langgraph</button>
+<button type="button" class="tag-filter" data-tag-filter="lattice">#lattice</button>
+<button type="button" class="tag-filter" data-tag-filter="life">#life</button>
+<button type="button" class="tag-filter" data-tag-filter="lwe">#lwe</button>
+<button type="button" class="tag-filter" data-tag-filter="mp-lwe">#mp-lwe</button>
+<button type="button" class="tag-filter" data-tag-filter="mtls">#mtls</button>
+<button type="button" class="tag-filter" data-tag-filter="multi-agent">#multi-agent</button>
+<button type="button" class="tag-filter" data-tag-filter="onion-services">#onion-services</button>
+<button type="button" class="tag-filter" data-tag-filter="pkeet">#pkeet</button>
+<button type="button" class="tag-filter" data-tag-filter="pki">#pki</button>
+<button type="button" class="tag-filter" data-tag-filter="prng">#prng</button>
+<button type="button" class="tag-filter" data-tag-filter="project">#project</button>
+<button type="button" class="tag-filter" data-tag-filter="recurrence">#recurrence</button>
+<button type="button" class="tag-filter" data-tag-filter="rlwe">#rlwe</button>
+<button type="button" class="tag-filter" data-tag-filter="rsa">#rsa</button>
+<button type="button" class="tag-filter" data-tag-filter="sage">#sage</button>
+<button type="button" class="tag-filter" data-tag-filter="singapore">#singapore</button>
+<button type="button" class="tag-filter" data-tag-filter="state-recovery">#state-recovery</button>
+<button type="button" class="tag-filter" data-tag-filter="symmetriccipher">#symmetriccipher</button>
+<button type="button" class="tag-filter" data-tag-filter="tls">#tls</button>
+<button type="button" class="tag-filter" data-tag-filter="tor">#tor</button>
+<button type="button" class="tag-filter" data-tag-filter="trapdoors">#trapdoors</button>
+<button type="button" class="tag-filter" data-tag-filter="web">#web</button>
+<button type="button" class="tag-filter" data-tag-filter="writeup">#writeup</button>
+<button type="button" class="tag-filter" data-tag-filter="x509">#x509</button>
+<button type="button" class="tag-filter" data-tag-filter="xoshiro256starstar">#xoshiro256starstar</button></div>
+<p data-tag-status role="status" aria-live="polite"></p>
+<div class="post-grid"><article class="post-card" data-tag-post data-tags="project multi-agent cryptography ctf langgraph">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/project.html">Project</a><time datetime="2026-07-30">2026-07-30</time></div>
+        <h3><a href="../posts/project-Verifier-Guided Multi-AI-Agent RAG for Automated Cryptography Challenge Solving.html">[Project] Verifier-Guided Multi-AI-Agent RAG for Automated Cryptography Challenge Solving</a></h3>
+        <p>A research prototype for evidence-driven, verifier-guided AI agents that inspect cryptography challenge artifacts before attempting to solve them.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#project">#project</a><a href="../tags/index.html#multi-agent">#multi-agent</a><a href="../tags/index.html#cryptography">#cryptography</a><a href="../tags/index.html#ctf">#ctf</a><a href="../tags/index.html#langgraph">#langgraph</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="cryptography pkeet hibe cca2">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-24">2026-07-24</time></div>
+        <h3><a href="../posts/learning-PKEET.html">Public-Key Encryption with Equality Test</a></h3>
+        <p>Notes on PKEET, its two adversary models, and a standard-model construction from two-level HIBE, one-time signatures, and hashing.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#cryptography">#cryptography</a><a href="../tags/index.html#pkeet">#pkeet</a><a href="../tags/index.html#hibe">#hibe</a><a href="../tags/index.html#cca2">#cca2</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="lattice ibe hibe trapdoors">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/learning-IBE-HIBE.html">IBE-HIBE</a></h3>
+        <p>Notes on IBE and HIBE security games, lattice sampling algorithms, and the trapdoor techniques behind hierarchical encryption.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#lattice">#lattice</a><a href="../tags/index.html#ibe">#ibe</a><a href="../tags/index.html#hibe">#hibe</a><a href="../tags/index.html#trapdoors">#trapdoors</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="lattice lwe mp-lwe rlwe">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/learning-MP-LWE.html">Middle-Product LWE</a></h3>
+        <p>An introductory note on MP-LWE, connecting classical LWE and RLWE intuition to the middle-product construction and its efficiency goals.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#lattice">#lattice</a><a href="../tags/index.html#lwe">#lwe</a><a href="../tags/index.html#mp-lwe">#mp-lwe</a><a href="../tags/index.html#rlwe">#rlwe</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="mtls tls pki x509">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/learning-mtls.html">mTLS - Mutual Transport Layer Security</a></h3>
+        <p>A practical overview of mTLS, PKI components, X.509 certificates, and how mutual authentication is deployed in real systems.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#mtls">#mtls</a><a href="../tags/index.html#tls">#tls</a><a href="../tags/index.html#pki">#pki</a><a href="../tags/index.html#x509">#x509</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="tor onion-services dos client-puzzles">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/learning-onion.html">Onions Got Puzzled: On the Challenges of Mitigating Denial-of-Service Problems in Tor Onion Services</a></h3>
+        <p>A survey-style note on DoS against Tor onion services and why client puzzles are a fragile mitigation under anonymity constraints.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#tor">#tor</a><a href="../tags/index.html#onion-services">#onion-services</a><a href="../tags/index.html#dos">#dos</a><a href="../tags/index.html#client-puzzles">#client-puzzles</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="life ctf singapore greycat">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/life.html">Life</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/life-the-first-final.html">Grey The Cat Final CTF 2026</a></h3>
+        <p>A short travel diary from my first onsite CTF final in Singapore, with memories from Grey Cat The Flag Finals 2026.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#life">#life</a><a href="../tags/index.html#ctf">#ctf</a><a href="../tags/index.html#singapore">#singapore</a><a href="../tags/index.html#greycat">#greycat</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="crypto groebner-basis sage ctf-notes">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/writeup-ctf-chill.html">CTF CHILL</a></h3>
+        <p>A short collection of crypto challenge notes, including symbolic and Groebner-basis based solving patterns from recent CTF tasks.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#crypto">#crypto</a><a href="../tags/index.html#groebner-basis">#groebner-basis</a><a href="../tags/index.html#sage">#sage</a><a href="../tags/index.html#ctf-notes">#ctf-notes</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="crypto dsa lattice prng">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/writeup-grey-the-cat-ctf-final-2026.html">Grey Cat The Flag Finals 2026</a></h3>
+        <p>A finals recap covering several solved crypto challenges from Grey Cat The Flag Finals 2026, with notes on DSA, lattices, and PRNG reasoning.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#crypto">#crypto</a><a href="../tags/index.html#dsa">#dsa</a><a href="../tags/index.html#lattice">#lattice</a><a href="../tags/index.html#prng">#prng</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="web prng state-recovery xoshiro256starstar">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/writeup-r3ctf-2026-breaking-random.html">r3ctf 2026 — Breaking Random</a></h3>
+        <p>Recovering the xoshiro256** state behind a web-exposed .NET Random token stream and forging future Base64 tokens.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#web">#web</a><a href="../tags/index.html#prng">#prng</a><a href="../tags/index.html#state-recovery">#state-recovery</a><a href="../tags/index.html#xoshiro256starstar">#xoshiro256starstar</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="crypto ckks chosen-plaintext recurrence">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/writeup-r3ctf-2026-heuristic.html">r3ctf 2026 — HEuristic</a></h3>
+        <p>Recovering a hidden CKKS scaling factor from one chosen-plaintext ciphertext and 96 bounded-noise coefficient leaks.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#crypto">#crypto</a><a href="../tags/index.html#ckks">#ckks</a><a href="../tags/index.html#chosen-plaintext">#chosen-plaintext</a><a href="../tags/index.html#recurrence">#recurrence</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-03-20">2026-03-20</time></div>
+        <h3><a href="../posts/writeup-wannagame-championship-2025.html">WannaGame ChampionShip 2025</a></h3>
+        <p>Có một chall ở giải vừa qua về hình học không gian 4D mà mình thấy khá là hay - và mình mất 5 tiếng để debug và biến đổi......</p>
+        <div class="post-card-tags"></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="ctf writeup cryptography hash rsa aes">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-03-20">2026-03-20</time></div>
+        <h3><a href="../posts/writeup-wannagame-cyberknight-2024.html">WannaGame - CyberKnight 2024</a></h3>
+        <p>Chall:</p>
+        <div class="post-card-tags"><a href="../tags/index.html#ctf">#ctf</a><a href="../tags/index.html#writeup">#writeup</a><a href="../tags/index.html#cryptography">#cryptography</a><a href="../tags/index.html#hash">#hash</a><a href="../tags/index.html#rsa">#rsa</a><a href="../tags/index.html#aes">#aes</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/learning-he-bfv.html">Homomorphic Encryption (HE) &amp; BFV — A Practical, Visual Guide (with TenSEAL/SEALAPI)</a></h3>
+        <p>Trong toán học, cho 2 nhóm: $(G,*)$ và $(H,\bullet)$, một group homomorphism từ 2 nhóm là một function $h: G\rightarrow H$ mà với mọi phần tử $u$ và $v$ thuộc nhóm $G$ thì ta có:</p>
+        <div class="post-card-tags"></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/learning-ntt-intt.html">NTT/INTT - The Number Theoretic Transform</a></h3>
+        <p>Muc dich cua blog nay se gioi thieu cho cac ban mot thuat toan manh me giup ta nhan 2 da thuc (trong truong so huu han) voi do phuc tap giam di dang ke so voi cac cach thong thuong.</p>
+        <div class="post-card-tags"></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="symmetriccipher cryptography aes writeup">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/learning-symmetric-ciphers.html">Symmetric Ciphers</a></h3>
+        <p>Đây là wu báo cáo về bài tập và các implement liên quan.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#symmetriccipher">#symmetriccipher</a><a href="../tags/index.html#cryptography">#cryptography</a><a href="../tags/index.html#aes">#aes</a><a href="../tags/index.html#writeup">#writeup</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/learning-z3-api-python.html">Z3 API trong Python</a></h3>
+        <p>Syntax:</p>
+        <div class="post-card-tags"></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/writeup-n1ctf-2025.html">N1CTF 2025</a></h3>
+        <p>Truy cập vào trang chính của challenge:</p>
+        <div class="post-card-tags"></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2021-05-18">2021-05-18</time></div>
+        <h3><a href="../posts/learning-breaking-random.html">Breaking Random</a></h3>
+        <p>Chúng ta sẽ bắt đầu với hàm `random` trong Python trước. Python ngẫu nhiên sử dụng [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister). Nếu như có đủ 624 output 32-bit ta sẽ giải quyết được vấn đề!!???</p>
+        <div class="post-card-tags"></div>
+    </article></div>
+</section></main>
+<footer class="site-footer"><p>Follow curiosity. Keep the evidence.</p><p>© <span data-current-year></span> Nguyen Trong Nhan</p></footer>
+<script src="../assets/js/common.js" defer></script><script src="../assets/js/universe-background.bundle.js" defer></script>
+</body></html>

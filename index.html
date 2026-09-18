@@ -3,391 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyen Trong Nhan | Personal Blog Homepage</title>
-    <meta
-        name="description"
-        content="Homepage blog cua Nguyen Trong Nhan: writeup CTF, cryptography learning notes, va life log."
-    >
+    <title>Nguyen Trong Nhan | Cryptography & CTF Notes</title>
+    <meta name="description" content="Cryptography research notes, CTF writeups, security projects, and learning logs by Nguyen Trong Nhan, an Information Security student at UIT – VNUHCM.">
+    <link rel="canonical" href="https://nhan-laptop.github.io/">
+    <meta property="og:title" content="Nguyen Trong Nhan | Cryptography & CTF Notes">
+    <meta property="og:description" content="Cryptography research notes, CTF writeups, security projects, and learning logs.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nhan-laptop.github.io/">
+    <meta property="og:image" content="https://nhan-laptop.github.io/self.png">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
-        rel="stylesheet"
-    >
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/common.css">
+    <link rel="stylesheet" href="assets/css/redesign.css">
 </head>
 <body class="universe-page universe-home">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
-                <a class="is-active" href="index.html">Home</a>
+            <a class="brand" href="index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
+                <a class="is-active" aria-current="page" href="index.html">Home</a>
                 <a href="universe.html">Universe</a>
                 <a href="categories/index.html">Categories</a>
                 <a href="tags/index.html">Tags</a>
-                <!-- <a href="posts/writeup-rsa-ctf.html">Writeup Sample</a>
-                <a href="posts/daily-semester-log.html">Daily Sample</a> -->
             </nav>
         </div>
     </header>
 
-    <div class="page-shell">
-        <section class="hero reveal is-visible">
-            <span class="eye    row">Information Security Student | Honor Program | UIT - VNUHCM</span>
-            <h1>Nguyen Trong Nhan</h1>
-            <p class="lead">
-                I am currently a third-year student majoring in Information Security in the Honor Program at the University of Information Technology – VNUHCM.
-                I want to become a cybersecurity professional who can protect citizens from cybercrime and contribute to the development of modern, secure networks in Vietnam.
-                In life, I wish to help many people improve their lives and become a better person every day.
-            </p>
-            <div class="hero-actions">
-                <a class="action-btn" href="#latest-posts">Latest Posts</a>
-                <a class="rank-pill" href="universe.html">Universe</a>
-                <a class="rank-pill" href="categories/index.html">Browse Categories</a>
-                <a class="rank-pill" href="tags/index.html">Explore Tags</a>
-                <a class="rank-pill" href="https://github.com/Nhan-Laptop" target="_blank" rel="noopener noreferrer">GitHub</a>
-                <a class="rank-pill" href="https://www.facebook.com/nhan.trongnguyen.3133/" target="_blank" rel="noopener noreferrer">Facebook</a>
-                <a class="rank-pill" href="https://hackmd.io/@NhanLAPTOP" target="_blank" rel="noopener noreferrer">HackMD</a>
-
+    <main id="main-content" class="page-shell home-main">
+        <section class="home-hero reveal is-visible">
+            <div class="hero-copy">
+                <p class="eyebrow"><span aria-hidden="true">~/</span> cryptography · CTF · research</p>
+                <p class="hero-name">Nguyen Trong Nhan</p>
+                <h1>I break hard problems and document what works.</h1>
+                <p class="lead">
+                    I am an Information Security student in the UIT Honor Program, focused on cryptography,
+                    challenge-driven research, and reliable multi-agent systems. This is my public lab notebook.
+                </p>
+                <div class="hero-actions">
+                    <a class="action-btn" href="#latest-posts">Read latest posts</a>
+                    <a class="secondary-btn" href="categories/writeup.html">Browse writeups</a>
+                </div>
+                <ul class="hero-signals" aria-label="Current focus">
+                    <li>CTF crypto</li>
+                    <li>Lattice cryptography</li>
+                    <li>AI agent verification</li>
+                </ul>
             </div>
-            
+
+            <aside class="profile-card" aria-label="About Nguyen Trong Nhan">
+                <div class="profile-orbit" aria-hidden="true"></div>
+                <img id="profilePhoto" class="profile-photo" src="self.webp" alt="Portrait of Nguyen Trong Nhan" width="375" height="333" decoding="async" fetchpriority="high">
+                <div class="profile-copy">
+                    <p class="profile-status"><span></span> Learning in public</p>
+                    <h2>Information Security<br><span>UIT · VNUHCM</span></h2>
+                    <p>Honor Program · Ho Chi Minh City, Vietnam</p>
+                </div>
+                <div class="profile-links">
+                    <a href="https://github.com/Nhan-Laptop" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://hackmd.io/@NhanLAPTOP" target="_blank" rel="noopener noreferrer">HackMD</a>
+                    <button id="copyEmail" data-copy-email="nguyentrongnhan06cm@gmail.com" type="button">Copy email</button>
+                    <button id="photoTrigger" type="button">Portrait</button>
+                </div>
+            </aside>
         </section>
 
-        <div class="layout">
-            <aside class="sidebar">
-                <section class="panel reveal">
-                    <div class="plasma-avatar-wrap">
-                        <div class="plasma-field" aria-hidden="true"></div>
-                        <img
-                            id="profilePhoto"
-                            class="avatar-img"
-                            src="self.png"
-                            alt="Profile photo of Nguyen Trong Nhan"
-                            width="240"
-                            height="240"
-                            decoding="async"
-                        >
-                    </div>
-                    
-                    <p class="mono" style="text-align:center; color: var(--brand);">HONOR PROGRAM - INFOSEC</p>
-                    <p class="panel-text" style="margin-top: 10px; text-align:center;">Click portrait to preview.</p>
-                    <div style="text-align:center; margin-top: 8px;">
-                        <button class="secondary-btn" id="photoTrigger" type="button">Open Photo</button>
-                    </div>
-                    <ul class="contact-list" style="margin-top: 14px;">
-                        <li class="contact-item">
-                            <span class="k">Email</span>
-                            <a href="mailto:nguyentrongnhan06cm@gmail.com">nguyentrongnhan06cm@gmail.com</a>
-                        </li>
-                        <li class="contact-item">
-                            <span class="k">Phone</span>
-                            <a href="tel:0947523907">0947 523 907</a>
-                        </li>
-                        <li class="contact-item">
-                            <span class="k">Address</span>
-                            10 Han Thuyen, Thu Duc, Ho Chi Minh City
-                        </li>
-                    </ul>
-                    <div style="margin-top: 12px; text-align:center;">
-                        <button class="secondary-btn" id="copyEmail" type="button">Copy Email</button>
-                    </div>
-                </section>
-
-                <section class="panel archive-panel reveal">
-                    <p class="section-label">Archive Navigation</p>
-                    <h2 class="panel-title">Categories and Tags</h2>
-                    <p class="panel-text"></p>
-                    <ul class="quick-links" style="margin-top: 10px;">
-                        <li><a href="categories/life.html">Life <span>01</span></a></li>
-                        <li><a href="categories/writeup.html">Writeup <span>02</span></a></li>
-                        <li><a href="categories/learning.html">Learning <span>03</span></a></li>
-                        <li><a href="categories/project.html">Project <span>04</span></a></li>
-                    </ul>
-                    <!-- <ul class="quick-links" style="margin-top: 10px;">
-                        <li><a href="posts/learning-he-bfv.html">HE-BFV</a></li>
-                        <li><a href="posts/learning-breaking-random.html">Breaking Random</a></li>
-                        <li><a href="posts/learning-symmetric-ciphers.html">Symmetric Ciphers</a></li>
-                        <li><a href="posts/learning-z3-api-python.html">Z3</a></li>
-                        
-                    </ul> -->
-                </section>
-            </aside>
-
-            <main class="main">
-               
-
-                <section class="panel reveal section">
-                    <p class="section-label">Academic Snapshot</p>
-                    <h2 class="section-title">Education and current technical direction</h2>
-                    <div class="timeline">
-                        <article class="timeline-item">
-                            <h3>University of Information Technology - VNUHCM</h3>
-                            <div class="meta-row">
-                                <span>B.Sc. Information Security - Honor Program</span>
-                                <span>2024 - Present</span>
-                                <span>Thu Duc, Ho Chi Minh City</span>
-                            </div>
-                            <p>
-                                Cryptography, AI-engineer.
-                            </p>
-                        </article>
-                    </div>
-                </section>
-
-                <style>
-                    .skills-grid {
-                        display: flex;
-                        gap: 24px; /* Khoảng cách giữa 2 thẻ */
-                        align-items: stretch; /* Ép 2 thẻ cao bằng nhau */
-                    }
-                    .skill-card {
-                        flex: 1; /* Chia đều chiều rộng cho 2 thẻ */
-                    }
-                </style>
-
-                <section class="panel reveal section">
-                    <p class="section-label">Skill Matrix</p>
-                    <h2 class="section-title">What I can execute now</h2>
-                    <div class="skills-grid">
-                        <article class="skill-card">
-                            <h2>Technical</h2>
-                            <ul class="skill-list">
-                                <li>CTF Cryptography</li>
-                                <li>Security analysis</li>
-                                <li>Build Multi AI Agent Framework</li>
-                                <li>Handle problems around Multi-Agent Systems - Prompt/Context Engineering</li>
-                            </ul>
-                        </article>
-                        <article class="skill-card">
-                            <h2>Collaboration</h2>
-                            <ul class="skill-list">
-                                <li>Team CTF participation</li>
-                                <li>Technical communication</li>
-                                <li>Consistent learning logs</li>
-                                <li>Cross-reference notes</li>
-                            </ul>
-                        </article>
-                    </div>
-                </section>
-
-                <section class="panel reveal section">
-                    <p class="section-label">Achievements</p>
-                    <h2 class="section-title">Recent results and milestones</h2>
-                    <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Award / Competition</th>
-                                    <th>Result</th>
-                                    <th>Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>NSUCRYPTO2025</td>
-                                    <td><span class="rank-pill">Bronze Individual &amp; Team</span></td>
-                                    <td>Bronze medal in both individual and team categories for cryptography challenges.</td>
-                                </tr>
-                                <tr>
-                                    <td>UIT Honor Program Scholarship</td>
-                                    <td><span class="rank-pill">Top 2</span></td>
-                                    <td>Merit-based scholarship for excellent academic performance.</td>
-                                </tr>
-                                <tr>
-                                    <td>UIT HONORS CHALLENGE</td>
-                                    <td><span class="rank-pill">Rank B</span></td>
-                                    <td>Recognized for outstanding performance in the university honors challenge.</td>
-                                </tr>
-                                <tr>
-                                    <td>GreyCats CTF 2026 Final</td>
-                                    <td><span class="rank-pill">Top 7 Overall</span></td>
-                                    <td>Final-round CTF competition held in Singapore.</td>
-                                </tr>
-                                <tr>
-                                    <td>Wanna.W1n Recruitment (Cryptography Track)</td>
-                                    <td><span class="rank-pill">Top 1</span></td>
-                                    <td>Ranked first in the internal recruitment challenge focused on cryptography problems.</td>
-                                </tr>
-                                <tr>
-                                    <td>b01lers CTF 2026</td>
-                                    <td><span class="rank-pill">Top 6</span></td>
-                                    <td>Weight: 66.00 / 100. International CTF with a focus on cryptography and reverse engineering.</td>
-                                </tr>
-                                <tr>
-                                    <td>Dreamhack 3/2026 Cryptography Challenge</td>
-                                    <td><span class="rank-pill">Top 10</span></td>
-                                    <td>Top 10 placement in an international event with challenging crypto tasks.</td>
-                                </tr>
-                                <tr>
-                                    <td>Securinet CTF 2025</td>
-                                    <td><span class="rank-pill">Top 23</span></td>
-                                    <td>Weight: 70.50 / 100. Participated as part of a student CTF team, solving crypto and misc challenges.</td>
-                                </tr>
-                                <tr>
-                                    <td>N1CTF 2025</td>
-                                    <td><span class="rank-pill">Top 50</span></td>
-                                    <td>Weight: 94.50 / 100. International cybersecurity competition with high-level crypto and pwn tasks.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                
-
-                <section id="latest-posts" class="panel reveal section">
-                    <p class="section-label">Latest Posts</p>
-                    <h2 class="section-title">Bai viet moi nhat</h2>
-                    <ul class="post-list">
-                        <li class="post-item">
-                            <h3><a href="posts/project-Verifier-Guided%20Multi-AI-Agent%20RAG%20for%20Automated%20Cryptography%20Challenge%20Solving.html">[Project] Verifier-Guided Multi-AI-Agent RAG for Automated Cryptography Challenge Solving</a></h3>
-                            <div class="post-meta">
-                                <span>2026-07-30</span>
-                                <a href="categories/project.html">Project</a>
-                            </div>
-                            <p>A research prototype for evidence-driven, verifier-guided AI agents that inspect cryptography challenge artifacts before attempting to solve them.</p>
-                        </li>
-
-                        <li class="post-item">
-                            <h3><a href="posts/learning-PKEET.html">[Learning] Public-Key Encryption with Equality Test</a></h3>
-                            <div class="post-meta">
-                                <span>2026-07-24</span>
-                                <a href="categories/learning.html">Learning</a>
-                            </div>
-                            <p>Notes on PKEET, its two adversary models, and a standard-model construction from two-level HIBE, one-time signatures, and hashing.</p>
-                        </li>
-
-                        <li class="post-item">
-                            <h3><a href="posts/life-the-first-final.html">[Life] Grey The Cat Final CTF 2026</a></h3>
-                            <div class="post-meta">
-                                <span>2026-07-13</span>
-                                <a href="categories/life.html">Life</a>
-                            </div>
-                            <p>A short travel diary from my first onsite CTF final in Singapore, with memories from Grey Cat The Flag Finals 2026.</p>
-                        </li>
-
-                        <li class="post-item">
-                            <h3><a href="posts/writeup-grey-the-cat-ctf-final-2026.html">[Writeup] Grey Cat The Flag Finals 2026</a></h3>
-                            <div class="post-meta">
-                                <span>2026-07-13</span>
-                                <a href="categories/writeup.html">Writeup</a>
-                            </div>
-                            <p>A finals recap covering several solved crypto challenges from Grey Cat The Flag Finals 2026, with notes on DSA, lattices, and PRNG reasoning.</p>
-                        </li>
-
-                        <li class="post-item">
-                            <h3><a href="posts/writeup-ctf-chill.html">[Writeup] CTF CHILL</a></h3>
-                            <div class="post-meta">
-                                <span>2026-07-13</span>
-                                <a href="categories/writeup.html">Writeup</a>
-                            </div>
-                            <p>A short collection of crypto challenge notes, including symbolic and Groebner-basis based solving patterns from recent CTF tasks.</p>
-                        </li>
-
-                        <li class="post-item">
-                            <h3><a href="posts/learning-onion.html">[Learning] Onions Got Puzzled</a></h3>
-                            <div class="post-meta">
-                                <span>2026-07-13</span>
-                                <a href="categories/learning.html">Learning</a>
-                            </div>
-                            <p>A survey-style note on DoS against Tor onion services and why client puzzles are a fragile mitigation under anonymity constraints.</p>
-                        </li>
-
-                        <li class="post-item">
-                            <h3><a href="posts/learning-MP-LWE.html">[Learning] Middle-Product LWE</a></h3>
-                            <div class="post-meta">
-                                <span>2026-07-13</span>
-                                <a href="categories/learning.html">Learning</a>
-                            </div>
-                            <p>An introductory note on MP-LWE, connecting classical LWE and RLWE intuition to the middle-product construction and its efficiency goals.</p>
-                        </li>
-
-                        <li class="post-item">
-                            <h3><a href="posts/learning-IBE-HIBE.html">[Learning] IBE-HIBE</a></h3>
-                            <div class="post-meta">
-                                <span>2026-07-13</span>
-                                <a href="categories/learning.html">Learning</a>
-                            </div>
-                            <p>Notes on IBE and HIBE security games, lattice sampling algorithms, and the trapdoor techniques behind hierarchical encryption.</p>
-                        </li>
-
-                    </ul>
-                </section>
-
-                <div class="duo-grid">
-                    <section class="panel reveal section">
-                        <p class="section-label">Activities</p>
-                        <h2 class="section-title">Discipline outside the classroom</h2>
-                        <ul class="feature-list">
-                            <li>
-                                <strong>Badminton Champion - UIT Sports</strong>
-                                First place in an internal UIT badminton event.
-                            </li>
-                            <li>
-                                <strong>Regular CTF participation</strong>
-                                Focus on crypto and note-driven postmortem after each event.
-                            </li>
-                        </ul>
-                    </section>
-                    <section class="panel reveal section">
-                        <p class="section-label">Projects & Interests</p>
-                        <h2 class="section-title">Independent study directions</h2>
-                        <ul class="feature-list">
-                            <li>
-                                <strong>Cryptography practice</strong>
-                                RSA, ECC, lattice, and challenge-oriented experimentation.
-                            </li>
-                            <li>
-                                <strong>Knowledge base building</strong>
-                                Keep writeups synchronized between GitHub and HackMD.
-                            </li>
-                        </ul>
-                    </section>
+        <section id="latest-posts" class="home-section reveal">
+            <div class="section-heading">
+                <div>
+                    <p class="section-label">Latest posts</p>
+                    <h2>Fresh from the notebook</h2>
                 </div>
+                <a class="text-link" href="categories/index.html">Browse the archive <span aria-hidden="true">→</span></a>
+            </div>
 
-                <section class="panel archive-match reveal section">
-                    <p class="section-label">Taxonomy</p>
-                    <h2 class="section-title">Category/Tag links are real pages</h2>
-                    <div class="grid-2">
-                        <article class="card">
-                            <h3>Categories</h3>
-                            <ul class="taxonomy-list">
-                                <li><a class="pill-link" href="categories/index.html">All Categories</a></li>
-                                <li><a class="pill-link" href="categories/writeup.html">Writeup</a></li>
-                                <li><a class="pill-link" href="categories/learning.html">Learning</a></li>
-                                <li><a class="pill-link" href="categories/life.html">Life</a></li>
-                                <li><a class="pill-link" href="categories/project.html">Project</a></li>
-                            </ul>
-                        </article>
-                        <article class="card">
-                            <h3>Tags</h3>
-                            <div class="tag-group">
-                                <li><a class ="rank-pill" href="posts/learning-he-bfv.html" class="tag">#FHE</a></li>
-                                <li><a class ="rank-pill" href="posts/learning-breaking-random.html" class="tag">#PRNG</a></li>
-                                <li><a class="rank-pill" href="posts/learning-symmetric-ciphers.html" class="tag">#AES</a></li>
-                                <li><a class="rank-pill" href="posts/learning-z3-api-python.html" class="tag">#Z3</a></li>
-                                <li><a class="rank-pill" href="tags/index.html" class="tag-all">View All →</a></li>
-                            </div>
-                        </article>
+            <div class="post-grid home-post-grid">
+                <article class="post-card post-card-featured">
+                    <div class="post-card-topline">
+                        <a class="category-badge" href="categories/project.html">Project</a>
+                        <time datetime="2026-07-30">Jul 30, 2026</time>
                     </div>
-                </section>
+                    <h3><a href="posts/project-Verifier-Guided%20Multi-AI-Agent%20RAG%20for%20Automated%20Cryptography%20Challenge%20Solving.html">Verifier-Guided Multi-AI-Agent RAG for Cryptography Challenges</a></h3>
+                    <p>An evidence-driven agent architecture that inspects challenge artifacts, separates claims from observations, and verifies solutions before reporting.</p>
+                    <div class="post-card-footer">
+                        <span>Research prototype</span>
+                        <a href="posts/project-Verifier-Guided%20Multi-AI-Agent%20RAG%20for%20Automated%20Cryptography%20Challenge%20Solving.html" aria-label="Read Verifier-Guided Multi-AI-Agent RAG">Read article <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
 
-                
-            </main>
-        </div>
+                <article class="post-card">
+                    <div class="post-card-topline">
+                        <a class="category-badge" href="categories/learning.html">Learning</a>
+                        <time datetime="2026-07-24">Jul 24, 2026</time>
+                    </div>
+                    <h3><a href="posts/learning-PKEET.html">Public-Key Encryption with Equality Test</a></h3>
+                    <p>PKEET adversary models and a standard-model construction from HIBE, signatures, and hashing.</p>
+                    <div class="post-card-tags"><a href="tags/index.html#pkeet">#pkeet</a><a href="tags/index.html#hibe">#hibe</a></div>
+                </article>
 
-        <p class="footer-note">Designed as a personal security blog homepage with reusable multi-page structure.</p>
-    </div>
+                <article class="post-card">
+                    <div class="post-card-topline">
+                        <a class="category-badge" href="categories/writeup.html">Writeup</a>
+                        <time datetime="2026-07-13">Jul 13, 2026</time>
+                    </div>
+                    <h3><a href="posts/writeup-r3ctf-2026-breaking-random.html">r3ctf 2026 — Breaking Random</a></h3>
+                    <p>Recovering xoshiro256** state from bounded .NET Random outputs and predicting future tokens.</p>
+                    <div class="post-card-tags"><a href="tags/index.html#prng">#prng</a><a href="tags/index.html#state-recovery">#state-recovery</a></div>
+                </article>
 
-    <dialog id="photoDialog" aria-label="Profile photo preview" style="border:none; background:transparent;">
-        <img id="dialogImage" src="" alt="Profile photo preview" style="max-width:min(90vw,680px); border-radius:18px; border:1px solid rgba(125,183,229,0.24);">
-        <div style="text-align:right; margin-top:8px;">
-            <button id="closeDialog" class="secondary-btn" type="button">Close</button>
-        </div>
+                <article class="post-card">
+                    <div class="post-card-topline">
+                        <a class="category-badge" href="categories/writeup.html">Writeup</a>
+                        <time datetime="2026-07-13">Jul 13, 2026</time>
+                    </div>
+                    <h3><a href="posts/writeup-r3ctf-2026-heuristic.html">r3ctf 2026 — HEuristic</a></h3>
+                    <p>A chosen-plaintext recurrence that recovers a secret CKKS scalar from noisy coefficient leaks.</p>
+                    <div class="post-card-tags"><a href="tags/index.html#ckks">#ckks</a><a href="tags/index.html#chosen-plaintext">#chosen-plaintext</a></div>
+                </article>
+
+                <article class="post-card">
+                    <div class="post-card-topline">
+                        <a class="category-badge" href="categories/writeup.html">Writeup</a>
+                        <time datetime="2026-07-13">Jul 13, 2026</time>
+                    </div>
+                    <h3><a href="posts/writeup-grey-the-cat-ctf-final-2026.html">Grey Cat The Flag Finals 2026</a></h3>
+                    <p>Finals notes spanning DSA, lattices, custom generators, and practical cryptanalytic reasoning.</p>
+                    <div class="post-card-tags"><a href="tags/index.html#dsa">#dsa</a><a href="tags/index.html#lattice">#lattice</a></div>
+                </article>
+
+                <article class="post-card">
+                    <div class="post-card-topline">
+                        <a class="category-badge" href="categories/life.html">Life</a>
+                        <time datetime="2026-07-13">Jul 13, 2026</time>
+                    </div>
+                    <h3><a href="posts/life-the-first-final.html">My first onsite CTF final</a></h3>
+                    <p>A visual field log from Grey Cat The Flag Finals in Singapore.</p>
+                    <div class="post-card-tags"><a href="tags/index.html#ctf">#ctf</a><a href="tags/index.html#singapore">#singapore</a></div>
+                </article>
+            </div>
+        </section>
+
+        <section class="home-section reveal">
+            <div class="section-heading">
+                <div>
+                    <p class="section-label">Explore</p>
+                    <h2>Choose a path</h2>
+                </div>
+            </div>
+            <div class="category-grid">
+                <a class="category-card" href="categories/writeup.html">
+                    <span class="category-index">01</span>
+                    <h3>Writeups</h3>
+                    <p>Reproducible challenge analysis, exploit scripts, and verification.</p>
+                    <span class="category-arrow" aria-hidden="true">↗</span>
+                </a>
+                <a class="category-card" href="categories/learning.html">
+                    <span class="category-index">02</span>
+                    <h3>Learning</h3>
+                    <p>Cryptography concepts, papers, protocols, and implementation notes.</p>
+                    <span class="category-arrow" aria-hidden="true">↗</span>
+                </a>
+                <a class="category-card" href="categories/project.html">
+                    <span class="category-index">03</span>
+                    <h3>Projects</h3>
+                    <p>Research prototypes and security-focused systems under active development.</p>
+                    <span class="category-arrow" aria-hidden="true">↗</span>
+                </a>
+                <a class="category-card" href="categories/life.html">
+                    <span class="category-index">04</span>
+                    <h3>Life logs</h3>
+                    <p>Competition travel, academic milestones, and notes beyond the terminal.</p>
+                    <span class="category-arrow" aria-hidden="true">↗</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="home-section about-section reveal">
+            <div class="section-heading">
+                <div>
+                    <p class="section-label">Now</p>
+                    <h2>Study, build, compete, repeat.</h2>
+                </div>
+            </div>
+            <div class="about-grid">
+                <article class="about-card about-card-wide">
+                    <p class="card-kicker">Current direction</p>
+                    <h3>Cryptography × verifiable AI systems</h3>
+                    <p>I am studying how agent systems can reason over real challenge artifacts without skipping evidence, while continuing hands-on work in classical and lattice cryptography.</p>
+                    <ul class="skill-cloud" aria-label="Technical interests">
+                        <li>CTF cryptography</li><li>LWE / RLWE</li><li>FHE</li><li>PRNG recovery</li><li>Multi-agent systems</li><li>Prompt & context engineering</li>
+                    </ul>
+                </article>
+                <article class="about-card">
+                    <p class="card-kicker">Education</p>
+                    <h3>UIT – VNUHCM</h3>
+                    <p>B.Sc. Information Security<br>Honor Program · 2024–present</p>
+                </article>
+                <article class="about-card">
+                    <p class="card-kicker">Selected results</p>
+                    <ul class="achievement-list">
+                        <li><strong>Bronze</strong><span>NSUCRYPTO 2025</span></li>
+                        <li><strong>Top 7</strong><span>GreyCats CTF 2026 Final</span></li>
+                        <li><strong>Top 1</strong><span>Wanna.W1n Crypto Recruitment</span></li>
+                        <li><strong>Top 2</strong><span>UIT Honor Scholarship</span></li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="home-cta reveal">
+            <div>
+                <p class="section-label">Keep exploring</p>
+                <h2>Every solved problem becomes a reusable note.</h2>
+            </div>
+            <div class="hero-actions">
+                <a class="action-btn" href="tags/index.html">Explore tags</a>
+                <a class="secondary-btn" href="mailto:nguyentrongnhan06cm@gmail.com">Start a conversation</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>Built as an open learning log for cryptography, CTF, and security research.</p>
+        <nav aria-label="Social links">
+            <a href="https://github.com/Nhan-Laptop" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://www.facebook.com/nhan.trongnguyen.3133/" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a href="https://hackmd.io/@NhanLAPTOP" target="_blank" rel="noopener noreferrer">HackMD</a>
+        </nav>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
+    <dialog id="photoDialog" class="photo-dialog" aria-label="Profile photo preview">
+        <img id="dialogImage" src="self.webp" width="375" height="333" alt="Profile photo preview">
+        <button id="closeDialog" class="secondary-btn" type="button">Close preview</button>
     </dialog>
 
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="assets/js/universe-background.bundle.js" defer></script>
-    <script src="assets/js/common.js"></script>
+    <script src="assets/js/common.js" defer></script>
 </body>
 </html>

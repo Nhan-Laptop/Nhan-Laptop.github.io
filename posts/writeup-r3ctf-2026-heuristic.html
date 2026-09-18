@@ -3,49 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>r3ctf 2026 — HEuristic - Nhan's Security Log</title>
+    <title>r3ctf 2026 — HEuristic | Nhan&#39;s Security Log</title>
+    <meta name="description" content="Recovering a hidden CKKS scaling factor from one chosen-plaintext ciphertext and 96 bounded-noise coefficient leaks.">
+    <link rel="canonical" href="https://nhan-laptop.github.io/posts/writeup-r3ctf-2026-heuristic.html">
+    <meta property="og:title" content="r3ctf 2026 — HEuristic | Nhan&#39;s Security Log">
+    <meta property="og:description" content="Recovering a hidden CKKS scaling factor from one chosen-plaintext ciphertext and 96 bounded-noise coefficient leaks.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nhan-laptop.github.io/posts/writeup-r3ctf-2026-heuristic.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
     <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
     <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
 </head>
-<body>
+<body class="article-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
                 <a href="../categories/index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="../categories/writeup.html">Writeup</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
+    <main id="main-content" class="article-wrap">
         <section class="hero article-hero reveal is-visible">
-            <div class="breadcrumb">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="../index.html">Home</a>
-                <span>/</span>
-                <span>r3ctf 2026 — HEuristic</span>
-            </div>
-            <h1>r3ctf 2026 — HEuristic</h1>
-            <div class="post-meta" style="margin-top: 10px;">
-                <span>2026-07-13</span>
+                <span aria-hidden="true">/</span>
                 <a href="../categories/writeup.html">Writeup</a>
-                <a href="../tags/index.html">#crypto</a>
-                <a href="../tags/index.html">#ckks</a>
-                <a href="../tags/index.html">#chosen-plaintext</a>
-                <a href="../tags/index.html">#recurrence</a>
-            </div>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">r3ctf 2026 — HEuristic</span>
+            </nav>
+            <p class="section-label">Writeup · field notes</p>
+            <h1>r3ctf 2026 — HEuristic</h1>
+            <div class="post-meta"><time datetime="2026-07-13">2026-07-13</time><span>5 min read</span><a href="../tags/index.html">#crypto</a><a href="../tags/index.html">#ckks</a><a href="../tags/index.html">#chosen-plaintext</a><a href="../tags/index.html">#recurrence</a></div>
             <p class="lead">Recovering a hidden CKKS scaling factor from one chosen-plaintext ciphertext and 96 bounded-noise coefficient leaks.</p>
         </section>
 
         <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
-<h1>r3ctf 2026 — HEuristic</h1>
 <p><strong>Category:</strong> Crypto</p>
 <h2>Description</h2>
 <blockquote>
@@ -168,6 +175,11 @@ io.sendlineafter(<span class="hljs-string">b&quot;delta&gt; &quot;</span>, <span
 </article>
     </main>
 
-    <script src="../assets/js/common.js"></script>
+    <footer class="site-footer">
+        <p>Built as an open learning log for cryptography, CTF, and security research.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

@@ -3,49 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mTLS - Mutual Transport Layer Security - Nhan's Security Log</title>
+    <title>mTLS - Mutual Transport Layer Security | Nhan&#39;s Security Log</title>
+    <meta name="description" content="A practical overview of mTLS, PKI components, X.509 certificates, and how mutual authentication is deployed in real systems.">
+    <link rel="canonical" href="https://nhan-laptop.github.io/posts/learning-mtls.html">
+    <meta property="og:title" content="mTLS - Mutual Transport Layer Security | Nhan&#39;s Security Log">
+    <meta property="og:description" content="A practical overview of mTLS, PKI components, X.509 certificates, and how mutual authentication is deployed in real systems.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nhan-laptop.github.io/posts/learning-mtls.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
     <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
     <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
 </head>
-<body>
+<body class="article-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
                 <a href="../categories/index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="../categories/learning.html">Learning</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
+    <main id="main-content" class="article-wrap">
         <section class="hero article-hero reveal is-visible">
-            <div class="breadcrumb">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="../index.html">Home</a>
-                <span>/</span>
-                <span>mTLS - Mutual Transport Layer Security</span>
-            </div>
-            <h1>mTLS - Mutual Transport Layer Security</h1>
-            <div class="post-meta" style="margin-top: 10px;">
-                <span>2026-07-13</span>
+                <span aria-hidden="true">/</span>
                 <a href="../categories/learning.html">Learning</a>
-                <a href="../tags/index.html">#mtls</a>
-                <a href="../tags/index.html">#tls</a>
-                <a href="../tags/index.html">#pki</a>
-                <a href="../tags/index.html">#x509</a>
-            </div>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">mTLS - Mutual Transport Layer Security</span>
+            </nav>
+            <p class="section-label">Learning · field notes</p>
+            <h1>mTLS - Mutual Transport Layer Security</h1>
+            <div class="post-meta"><time datetime="2026-07-13">2026-07-13</time><span>10 min read</span><a href="../tags/index.html">#mtls</a><a href="../tags/index.html">#tls</a><a href="../tags/index.html">#pki</a><a href="../tags/index.html">#x509</a></div>
             <p class="lead">A practical overview of mTLS, PKI components, X.509 certificates, and how mutual authentication is deployed in real systems.</p>
         </section>
 
         <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
-<h1>mTLS - Mutual Transport Layer Security</h1>
 <blockquote>
 <h2>Nguyen Trong Nhan - 24521236 |</h2>
 </blockquote>
@@ -72,33 +79,33 @@
 <ol>
 <li>Client khởi tạo kết nối TLS.</li>
 </ol>
-<p><img src="https://hackmd.io/_uploads/BJG0_yYQbx.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/BJG0_yYQbx.png" alt="image"></p>
 <ol start="2">
 <li>Server gửi chứng thư số của mình. </li>
 <li>Client kiểm tra chứng thư của server (Chuỗi CA, thời hạn, etc...).</li>
 </ol>
-<p><img src="https://hackmd.io/_uploads/rkbyFJtQWg.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/rkbyFJtQWg.png" alt="image"></p>
 <ol start="4">
 <li>Server yêu cầu client gửi chứng thư số.</li>
 <li>Client gửi chứng thư + chứng minh sở hữu private key (ký handshake). </li>
 <li>Server xác thực chứng thư của client.</li>
 </ol>
-<p><img src="https://hackmd.io/_uploads/HkGxYkFQZg.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/HkGxYkFQZg.png" alt="image"></p>
 <ol start="7">
 <li>Hai bên thiết lập mã hóa an toàn.</li>
 </ol>
-<p><img src="https://hackmd.io/_uploads/HkjlKyK7Ze.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/HkjlKyK7Ze.png" alt="image"></p>
 <hr>
 <h2>2. CA (Certificate Authority)</h2>
 <h3>2.1 Khái niệm</h3>
 <p><strong>CA</strong> là tổ chức/tổ hợp kỹ thuật chịu trách nhiệm phát hành, ký, gia hạn và thu hồi chứng thư số, CA là root of trust trong hạ tầng PKI </p>
-<p><img src="https://hackmd.io/_uploads/B1f25JYXWe.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/B1f25JYXWe.png" alt="image"></p>
 <h3>2.2 Phân cấp CA</h3>
 <ul>
 <li><strong>Root CA</strong>: tin cậy tuyệt đối, khóa riêng được bảo vệ nghiêm ngặt (Offline).</li>
 <li><strong>Intermediate/Sub CA</strong>: phát hành chứng thư cho người dùng, dịch vụ.</li>
 </ul>
-<p><img src="https://hackmd.io/_uploads/BkEC51Km-e.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/BkEC51Km-e.png" alt="image"></p>
 <h3>2.3 Chức năng chính</h3>
 <ul>
 <li>Ký chứng thư số X.509.</li>
@@ -106,7 +113,7 @@
 <li>Hỗ trợ OCSP responder. </li>
 <li>Quản lý chính sách chứng thư (CP/CPS).</li>
 </ul>
-<p><img src="https://hackmd.io/_uploads/HJy1iJFX-l.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/HJy1iJFX-l.png" alt="image"></p>
 <hr>
 <h2>3. Certificate</h2>
 <h3>3.1 Khái niệm về Certificate</h3>
@@ -140,9 +147,9 @@
 <h4>3. Chữ ký số CA</h4>
 <p>Toàn bộ TBSCertificate được CA ký bằng private key của CA, tạo thành chữ ký số xác thực certificate.</p>
 <h3>3.3. Phân loại Certificate</h3>
-<p><img src="https://hackmd.io/_uploads/HJWvt4t7Zl.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/HJWvt4t7Zl.png" alt="image"></p>
 <h3>3.4. Vòng đời của Certificate</h3>
-<p><img src="https://hackmd.io/_uploads/r1qm5EFXWg.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/r1qm5EFXWg.png" alt="image"></p>
 <h3>3.5 Vai trò của Certificate trong mTLS</h3>
 <p>Trong Mutual TLS, certificate được dùng để:</p>
 <ul>
@@ -158,23 +165,23 @@
 <h2>4. RA (Registration Authority)</h2>
 <h3>4.1 Khái niệm</h3>
 <p><strong>RA</strong> là đơn vị trung gian giữa người đăng ký và CA, chịu trách nhiệm xác thực danh tính trước khi CA cấp chứng thư. </p>
-<p><img src="https://hackmd.io/_uploads/H1mOnkFQZl.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/H1mOnkFQZl.png" alt="image"></p>
 <h3>4.2 Nhiệm vụ chính</h3>
 <ul>
 <li>Tiếp nhận hồ sơ đăng ký chứng thư. </li>
 <li>Xác minh danh tính (KYC, eID, CCCD, sinh trắc học).</li>
 </ul>
-<p><img src="https://hackmd.io/_uploads/SJ6uhkFQbg.png" alt="image">		</p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/SJ6uhkFQbg.png" alt="image">		</p>
 <ul>
 <li>Phê duyệt hoặc từ chối yêu cầu cấp chứng thư. </li>
 <li>Ghi log, audit và tuân thủ quy trình phấp lý.</li>
 </ul>
-<p><img src="https://hackmd.io/_uploads/B1j5hkYmWl.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/B1j5hkYmWl.png" alt="image"></p>
 <hr>
 <h2>5. CSR (Certificate Signing Request)</h2>
 <h3>5.1 Khái niệm</h3>
 <p><strong>CSR</strong> là một gói dữ liệu do chủ thể (Client/server) tạo, gửi tới CA để xin cấp chứng thư số. </p>
-<p><img src="https://hackmd.io/_uploads/B194pyFQWg.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/B194pyFQWg.png" alt="image"></p>
 <h3>5.2 Nội dung CSR</h3>
 <p>Một CSR thường chứa: </p>
 <ul>
@@ -183,25 +190,25 @@
 <li>Extensions (Key Usage, EKU).</li>
 <li>Chữ ký số bằng private-key tương ứng.</li>
 </ul>
-<p><img src="https://hackmd.io/_uploads/ByxOTkKQWe.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/ByxOTkKQWe.png" alt="image"></p>
 <h3>5.3 Quy trình CSR</h3>
 <ol>
 <li>Chủ thể sinh cặp khóa (private/public).</li>
 <li>Tạo CSR và ký bằng private key.</li>
 </ol>
-<p><img src="https://hackmd.io/_uploads/rJGqp1K7Ze.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/rJGqp1K7Ze.png" alt="image"></p>
 <ol start="3">
 <li>Gửi CSR đến RA. </li>
 <li>RA xác thực thông tin.</li>
 <li>CA ký và phát hành certificate.</li>
 </ol>
-<p><img src="https://hackmd.io/_uploads/B1u3p1tQWg.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/B1u3p1tQWg.png" alt="image"></p>
 <h3>5.4 Ý nghĩa bảo mật</h3>
 <ul>
 <li>Private key không bao giờ rời khỏi thiết bị.</li>
 <li>CA chỉ xác nhận publickey + danh tính.</li>
 </ul>
-<p><img src="https://hackmd.io/_uploads/B1VgA1F7-e.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/B1VgA1F7-e.png" alt="image"></p>
 <hr>
 <h2>6. Mối liên hệ giữa mTLS – CA – RA – CSR</h2>
 <p>Tạo thành chuỗi tin cậy: </p>
@@ -210,13 +217,13 @@
 <li><strong>RA</strong> xác thực danh tính.</li>
 <li><strong>CA</strong> ký và phát hành chứng thư.</li>
 </ol>
-<p><img src="https://hackmd.io/_uploads/SJ5c1etXWe.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/SJ5c1etXWe.png" alt="image"></p>
 <p>Chứng thư được dùng trong <strong>mTLS</strong>, ký số, OCSP, TSA: </p>
-<p><img src="https://hackmd.io/_uploads/SyHAkgYmWe.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/SyHAkgYmWe.png" alt="image"></p>
 <p>Nếu RA sai → CA ký sai:</p>
-<p><img src="https://hackmd.io/_uploads/BJlxexK7Wg.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/BJlxexK7Wg.png" alt="image"></p>
 <p>=&gt; mTLS &amp; chữ ký số mất giá trị pháp lý:</p>
-<p><img src="https://hackmd.io/_uploads/B1ZbgeKQWg.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/B1ZbgeKQWg.png" alt="image"></p>
 <hr>
 <h2>7. Triển khai Hệ thống mTLS Đa Thuật toán (ECDSA &amp; ML-DSA) và Hạ tầng PKI Kháng Lượng tử trên nền tảng OpenSSL</h2>
 <h3>7.1 kiến thức nền</h3>
@@ -455,6 +462,11 @@ openssl x509 -req -<span class="hljs-keyword">in</span> pki/end-users/csr/servic
 </article>
     </main>
 
-    <script src="../assets/js/common.js"></script>
+    <footer class="site-footer">
+        <p>Built as an open learning log for cryptography, CTF, and security research.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

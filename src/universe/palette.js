@@ -1,21 +1,5 @@
-export const COLORS = {
-    ink: [0.92, 0.96, 1.0],
-    cyan: [0.46, 0.84, 1.0],
-    blue: [0.30, 0.56, 0.95],
-    violet: [0.58, 0.45, 1.0],
-    amber: [0.95, 0.70, 0.34],
-    moss: [0.58, 0.70, 0.38],
-    rose: [0.80, 0.36, 0.48],
-    slate: [0.48, 0.58, 0.70],
+// Restrained stellar colors: warm inner population, pale blue outer arms.
+export const STAR_COLORS = {
+    warm: [[1.0, 0.84, 0.66], [0.95, 0.9, 0.82], [0.88, 0.84, 0.8]],
+    cool: [[0.65, 0.78, 1.0], [0.82, 0.87, 1.0], [0.7, 0.68, 0.92], [0.96, 0.94, 0.89]],
 };
-
-export const FORMATION_PALETTES = [
-    [COLORS.cyan, COLORS.violet, COLORS.slate, COLORS.amber],
-    [COLORS.cyan, COLORS.blue, COLORS.violet, COLORS.amber],
-    [COLORS.slate, COLORS.moss, COLORS.violet, COLORS.amber],
-    [COLORS.amber, COLORS.moss, COLORS.violet, COLORS.slate],
-    [COLORS.ink, COLORS.cyan, COLORS.violet, COLORS.amber, COLORS.rose],
-    [COLORS.cyan, COLORS.violet, COLORS.rose, COLORS.slate],
-    [COLORS.moss, COLORS.amber, COLORS.ink, COLORS.blue],
-    [COLORS.ink, COLORS.slate, COLORS.cyan, COLORS.amber],
-];

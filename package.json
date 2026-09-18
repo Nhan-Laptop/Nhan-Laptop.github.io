@@ -5,7 +5,8 @@
   "description": "Static build pipeline for markdown writeups",
   "scripts": {
     "build:universe": "esbuild src/universe/index.js --bundle --format=iife --global-name=NhanUniverse --target=es2020 --minify --outfile=assets/js/universe-background.bundle.js",
-    "build:n1ctf": "npm run build:universe && node build.js"
+    "build:n1ctf": "npm run build:universe && node build.js",
+    "optimize:images": "node scripts/optimize-images.js"
   },
   "dependencies": {
     "gsap": "^3.15.0",

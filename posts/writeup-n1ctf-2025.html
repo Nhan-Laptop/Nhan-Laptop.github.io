@@ -3,48 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>N1CTF 2025 - Nhan's Security Log</title>
+    <title>N1CTF 2025 | Nhan&#39;s Security Log</title>
+    <meta name="description" content="Truy cập vào trang chính của challenge:">
+    <link rel="canonical" href="https://nhan-laptop.github.io/posts/writeup-n1ctf-2025.html">
+    <meta property="og:title" content="N1CTF 2025 | Nhan&#39;s Security Log">
+    <meta property="og:description" content="Truy cập vào trang chính của challenge:">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nhan-laptop.github.io/posts/writeup-n1ctf-2025.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
     <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
     <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
 </head>
-<body>
+<body class="article-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
                 <a href="../categories/index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="writeup-template.html">Template</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
+    <main id="main-content" class="article-wrap">
         <section class="hero article-hero reveal is-visible">
-            <div class="breadcrumb">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="../index.html">Home</a>
-                <span>/</span>
-                <span>Template</span>
-            </div>
-            <h1>N1CTF 2025</h1>
-            <div class="post-meta" style="margin-top: 10px;">
-                <span>YYYY-MM-DD</span>
+                <span aria-hidden="true">/</span>
                 <a href="../categories/writeup.html">Writeup</a>
-                <a href="../tags/index.html">tag-1</a>
-                <a href="../tags/index.html">tag-2</a>
-            </div>
-            <p class="lead">Tom tat challenge trong 2-3 cau: de bai, dau moi, va huong giai.</p>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">N1CTF 2025</span>
+            </nav>
+            <p class="section-label">Writeup · field notes</p>
+            <h1>N1CTF 2025</h1>
+            <div class="post-meta"><time datetime="2026-03-19">2026-03-19</time><span>24 min read</span></div>
+            <p class="lead">Truy cập vào trang chính của challenge:</p>
         </section>
 
         <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
-<h1>N1CTF 2025</h1>
-<p><img src="https://hackmd.io/_uploads/HJeok-klbe.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/HJeok-klbe.png" alt="image"></p>
 <blockquote>
 <p>Nguyễn Trọng Nhân 24521236 ATTN2024
 Lê Công Danh 22520199  ATTT2022.1</p>
@@ -52,9 +61,9 @@ Lê Công Danh 22520199  ATTT2022.1</p>
 <h2>Web</h2>
 <h3>eezzjs</h3>
 <p>Truy cập vào trang chính của challenge:
-<img src="https://hackmd.io/_uploads/ry2fT7UJbx.png" alt="image"></p>
+<img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/ry2fT7UJbx.png" alt="image"></p>
 <p>Chúng ta sẽ được tiếp cận với 2 endpoint chính là <strong>/login</strong> và <strong>/upload</strong>, challenge yêu cầu phải login trước mới được truy cập vào <strong>/upload</strong>, nếu không sẽ bị redirect:
-<img src="https://hackmd.io/_uploads/SybCnXIy-x.png" alt="image"></p>
+<img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/SybCnXIy-x.png" alt="image"></p>
 <p>Challenge này được cung cấp source code đi kèm, source code sẽ có 2 file js chính để xử lý các logic của challenge là <strong>app.js</strong> và <strong>auth.js</strong>, ta sẽ xem qua hàm <strong>loginUser</strong> của <strong>app.js</strong>:</p>
 <pre><code class="hljs language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">loginUser</span>(<span class="hljs-params">req, res</span>) {
     <span class="hljs-keyword">const</span> { username, password } = req.<span class="hljs-property">body</span> || {};
@@ -233,7 +242,7 @@ Secret: &#39;<key_length_18>&#39; (string)</p>
 <p>Như ở trên ta đã sinh ra được đoạn hash &quot;674dcdbbb09261235ee8efc1999daee725dad0ec314a8d1d80cb11229e7596c1&quot;. Giờ thì chỉ cần tạo ra một JWT dựa trên đoạn hash này là ta có thể bypass được login. Cookie của chúng ta:</p>
 <pre><code><span class="hljs-attribute">token</span><span class="hljs-operator">=</span>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsZW5ndGgiOi00NX0.<span class="hljs-number">674</span>dcdbbb09261235ee8efc1999daee725dad0ec314a8d1d80cb11229e7596c1
 </code></pre><p>Với token trên ta đã có thể truy cập được phần upload:
-<img src="https://hackmd.io/_uploads/BJSRQt_1bg.png" alt="image"></p>
+<img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/BJSRQt_1bg.png" alt="image"></p>
 <p>Mục đích cuối cùng của chúng ta sẽ là RCE để đọc được file flag. Ý tưởng ở đây là chúng ta sẽ tìm cách upload một file ejs và sau đó thực thi nó để đạt được RCE.</p>
 <p>Chúng ta sẽ xem qua hàm xử lý file được upload ở <strong>app.js</strong>:</p>
 <pre><code class="hljs language-js"><span class="hljs-keyword">const</span> uploadDir = path.<span class="hljs-title function_">join</span>(__dirname, <span class="hljs-string">&#x27;uploads&#x27;</span>);
@@ -269,7 +278,7 @@ Secret: &#39;<key_length_18>&#39; (string)</p>
 <pre><code class="hljs language-js">&lt;%= process.<span class="hljs-property">mainModule</span>.<span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;fs&#x27;</span>).<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">&#x27;/flag&#x27;</span>,<span class="hljs-string">&#x27;utf8&#x27;</span>) %&gt;
 </code></pre><p>Payload trên sẽ gọi module <strong>fs</strong> và gọi hàm <strong>readFileSync()</strong> để có thể đọc được file flag.</p>
 <p>Một vấn đề khác nữa là file chúng ta upload lên sẽ được đặt ở thư mục <strong>uploads/</strong>, và ta cần đặt nó ở thư mục <strong>views/</strong> vì đây là thư mục chứa các file template của <strong>Express.js</strong>. Để đạt được điều này thì ta chỉ cần khai thác <strong>Path Traversal</strong> ở tên file vì hàm <strong>uploadFile()</strong> không có cơ chế kiểm tra <strong>Path Traversal</strong>.
-<img src="https://hackmd.io/_uploads/Bk1i9su1be.png" alt="image"></p>
+<img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/Bk1i9su1be.png" alt="image"></p>
 <p>Như trên hình thì ta đã thành công upload file <strong>exploit.ejs</strong> vào thư mục <strong>views/</strong>.</p>
 <p>Cuối cùng, ta sẽ tìm cách thực thi file <strong>exploit.ejs</strong> này, và có một hàm nằm trong <strong>app.js</strong> có thể giúp ta đạt được điều đó:</p>
 <pre><code class="hljs language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">serveIndex</span>(<span class="hljs-params">req, res</span>) {
@@ -289,7 +298,7 @@ Secret: &#39;<key_length_18>&#39; (string)</p>
 app.<span class="hljs-title function_">get</span>(<span class="hljs-string">&#x27;/&#x27;</span>, serveIndex);
 </code></pre><p>Hàm <strong>serveIndex()</strong> này sẽ nhận giá trị của tham số <strong>templ</strong> do chúng ta nhập vào và thực hiện render file thông qua giá trị của tham số <strong>templ</strong> này.
 =&gt; Chỉ cần gửi request tới: <strong>/?templ=exploit.ejs</strong> là chúng ta đã có thể thực thi file <strong>exploit.ejs</strong> và đọc được flag:
-<img src="https://hackmd.io/_uploads/B18Fnouk-g.png" alt="image"></p>
+<img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/B18Fnouk-g.png" alt="image"></p>
 <h2>Crypto</h2>
 <h3>n1^3</h3>
 <p>chall: </p>
@@ -601,7 +610,7 @@ c   = &lt;....&gt;
     k = max(<span class="hljs-number">1</span>, (N.nbits() + <span class="hljs-number">7</span>)<span class="hljs-comment">//8)</span>
     inner = int(N).to_bytes(k, <span class="hljs-string">&#x27;big&#x27;</span>)                     
     print(inner)
-</code></pre><p><img src="https://hackmd.io/_uploads/rJqxzTrk-x.png" alt="image">
+</code></pre><p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/rJqxzTrk-x.png" alt="image">
 Vì là phương pháp tìm sắp xỉ trên trường hữu hạn nên ta vẫn có xác suất.</p>
 <h3>n1fhe</h3>
 <p>chall:</p>
@@ -905,7 +914,7 @@ khối cuối cùng của B_flag là: <code>0x10 0x10 ... 0x10 (16 byte)</code><
 <blockquote>
 <p>storing the nonce in the upper 64 bits and the counter in the lower 64 bits of a 128-bit counter block</p>
 </blockquote>
-<p><img src="https://hackmd.io/_uploads/Hy8TNssyWx.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/Hy8TNssyWx.png" alt="image"></p>
 <p>solve.py:</p>
 <details>
 <summary>Bấm để xem chi tiết</summary>
@@ -1067,6 +1076,11 @@ flag = cipher.decrypt(cipher_server)
 </article>
     </main>
 
-    <script src="../assets/js/common.js"></script>
+    <footer class="site-footer">
+        <p>Built as an open learning log for cryptography, CTF, and security research.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

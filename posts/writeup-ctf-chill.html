@@ -3,49 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CTF CHILL - Nhan's Security Log</title>
+    <title>CTF CHILL | Nhan&#39;s Security Log</title>
+    <meta name="description" content="A short collection of crypto challenge notes, including symbolic and Groebner-basis based solving patterns from recent CTF tasks.">
+    <link rel="canonical" href="https://nhan-laptop.github.io/posts/writeup-ctf-chill.html">
+    <meta property="og:title" content="CTF CHILL | Nhan&#39;s Security Log">
+    <meta property="og:description" content="A short collection of crypto challenge notes, including symbolic and Groebner-basis based solving patterns from recent CTF tasks.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nhan-laptop.github.io/posts/writeup-ctf-chill.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
     <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
     <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
 </head>
-<body>
+<body class="article-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
                 <a href="../categories/index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="../categories/writeup.html">Writeup</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
+    <main id="main-content" class="article-wrap">
         <section class="hero article-hero reveal is-visible">
-            <div class="breadcrumb">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="../index.html">Home</a>
-                <span>/</span>
-                <span>CTF CHILL</span>
-            </div>
-            <h1>CTF CHILL</h1>
-            <div class="post-meta" style="margin-top: 10px;">
-                <span>2026-07-13</span>
+                <span aria-hidden="true">/</span>
                 <a href="../categories/writeup.html">Writeup</a>
-                <a href="../tags/index.html">#crypto</a>
-                <a href="../tags/index.html">#groebner-basis</a>
-                <a href="../tags/index.html">#sage</a>
-                <a href="../tags/index.html">#ctf-notes</a>
-            </div>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">CTF CHILL</span>
+            </nav>
+            <p class="section-label">Writeup · field notes</p>
+            <h1>CTF CHILL</h1>
+            <div class="post-meta"><time datetime="2026-07-13">2026-07-13</time><span>8 min read</span><a href="../tags/index.html">#crypto</a><a href="../tags/index.html">#groebner-basis</a><a href="../tags/index.html">#sage</a><a href="../tags/index.html">#ctf-notes</a></div>
             <p class="lead">A short collection of crypto challenge notes, including symbolic and Groebner-basis based solving patterns from recent CTF tasks.</p>
         </section>
 
         <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
-<h1>CTF CHILL</h1>
 <blockquote>
 <h2>Nhan_laptop |</h2>
 </blockquote>
@@ -315,10 +322,10 @@ t - e = -1   , t  = 0 , t + e = 1
 <p>Solve:</p>
 <p>Ban đầu mình nghĩ là chỉ cần dịch ngược  <code>r</code> lại rồi nhân cho <code>Q</code> là ra. Nhưng vì <code>r | order</code> nên thất bại. 
 Nên ý tưởng là ta sẽ giải bài toán con trên các phần tử prime còn lại - tương tự bài toán Pohlig Hellman.
-Vì N là tích các thừa số nguyên tố thì theo định lí phân rã nhóm abelian hữu hạn, ta có phân rã trực giao:<img src="https://hackmd.io/_uploads/BJbd35a5ee.png" alt="image">
+Vì N là tích các thừa số nguyên tố thì theo định lí phân rã nhóm abelian hữu hạn, ta có phân rã trực giao:<img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/BJbd35a5ee.png" alt="image">
 Trong đó <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>G</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">G_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">G</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> là Sylow qi- component (các phần tử có phần bậc lũy thừa của thừa số nguyên tố). Mỗi phần tử <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>∈</mo><mi>E</mi><mo stretchy="false">(</mo><msub><mi>F</mi><mi>p</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">R\in E(F_p)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7224em;vertical-align:-0.0391em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> được viết dưới dạng: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><msub><mo>∑</mo><mi>i</mi></msub><mo>∗</mo><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">P = ∑_i*P_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0497em;vertical-align:-0.2997em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.162em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∗</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> với <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>G</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">G_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">G</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>.
 Sau cùng chỉ là bước dịch ngược <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi></mrow><annotation encoding="application/x-tex">r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span></span></span></span> trên từng nhóm con. 
-Và cuối cùng ta tính tổng các giá trị đó lại: <img src="https://hackmd.io/_uploads/rkoUJjaqel.png" alt="image">
+Và cuối cùng ta tính tổng các giá trị đó lại: <img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/rkoUJjaqel.png" alt="image">
 Vì P mới chỉ là tổng của các phân rã - không có r-subgroup nên ta cần tính lại: lấy random một point rồi nhân với <code>N//r</code> tạo point thuộc nhóm <code>E[r]</code>, và cuối cùng là sẽ là tìm toàn bộ điểm trên nhóm. </p>
 <p>solve.py:</p>
 <pre><code class="hljs language-python"><span class="hljs-comment"># preimages_of_scalar_fixed.sage</span>
@@ -357,7 +364,7 @@ T = E.random_element() * (order_ // r)
 Vì ta biết được giá trị flag là tọa độ <code>x - P.x</code>, và hơn hết là giá trị <code>a - a * P = Q</code> là nhỏ.
 Solve:
 Nhìn vào công thức cộng trên Elliptic: 
-<img src="https://hackmd.io/_uploads/S1mymgksll.png" alt="image">
+<img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/S1mymgksll.png" alt="image">
 Hình 1: <a href="https://giapppp.notion.site/Elliptic-Curve-Cryptography-50d4401770b641349ad235e287b326d0">https://giapppp.notion.site/Elliptic-Curve-Cryptography-50d4401770b641349ad235e287b326d0</a>
 để ý rằng vì ta chỉ cộng các tọa độ giống nhau nên <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> sẽ bằng phần sau, mà <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><msup><mi>y</mi><mn>2</mn></msup><mo>=</mo><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mi>a</mi><mo>∗</mo><mi>x</mi><mo>+</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">\lambda = y^2 = x^3 + a*x + b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0085em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.4653em;"></span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span> vậy thì <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>P</mi><mo>∗</mo><mi>r</mi><mo stretchy="false">)</mo><mi mathvariant="normal">.</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">(P*r).x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mclose">)</span><span class="mord">.</span><span class="mord mathnormal">x</span></span></span></span> chỉ là đa thức 1 biến. 
 Rồi bây giờ ta symbolic lên rồi giải. 
@@ -402,6 +409,11 @@ b&#x27;mayb3_d0nt_m4ke_th3_sca1ar_a_f4ctor_0f_the_ord3r&#x27;
 </article>
     </main>
 
-    <script src="../assets/js/common.js"></script>
+    <footer class="site-footer">
+        <p>Built as an open learning log for cryptography, CTF, and security research.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

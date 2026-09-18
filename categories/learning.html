@@ -3,153 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Category: Learning</title>
+    <title>Learning | Nhan's Security Log</title>
+    <meta name="description" content="Notes from cryptography papers, books, protocols, and experiments.">
+    <link rel="canonical" href="https://nhan-laptop.github.io/categories/learning.html">
+    <meta property="og:title" content="Learning | Nhan's Security Log">
+    <meta property="og:description" content="Notes from cryptography papers, books, protocols, and experiments.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nhan-laptop.github.io/categories/learning.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
 </head>
 <body class="universe-page universe-category">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
-                <a href="index.html">Categories</a>
+                <a class="is-active" aria-current="page" href="index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="learning.html">Learning</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
-        <section class="hero reveal is-visible">
-            <p class="section-label">Category</p>
+    <main id="main-content" class="article-wrap archive-page">
+        <section class="hero archive-hero reveal is-visible">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="../index.html">Home</a>
+                <span aria-hidden="true">/</span>
+                <a href="index.html">Categories</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Learning</span>
+            </nav>
+            <p class="section-label">Archive · 10 posts</p>
             <h1>Learning</h1>
-            <p class="lead">Ghi chu kien thuc va tong hop tu qua trinh hoc cryptography, security va CTF.</p>
+            <p class="lead">Notes from cryptography papers, books, protocols, and experiments.</p>
         </section>
 
-        <section class="panel reveal section">
-            <ul class="post-list">
-                <li class="post-item">
-                    <h3><a href="../posts/learning-PKEET.html">[Learning] Public-Key Encryption with Equality Test</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-24</span>
-                        <a href="../categories/learning.html">Learning</a>
-                    </div>
-                    <p>
-                        Notes on PKEET, its two adversary models, and a standard-model construction from two-level HIBE, one-time signatures, and hashing.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/learning-IBE-HIBE.html">[Learning] IBE-HIBE</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-13</span>
-                        <a href="../categories/learning.html">Learning</a>
-                    </div>
-                    <p>
-                        Notes on IBE and HIBE security games, lattice sampling algorithms, and the trapdoor techniques behind hierarchical encryption.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/learning-MP-LWE.html">[Learning] Middle-Product LWE</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-13</span>
-                        <a href="../categories/learning.html">Learning</a>
-                    </div>
-                    <p>
-                        An introductory note on MP-LWE, connecting classical LWE and RLWE intuition to the middle-product construction and its efficiency goals.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/learning-mtls.html">[Learning] mTLS - Mutual Transport Layer Security</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-13</span>
-                        <a href="../categories/learning.html">Learning</a>
-                    </div>
-                    <p>
-                        A practical overview of mTLS, PKI components, X.509 certificates, and how mutual authentication is deployed in real systems.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/learning-onion.html">[Learning] Onions Got Puzzled</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-13</span>
-                        <a href="../categories/learning.html">Learning</a>
-                    </div>
-                    <p>
-                        A survey-style note on DoS against Tor onion services and why client puzzles are a fragile mitigation under anonymity constraints.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/learning-symmetric-ciphers.html">[Learning] Symmetric Ciphers</a></h3>
-                    <div class="post-meta">
-                        <span>2026-03-20</span>
-                        <a href="../categories/learning.html">Learning</a>
-                    </div>
-                    <p>
-                        Tong hop AES core (State, Key Schedule, MixColumns), cipher modes,
-                        va writeup cac bai CryptoHack ve block/stream/padding/authenticated encryption.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/learning-breaking-random.html">[Learning] Breaking Random</a></h3>
-                    <div class="post-meta">
-                        <span>2026-03-20</span>
-                        <a href="../categories/learning.html">Learning</a>
-                    </div>
-                    <p>
-                        Tong hop cach crack PRNG trong Python, JS, C/C++, Golang va Bash,
-                        tap trung vao state recovery va phan tich tinh tuyen tinh.
-                    </p>
-                </li>
-                    <li class="post-item">
-                        <h3><a href="../posts/learning-z3-api-python.html">[Learning] Z3 API trong Python</a></h3>
-                        <div class="post-meta">
-                            <span>2026-03-20</span>
-                            <a href="../categories/learning.html">Learning</a>
-                        </div>
-                        <p>
-                            Tong quan Z3Py tu logic co ban, solver/model, bit-vector den cac bonus challenge
-                            trong cryptanalysis.
-                        </p>
-                    </li>
-                <li class="post-item">
-                    <h3><a href="../posts/learning-he-bfv.html">[Learning] Homomorphic Encryption (HE) & BFV</a></h3>
-                    <div class="post-meta">
-                        <span>2026-03-20</span>
-                        <a href="../categories/learning.html">Learning</a>
-                    </div>
-                    <p>
-                        Practical guide ve HE/BFV: ring, noise budget, batching SIMD,
-                        va flow TenSEAL/SEALAPI encode-encrypt-compute-decrypt-decode.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/learning-ntt-intt.html">[Learning] NTT/INTT - The Number Theoretic Transform</a></h3>
-                    <div class="post-meta">
-                        <span>2026-03-20</span>
-                        <a href="../categories/learning.html">Learning</a>
-                    </div>
-                    <p>
-                        Tong hop nen tang DFT/NTT, cyclic-negacyclic convolution, va CT/GS butterflies
-                        huong den do phuc tap O(n log n).
-                    </p>
-                </li>
-                <li class="post-item">
-                    <!-- <h3><a href="../posts/daily-semester-log.html">[Daily/Life] Semester Sprint: Balancing CTF and University</a></h3>
-                    <div class="post-meta">
-                        <span>2026-03-18</span>
-                        <a href="../categories/life.html">Life</a>
-                        <a href="../tags/mpc.html">MPC</a>
-                    </div> -->
-                </li>
-            </ul>
+        <section class="archive-section reveal">
+            <div class="section-heading">
+                <div>
+                    <p class="section-label">Latest first</p>
+                    <h2>Browse Learning</h2>
+                </div>
+                <a class="text-link" href="../tags/index.html">Explore by tag <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="post-grid category-post-grid">
+<article class="post-card" data-tag-post data-tags="cryptography pkeet hibe cca2">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-24">2026-07-24</time></div>
+        <h3><a href="../posts/learning-PKEET.html">Public-Key Encryption with Equality Test</a></h3>
+        <p>Notes on PKEET, its two adversary models, and a standard-model construction from two-level HIBE, one-time signatures, and hashing.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#cryptography">#cryptography</a><a href="../tags/index.html#pkeet">#pkeet</a><a href="../tags/index.html#hibe">#hibe</a><a href="../tags/index.html#cca2">#cca2</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="lattice ibe hibe trapdoors">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/learning-IBE-HIBE.html">IBE-HIBE</a></h3>
+        <p>Notes on IBE and HIBE security games, lattice sampling algorithms, and the trapdoor techniques behind hierarchical encryption.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#lattice">#lattice</a><a href="../tags/index.html#ibe">#ibe</a><a href="../tags/index.html#hibe">#hibe</a><a href="../tags/index.html#trapdoors">#trapdoors</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="lattice lwe mp-lwe rlwe">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/learning-MP-LWE.html">Middle-Product LWE</a></h3>
+        <p>An introductory note on MP-LWE, connecting classical LWE and RLWE intuition to the middle-product construction and its efficiency goals.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#lattice">#lattice</a><a href="../tags/index.html#lwe">#lwe</a><a href="../tags/index.html#mp-lwe">#mp-lwe</a><a href="../tags/index.html#rlwe">#rlwe</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="mtls tls pki x509">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/learning-mtls.html">mTLS - Mutual Transport Layer Security</a></h3>
+        <p>A practical overview of mTLS, PKI components, X.509 certificates, and how mutual authentication is deployed in real systems.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#mtls">#mtls</a><a href="../tags/index.html#tls">#tls</a><a href="../tags/index.html#pki">#pki</a><a href="../tags/index.html#x509">#x509</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="tor onion-services dos client-puzzles">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/learning-onion.html">Onions Got Puzzled: On the Challenges of Mitigating Denial-of-Service Problems in Tor Onion Services</a></h3>
+        <p>A survey-style note on DoS against Tor onion services and why client puzzles are a fragile mitigation under anonymity constraints.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#tor">#tor</a><a href="../tags/index.html#onion-services">#onion-services</a><a href="../tags/index.html#dos">#dos</a><a href="../tags/index.html#client-puzzles">#client-puzzles</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/learning-he-bfv.html">Homomorphic Encryption (HE) &amp; BFV — A Practical, Visual Guide (with TenSEAL/SEALAPI)</a></h3>
+        <p>Trong toán học, cho 2 nhóm: $(G,*)$ và $(H,\bullet)$, một group homomorphism từ 2 nhóm là một function $h: G\rightarrow H$ mà với mọi phần tử $u$ và $v$ thuộc nhóm $G$ thì ta có:</p>
+        <div class="post-card-tags"></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/learning-ntt-intt.html">NTT/INTT - The Number Theoretic Transform</a></h3>
+        <p>Muc dich cua blog nay se gioi thieu cho cac ban mot thuat toan manh me giup ta nhan 2 da thuc (trong truong so huu han) voi do phuc tap giam di dang ke so voi cac cach thong thuong.</p>
+        <div class="post-card-tags"></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="symmetriccipher cryptography aes writeup">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/learning-symmetric-ciphers.html">Symmetric Ciphers</a></h3>
+        <p>Đây là wu báo cáo về bài tập và các implement liên quan.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#symmetriccipher">#symmetriccipher</a><a href="../tags/index.html#cryptography">#cryptography</a><a href="../tags/index.html#aes">#aes</a><a href="../tags/index.html#writeup">#writeup</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/learning-z3-api-python.html">Z3 API trong Python</a></h3>
+        <p>Syntax:</p>
+        <div class="post-card-tags"></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/learning.html">Learning</a><time datetime="2021-05-18">2021-05-18</time></div>
+        <h3><a href="../posts/learning-breaking-random.html">Breaking Random</a></h3>
+        <p>Chúng ta sẽ bắt đầu với hàm `random` trong Python trước. Python ngẫu nhiên sử dụng [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister). Nếu như có đủ 624 output 32-bit ta sẽ giải quyết được vấn đề!!???</p>
+        <div class="post-card-tags"></div>
+    </article>
+            </div>
         </section>
     </main>
 
+    <footer class="site-footer">
+        <p>Notes, writeups, and research from an information security student.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
     <script src="../assets/js/universe-background.bundle.js" defer></script>
-    <script src="../assets/js/common.js"></script>
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

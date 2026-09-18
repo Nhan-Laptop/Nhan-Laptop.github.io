@@ -1,119 +1,56 @@
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { createUniverseRenderer } from "./renderer.js";
-
-function prefersReducedMotion() {
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function getScrollProgress() {
-    const root = document.documentElement;
-    const max = Math.max(root.scrollHeight - window.innerHeight, 1);
-
-    return Math.max(0, Math.min(window.scrollY / max, 1));
-}
-
-function startHome(controller) {
-    gsap.registerPlugin(ScrollTrigger);
-
-    return ScrollTrigger.create({
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 0.65,
-        invalidateOnRefresh: true,
-        onUpdate(self) {
-            controller.setProgress(self.progress);
-        },
-    });
-}
-
-function startCategory(controller) {
-    let ticking = false;
-
-    function update() {
-        ticking = false;
-        controller.setProgress(0.48 + getScrollProgress() * 0.22);
-    }
-
-    function scheduleUpdate() {
-        if (ticking) {
-            return;
-        }
-
-        ticking = true;
-        window.requestAnimationFrame(update);
-    }
-
-    update();
-    window.addEventListener("scroll", scheduleUpdate, { passive: true });
-
-    return {
-        kill() {
-            window.removeEventListener("scroll", scheduleUpdate);
-        },
-    };
-}
-
-function startShowcase(controller) {
-    let ticking = false;
-
-    function update() {
-        ticking = false;
-        controller.setProgress(getScrollProgress());
-    }
-
-    function scheduleUpdate() {
-        if (ticking) {
-            return;
-        }
-
-        ticking = true;
-        window.requestAnimationFrame(update);
-    }
-
-    update();
-    window.addEventListener("scroll", scheduleUpdate, { passive: true });
-    window.addEventListener("resize", scheduleUpdate);
-
-    return {
-        kill() {
-            window.removeEventListener("scroll", scheduleUpdate);
-            window.removeEventListener("resize", scheduleUpdate);
-        },
-    };
-}
 
 export function bootUniverseBackground() {
     const body = document.body;
-
-    if (!body.classList.contains("universe-page")) {
-        return;
-    }
-
-    if (prefersReducedMotion()) {
-        body.classList.add("universe-reduced-motion");
-        return;
-    }
-
-    const mode = body.classList.contains("universe-home") ? "home" : "category";
-    const isShowcase = body.classList.contains("universe-showcase-page");
-
+    if (!body.classList.contains("universe-page") || body.classList.contains("has-universe-webgl")) return;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let savedPause = false;
+    try { savedPause = sessionStorage.getItem("universe-paused") === "true"; } catch { /* Storage may be unavailable. */ }
+    let userPaused = savedPause || motionQuery.matches;
+    let controller;
     try {
-        const controller = createUniverseRenderer({ mode });
-        const scrollController = isShowcase
-            ? startShowcase(controller)
-            : mode === "home"
-            ? startHome(controller)
-            : startCategory(controller);
-
-        body.classList.add("has-universe-webgl");
-        window.addEventListener("beforeunload", function cleanup() {
-            scrollController.kill();
-            controller.destroy();
-        }, { once: true });
+        controller = createUniverseRenderer({
+            mode: body.classList.contains("universe-home") ? "home" : "category",
+            showcase: body.classList.contains("universe-showcase-page"),
+        });
     } catch (error) {
         body.classList.add("universe-webgl-failed");
-        console.warn("Universe background disabled:", error);
+        console.warn("Using static cosmic background:", error);
+        return;
     }
+    body.classList.add("has-universe-webgl");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "cosmic-motion-button";
+    button.setAttribute("aria-label", "Pause universe animation");
+    document.body.appendChild(button);
+
+    function sync() {
+        controller.setPaused(userPaused || document.hidden);
+        button.textContent = userPaused ? "Play cosmos" : "Pause cosmos";
+        button.setAttribute("aria-label", userPaused ? "Play universe animation" : "Pause universe animation");
+        body.classList.toggle("cosmos-paused", userPaused);
+    }
+    function toggle() {
+        userPaused = !userPaused;
+        savedPause = userPaused;
+        try { sessionStorage.setItem("universe-paused", String(userPaused)); } catch { /* Optional persistence. */ }
+        sync();
+    }
+    function motionChanged() { userPaused = motionQuery.matches || savedPause; sync(); }
+    function scrollChanged() {
+        const distance = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+        controller.setProgress(window.scrollY / distance);
+    }
+    button.addEventListener("click", toggle);
+    document.addEventListener("visibilitychange", sync);
+    window.addEventListener("universe-restored", sync);
+    window.addEventListener("scroll", scrollChanged, { passive: true });
+    motionQuery.addEventListener("change", motionChanged);
+    scrollChanged();
+    sync();
+    // pagehide pauses work without preventing the browser's back/forward cache.
+    function pageHide() { controller.setPaused(true); }
+    window.addEventListener("pagehide", pageHide);
+    window.addEventListener("pageshow", sync);
 }

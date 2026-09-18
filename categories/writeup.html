@@ -3,108 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Category: Writeup</title>
+    <title>Writeup | Nhan's Security Log</title>
+    <meta name="description" content="CTF analysis, implementation notes, and reproducible verification.">
+    <link rel="canonical" href="https://nhan-laptop.github.io/categories/writeup.html">
+    <meta property="og:title" content="Writeup | Nhan's Security Log">
+    <meta property="og:description" content="CTF analysis, implementation notes, and reproducible verification.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nhan-laptop.github.io/categories/writeup.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
 </head>
 <body class="universe-page universe-category">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
-                <a href="index.html">Categories</a>
+                <a class="is-active" aria-current="page" href="index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="writeup.html">Writeup</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
-        <section class="hero reveal is-visible">
-            <p class="section-label">Category</p>
+    <main id="main-content" class="article-wrap archive-page">
+        <section class="hero archive-hero reveal is-visible">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="../index.html">Home</a>
+                <span aria-hidden="true">/</span>
+                <a href="index.html">Categories</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Writeup</span>
+            </nav>
+            <p class="section-label">Archive · 7 posts</p>
             <h1>Writeup</h1>
-            <p class="lead">Danh sach writeup CTF, uu tien bai co script va buoc verify ro rang.</p>
+            <p class="lead">CTF analysis, implementation notes, and reproducible verification.</p>
         </section>
 
-        <section class="panel reveal section">
-            <ul class="post-list">
-                <li class="post-item">
-                    <h3><a href="../posts/writeup-ctf-chill.html">[Writeup] CTF CHILL</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-13</span>
-                    </div>
-                    <div class="post-tags"><span class="tag">#crypto</span> <span class="tag">#groebner-basis</span> <span class="tag">#sage</span> <span class="tag">#ctf-notes</span></div>
-                    <p>
-                        A short collection of crypto challenge notes, including symbolic and Groebner-basis based solving patterns from recent CTF tasks.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/writeup-grey-the-cat-ctf-final-2026.html">[Writeup] Grey Cat The Flag Finals 2026</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-13</span>
-                    </div>
-                    <div class="post-tags"><span class="tag">#crypto</span> <span class="tag">#dsa</span> <span class="tag">#lattice</span> <span class="tag">#prng</span></div>
-                    <p>
-                        A finals recap covering several solved crypto challenges from Grey Cat The Flag Finals 2026, with notes on DSA, lattices, and PRNG reasoning.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/writeup-r3ctf-2026-breaking-random.html">[Writeup] r3ctf 2026 — Breaking Random</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-13</span>
-                    </div>
-                    <div class="post-tags"><span class="tag">#web</span> <span class="tag">#prng</span> <span class="tag">#state-recovery</span> <span class="tag">#xoshiro256starstar</span></div>
-                    <p>
-                        Recovering the xoshiro256** state behind a web-exposed .NET Random token stream and forging future Base64 tokens.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/writeup-r3ctf-2026-heuristic.html">[Writeup] r3ctf 2026 — HEuristic</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-13</span>
-                    </div>
-                    <div class="post-tags"><span class="tag">#crypto</span> <span class="tag">#ckks</span> <span class="tag">#chosen-plaintext</span> <span class="tag">#recurrence</span></div>
-                    <p>
-                        Recovering a hidden CKKS scaling factor from one chosen-plaintext ciphertext and 96 bounded-noise coefficient leaks.
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/writeup-wannagame-championship-2025.html">[Writeup] WannaGame ChampionShip 2025</a></h3>
-                    <div class="post-meta">
-                        <span>2026-03-20</span>
-                    </div>
-                    <p>
-                        
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/writeup-wannagame-cyberknight-2024.html">[Writeup] WannaGame - CyberKnight 2024</a></h3>
-                    <div class="post-meta">
-                        <span>2026-03-20</span>
-                    </div>
-                    <div class="post-tags"><span class="tag">#CTF</span> <span class="tag">#Writeup</span> <span class="tag">#Cryptography</span> <span class="tag">#Hash</span> <span class="tag">#RSA</span> <span class="tag">#AES</span></div>
-                    <p>
-                        
-                    </p>
-                </li>
-                <li class="post-item">
-                    <h3><a href="../posts/writeup-n1ctf-2025.html">[Writeup] N1CTF 2025</a></h3>
-                    <div class="post-meta">
-                        <span>2026-03-19</span>
-                    </div>
-                    <p>
-                        
-                    </p>
-                </li>
-            </ul>
+        <section class="archive-section reveal">
+            <div class="section-heading">
+                <div>
+                    <p class="section-label">Latest first</p>
+                    <h2>Browse Writeup</h2>
+                </div>
+                <a class="text-link" href="../tags/index.html">Explore by tag <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="post-grid category-post-grid">
+<article class="post-card" data-tag-post data-tags="crypto groebner-basis sage ctf-notes">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/writeup-ctf-chill.html">CTF CHILL</a></h3>
+        <p>A short collection of crypto challenge notes, including symbolic and Groebner-basis based solving patterns from recent CTF tasks.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#crypto">#crypto</a><a href="../tags/index.html#groebner-basis">#groebner-basis</a><a href="../tags/index.html#sage">#sage</a><a href="../tags/index.html#ctf-notes">#ctf-notes</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="crypto dsa lattice prng">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/writeup-grey-the-cat-ctf-final-2026.html">Grey Cat The Flag Finals 2026</a></h3>
+        <p>A finals recap covering several solved crypto challenges from Grey Cat The Flag Finals 2026, with notes on DSA, lattices, and PRNG reasoning.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#crypto">#crypto</a><a href="../tags/index.html#dsa">#dsa</a><a href="../tags/index.html#lattice">#lattice</a><a href="../tags/index.html#prng">#prng</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="web prng state-recovery xoshiro256starstar">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/writeup-r3ctf-2026-breaking-random.html">r3ctf 2026 — Breaking Random</a></h3>
+        <p>Recovering the xoshiro256** state behind a web-exposed .NET Random token stream and forging future Base64 tokens.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#web">#web</a><a href="../tags/index.html#prng">#prng</a><a href="../tags/index.html#state-recovery">#state-recovery</a><a href="../tags/index.html#xoshiro256starstar">#xoshiro256starstar</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="crypto ckks chosen-plaintext recurrence">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/writeup-r3ctf-2026-heuristic.html">r3ctf 2026 — HEuristic</a></h3>
+        <p>Recovering a hidden CKKS scaling factor from one chosen-plaintext ciphertext and 96 bounded-noise coefficient leaks.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#crypto">#crypto</a><a href="../tags/index.html#ckks">#ckks</a><a href="../tags/index.html#chosen-plaintext">#chosen-plaintext</a><a href="../tags/index.html#recurrence">#recurrence</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-03-20">2026-03-20</time></div>
+        <h3><a href="../posts/writeup-wannagame-championship-2025.html">WannaGame ChampionShip 2025</a></h3>
+        <p>Có một chall ở giải vừa qua về hình học không gian 4D mà mình thấy khá là hay - và mình mất 5 tiếng để debug và biến đổi......</p>
+        <div class="post-card-tags"></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="ctf writeup cryptography hash rsa aes">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-03-20">2026-03-20</time></div>
+        <h3><a href="../posts/writeup-wannagame-cyberknight-2024.html">WannaGame - CyberKnight 2024</a></h3>
+        <p>Chall:</p>
+        <div class="post-card-tags"><a href="../tags/index.html#ctf">#ctf</a><a href="../tags/index.html#writeup">#writeup</a><a href="../tags/index.html#cryptography">#cryptography</a><a href="../tags/index.html#hash">#hash</a><a href="../tags/index.html#rsa">#rsa</a><a href="../tags/index.html#aes">#aes</a></div>
+    </article>
+<article class="post-card" data-tag-post data-tags="">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/writeup.html">Writeup</a><time datetime="2026-03-19">2026-03-19</time></div>
+        <h3><a href="../posts/writeup-n1ctf-2025.html">N1CTF 2025</a></h3>
+        <p>Truy cập vào trang chính của challenge:</p>
+        <div class="post-card-tags"></div>
+    </article>
+            </div>
         </section>
     </main>
 
+    <footer class="site-footer">
+        <p>Notes, writeups, and research from an information security student.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
     <script src="../assets/js/universe-background.bundle.js" defer></script>
-    <script src="../assets/js/common.js"></script>
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

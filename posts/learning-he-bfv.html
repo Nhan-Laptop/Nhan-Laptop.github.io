@@ -3,47 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homomorphic Encryption (HE) & BFV — A Practical, Visual Guide (with TenSEAL/SEALAPI) - Nhan's Security Log</title>
+    <title>Homomorphic Encryption (HE) &amp; BFV — A Practical, Visual Guide (with TenSEAL/SEALAPI) | Nhan&#39;s Security Log</title>
+    <meta name="description" content="Trong toán học, cho 2 nhóm: $(G,*)$ và $(H,\bullet)$, một group homomorphism từ 2 nhóm là một function $h: G\rightarrow H$ mà với mọi phần tử $u$ và $v$ thuộc nhóm $G$ thì ta có:">
+    <link rel="canonical" href="https://nhan-laptop.github.io/posts/learning-he-bfv.html">
+    <meta property="og:title" content="Homomorphic Encryption (HE) &amp; BFV — A Practical, Visual Guide (with TenSEAL/SEALAPI) | Nhan&#39;s Security Log">
+    <meta property="og:description" content="Trong toán học, cho 2 nhóm: $(G,*)$ và $(H,\bullet)$, một group homomorphism từ 2 nhóm là một function $h: G\rightarrow H$ mà với mọi phần tử $u$ và $v$ thuộc nhóm $G$ thì ta có:">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nhan-laptop.github.io/posts/learning-he-bfv.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
     <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
     <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
 </head>
-<body>
+<body class="article-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
                 <a href="../categories/index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="writeup-template.html">Template</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
+    <main id="main-content" class="article-wrap">
         <section class="hero article-hero reveal is-visible">
-            <div class="breadcrumb">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="../index.html">Home</a>
-                <span>/</span>
-                <span>Template</span>
-            </div>
-            <h1>Homomorphic Encryption (HE) & BFV — A Practical, Visual Guide (with TenSEAL/SEALAPI)</h1>
-            <div class="post-meta" style="margin-top: 10px;">
-                <span>YYYY-MM-DD</span>
-                <a href="../categories/writeup.html">Writeup</a>
-                <a href="../tags/index.html">tag-1</a>
-                <a href="../tags/index.html">tag-2</a>
-            </div>
-            <p class="lead">Tom tat challenge trong 2-3 cau: de bai, dau moi, va huong giai.</p>
+                <span aria-hidden="true">/</span>
+                <a href="../categories/learning.html">Learning</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Homomorphic Encryption (HE) &amp; BFV — A Practical, Visual Guide (with TenSEAL/SEALAPI)</span>
+            </nav>
+            <p class="section-label">Learning · field notes</p>
+            <h1>Homomorphic Encryption (HE) &amp; BFV — A Practical, Visual Guide (with TenSEAL/SEALAPI)</h1>
+            <div class="post-meta"><time datetime="2026-03-19">2026-03-19</time><span>7 min read</span></div>
+            <p class="lead">Trong toán học, cho 2 nhóm: $(G,*)$ và $(H,\bullet)$, một group homomorphism từ 2 nhóm là một function $h: G\rightarrow H$ mà với mọi phần tử $u$ và $v$ thuộc nhóm $G$ thì ta có:</p>
         </section>
 
         <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
-<h1>Homomorphic Encryption (HE) &amp; BFV — A Practical, Visual Guide (with TenSEAL/SEALAPI)</h1>
 <blockquote>
 <h2>Nhan_laptop|</h2>
 <hr>
@@ -244,7 +253,7 @@ decryptor.decrypt(ct2,pt_out)
 res = encoder.decode_int64(pt_out)
 <span class="hljs-built_in">print</span>(res[:<span class="hljs-number">8</span>])
 #[<span class="hljs-number">2</span>,<span class="hljs-number">4</span>,<span class="hljs-number">6</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>]
-</code></pre><p><img src="https://hackmd.io/_uploads/ry67S1YJ-x.png" alt="image"></p>
+</code></pre><p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/ry67S1YJ-x.png" alt="image"></p>
 <h4>4.4 Slot vs hệ số đa thức</h4>
 <ul>
 <li>Encode dùng INTT/CRT -&gt; vector slot <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi></mrow><annotation encoding="application/x-tex">v</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span></span></span></span> trở thành đa thức <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo stretchy="false">(</mo><mi>X</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">m(X)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">m</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mclose">)</span></span></span></span>. Hệ số hằng <code>pt[0]</code> là một tổ hợp tuyến tính của slot (theo ma trận biến đổi), không phải trực tiếp <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false">[</mo><mn>0</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">v[0]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mopen">[</span><span class="mord">0</span><span class="mclose">]</span></span></span></span> (bản rõ).</li>
@@ -260,6 +269,11 @@ res = encoder.decode_int64(pt_out)
 </article>
     </main>
 
-    <script src="../assets/js/common.js"></script>
+    <footer class="site-footer">
+        <p>Built as an open learning log for cryptography, CTF, and security research.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

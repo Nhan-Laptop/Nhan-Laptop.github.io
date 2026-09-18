@@ -3,54 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grey Cat The Flag Finals 2026 - Nhan's Security Log</title>
+    <title>Grey Cat The Flag Finals 2026 | Nhan&#39;s Security Log</title>
+    <meta name="description" content="A finals recap covering several solved crypto challenges from Grey Cat The Flag Finals 2026, with notes on DSA, lattices, and PRNG reasoning.">
+    <link rel="canonical" href="https://nhan-laptop.github.io/posts/writeup-grey-the-cat-ctf-final-2026.html">
+    <meta property="og:title" content="Grey Cat The Flag Finals 2026 | Nhan&#39;s Security Log">
+    <meta property="og:description" content="A finals recap covering several solved crypto challenges from Grey Cat The Flag Finals 2026, with notes on DSA, lattices, and PRNG reasoning.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nhan-laptop.github.io/posts/writeup-grey-the-cat-ctf-final-2026.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
     <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
     <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
 </head>
-<body>
+<body class="article-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
                 <a href="../categories/index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="../categories/writeup.html">Writeup</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
+    <main id="main-content" class="article-wrap">
         <section class="hero article-hero reveal is-visible">
-            <div class="breadcrumb">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="../index.html">Home</a>
-                <span>/</span>
-                <span>Grey Cat The Flag Finals 2026</span>
-            </div>
-            <h1>Grey Cat The Flag Finals 2026</h1>
-            <div class="post-meta" style="margin-top: 10px;">
-                <span>2026-07-13</span>
+                <span aria-hidden="true">/</span>
                 <a href="../categories/writeup.html">Writeup</a>
-                <a href="../tags/index.html">#crypto</a>
-                <a href="../tags/index.html">#dsa</a>
-                <a href="../tags/index.html">#lattice</a>
-                <a href="../tags/index.html">#prng</a>
-            </div>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Grey Cat The Flag Finals 2026</span>
+            </nav>
+            <p class="section-label">Writeup · field notes</p>
+            <h1>Grey Cat The Flag Finals 2026</h1>
+            <div class="post-meta"><time datetime="2026-07-13">2026-07-13</time><span>21 min read</span><a href="../tags/index.html">#crypto</a><a href="../tags/index.html">#dsa</a><a href="../tags/index.html">#lattice</a><a href="../tags/index.html">#prng</a></div>
             <p class="lead">A finals recap covering several solved crypto challenges from Grey Cat The Flag Finals 2026, with notes on DSA, lattices, and PRNG reasoning.</p>
         </section>
 
         <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
-<h1>Grey Cat The Flag Finals 2026</h1>
 <blockquote>
 <h2>Nhan_laptop |</h2>
 <p>Crypto player</p>
 </blockquote>
-<p><img src="https://hackmd.io/_uploads/r1SJVQ0zMe.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/r1SJVQ0zMe.png" alt="image"></p>
 <h2>Motivation and overview</h2>
 <p>Vừa rồi mình có tham gia một giải ctf mà ban ai, khá là hay khi mình được trải nghiệm lại những cảm giác từ lúc mới bắt đầu chơi ctf. Hơn hết là 5 tiếng đầu mình đã cụt tay và phải đọc lại syntax và các wu khá là nhiều ....</p>
 <p>Trong blog này mình sẽ giải thích chi tiết các bài mình đã giải được trong giải: </p>
@@ -83,7 +90,7 @@
 </tr>
 </tbody></table>
 <h2>Efficient DSA Algorithm</h2>
-<p><img src="https://hackmd.io/_uploads/H1mnVXAGfx.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/H1mnVXAGfx.png" alt="image"></p>
 <pre><code>.
 └── dist-efficient_dsa_algorithm
     ├── <span class="hljs-keyword">cc</span>.<span class="hljs-keyword">py</span> ---------- <span class="hljs-keyword">debug</span>
@@ -243,7 +250,7 @@ def <span class="hljs-built_in">main</span>():
     key = <span class="hljs-built_in">sha256</span>(<span class="hljs-built_in">int</span>(private_key).<span class="hljs-built_in">to_bytes</span>(<span class="hljs-built_in">int</span>(<span class="hljs-number">32</span>), <span class="hljs-string">&quot;big&quot;</span>)).<span class="hljs-built_in">digest</span>()
     ciphertext = <span class="hljs-built_in">bytes</span>(a ^ b for a, b in <span class="hljs-built_in">zip</span>(flag, <span class="hljs-built_in">cycle</span>(key))).<span class="hljs-built_in">hex</span>()
 </code></pre><p>Đầu tiên là cái curve, mình xem có thể attack vào đó không, thì mình tra được nó là: 
-<img src="https://hackmd.io/_uploads/SJHkdQRzfg.png" alt="image"></p>
+<img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/SJHkdQRzfg.png" alt="image"></p>
 <p>Nên hướng này không khả thi.</p>
 <p>và hướng còn lại là PRNG - custom LCG </p>
 <h3>Solve</h3>
@@ -1395,6 +1402,11 @@ io.sendlineafter(b<span class="hljs-string">&quot;: &quot;</span>, sec.hex().enc
 </article>
     </main>
 
-    <script src="../assets/js/common.js"></script>
+    <footer class="site-footer">
+        <p>Built as an open learning log for cryptography, CTF, and security research.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

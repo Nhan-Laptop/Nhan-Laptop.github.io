@@ -3,49 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Middle-Product LWE - Nhan's Security Log</title>
+    <title>Middle-Product LWE | Nhan&#39;s Security Log</title>
+    <meta name="description" content="An introductory note on MP-LWE, connecting classical LWE and RLWE intuition to the middle-product construction and its efficiency goals.">
+    <link rel="canonical" href="https://nhan-laptop.github.io/posts/learning-MP-LWE.html">
+    <meta property="og:title" content="Middle-Product LWE | Nhan&#39;s Security Log">
+    <meta property="og:description" content="An introductory note on MP-LWE, connecting classical LWE and RLWE intuition to the middle-product construction and its efficiency goals.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nhan-laptop.github.io/posts/learning-MP-LWE.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
     <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
     <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
 </head>
-<body>
+<body class="article-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
                 <a href="../categories/index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="../categories/learning.html">Learning</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
+    <main id="main-content" class="article-wrap">
         <section class="hero article-hero reveal is-visible">
-            <div class="breadcrumb">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="../index.html">Home</a>
-                <span>/</span>
-                <span>Middle-Product LWE</span>
-            </div>
-            <h1>Middle-Product LWE</h1>
-            <div class="post-meta" style="margin-top: 10px;">
-                <span>2026-07-13</span>
+                <span aria-hidden="true">/</span>
                 <a href="../categories/learning.html">Learning</a>
-                <a href="../tags/index.html">#lattice</a>
-                <a href="../tags/index.html">#lwe</a>
-                <a href="../tags/index.html">#mp-lwe</a>
-                <a href="../tags/index.html">#rlwe</a>
-            </div>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Middle-Product LWE</span>
+            </nav>
+            <p class="section-label">Learning · field notes</p>
+            <h1>Middle-Product LWE</h1>
+            <div class="post-meta"><time datetime="2026-07-13">2026-07-13</time><span>16 min read</span><a href="../tags/index.html">#lattice</a><a href="../tags/index.html">#lwe</a><a href="../tags/index.html">#mp-lwe</a><a href="../tags/index.html">#rlwe</a></div>
             <p class="lead">An introductory note on MP-LWE, connecting classical LWE and RLWE intuition to the middle-product construction and its efficiency goals.</p>
         </section>
 
         <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
-<h1>Middle-Product LWE</h1>
 <blockquote>
 <h2>Nhan_laptop</h2>
 </blockquote>
@@ -391,6 +398,11 @@ Lemma 2. cho d,k &gt;0 . cho <span class="katex"><span class="katex-mathml"><mat
 </article>
     </main>
 
-    <script src="../assets/js/common.js"></script>
+    <footer class="site-footer">
+        <p>Built as an open learning log for cryptography, CTF, and security research.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

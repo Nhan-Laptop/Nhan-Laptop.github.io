@@ -3,47 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WannaGame - CyberKnight 2024 - Nhan's Security Log</title>
+    <title>WannaGame - CyberKnight 2024 | Nhan&#39;s Security Log</title>
+    <meta name="description" content="Chall:">
+    <link rel="canonical" href="https://nhan-laptop.github.io/posts/writeup-wannagame-cyberknight-2024.html">
+    <meta property="og:title" content="WannaGame - CyberKnight 2024 | Nhan&#39;s Security Log">
+    <meta property="og:description" content="Chall:">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://nhan-laptop.github.io/posts/writeup-wannagame-cyberknight-2024.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
     <link rel="stylesheet" href="../assets/vendor/highlight/github-dark.min.css">
     <link rel="stylesheet" href="../assets/vendor/katex/katex.min.css">
 </head>
-<body>
+<body class="article-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
                 <a href="../categories/index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="writeup-template.html">Template</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
+    <main id="main-content" class="article-wrap">
         <section class="hero article-hero reveal is-visible">
-            <div class="breadcrumb">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="../index.html">Home</a>
-                <span>/</span>
-                <span>Template</span>
-            </div>
-            <h1>WannaGame - CyberKnight 2024</h1>
-            <div class="post-meta" style="margin-top: 10px;">
-                <span>YYYY-MM-DD</span>
+                <span aria-hidden="true">/</span>
                 <a href="../categories/writeup.html">Writeup</a>
-                <a href="../tags/index.html">tag-1</a>
-                <a href="../tags/index.html">tag-2</a>
-            </div>
-            <p class="lead">Tom tat challenge trong 2-3 cau: de bai, dau moi, va huong giai.</p>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">WannaGame - CyberKnight 2024</span>
+            </nav>
+            <p class="section-label">Writeup · field notes</p>
+            <h1>WannaGame - CyberKnight 2024</h1>
+            <div class="post-meta"><time datetime="2026-03-20">2026-03-20</time><span>10 min read</span><a href="../tags/index.html">#CTF</a><a href="../tags/index.html">#Writeup</a><a href="../tags/index.html">#Cryptography</a><a href="../tags/index.html">#Hash</a><a href="../tags/index.html">#RSA</a><a href="../tags/index.html">#AES</a></div>
+            <p class="lead">Chall:</p>
         </section>
 
         <article id="markdownRoot" class="panel article-body reveal markdown-content is-visible">
-<h1>WannaGame - CyberKnight 2024</h1>
 <blockquote>
 <h2>Nhan_laptop</h2>
 </blockquote>
@@ -182,7 +191,7 @@ msg = <span class="hljs-string">b&#x27;0&#x27;</span> * <span class="hljs-number
 <p>Mục tiêu là ép server xác thực admin trong token gửi lên kèm hash hợp lệ.</p>
 <p>Từ đây nghĩ đến bài toán Length Extension Attack:</p>
 <p><a href="https://hackmd.io/@tvdat20004/HkxCf9eLZR">Length extension attack reference</a></p>
-<p><img src="https://hackmd.io/_uploads/rJ6d3upeex.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/rJ6d3upeex.png" alt="image"></p>
 <p><em>Minh họa Length Extension Attack.</em></p>
 <p>Token đầu vào server băm là <code>username=u||admin=False</code> với <code>u</code> tùy ý.</p>
 <p>Padding của hash:</p>
@@ -510,7 +519,7 @@ init_step = [add_round_key, sub_bytes, shift_rows, mix_columns]
 <p><a href="https://wrth.medium.com/cracking-aes-without-any-one-of-its-operations-c42cdfc0452f">https://wrth.medium.com/cracking-aes-without-any-one-of-its-operations-c42cdfc0452f</a></p>
 <h3>Solve</h3>
 <p>Ảnh solve by author Giapp:</p>
-<p><img src="https://hackmd.io/_uploads/HkxswF6xex.png" alt="image"></p>
+<p><img decoding="async" loading="lazy" src="https://hackmd.io/_uploads/HkxswF6xex.png" alt="image"></p>
 <p><em>Script phân loại round thiếu bước AES.</em></p>
 <details>
 <summary>Bấm để xem Script Giải (Python/SageMath)</summary>
@@ -563,6 +572,11 @@ target.interactive()
 </article>
     </main>
 
-    <script src="../assets/js/common.js"></script>
+    <footer class="site-footer">
+        <p>Built as an open learning log for cryptography, CTF, and security research.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>

@@ -3,50 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Category: Life</title>
+    <title>Life | Nhan's Security Log</title>
+    <meta name="description" content="Competition travel, academic milestones, and life beyond the terminal.">
+    <link rel="canonical" href="https://nhan-laptop.github.io/categories/life.html">
+    <meta property="og:title" content="Life | Nhan's Security Log">
+    <meta property="og:description" content="Competition travel, academic milestones, and life beyond the terminal.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nhan-laptop.github.io/categories/life.html">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/redesign.css">
 </head>
 <body class="universe-page universe-category">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
-                <a href="index.html">Categories</a>
+                <a class="is-active" aria-current="page" href="index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
-                <a class="is-active" href="life.html">Life</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
-        <section class="hero reveal is-visible">
-            <p class="section-label">Category</p>
+    <main id="main-content" class="article-wrap archive-page">
+        <section class="hero archive-hero reveal is-visible">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="../index.html">Home</a>
+                <span aria-hidden="true">/</span>
+                <a href="index.html">Categories</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Life</span>
+            </nav>
+            <p class="section-label">Archive · 1 posts</p>
             <h1>Life</h1>
-            <p class="lead">Nhat ky ve hoc tap, discipline, va cach giu can bang trong hoc ky.</p>
+            <p class="lead">Competition travel, academic milestones, and life beyond the terminal.</p>
         </section>
 
-        <section class="panel reveal section">
-            <ul class="post-list">
-                <li class="post-item">
-                    <h3><a href="../posts/life-the-first-final.html">[Life] Grey The Cat Final CTF 2026</a></h3>
-                    <div class="post-meta">
-                        <span>2026-07-13</span>
-                        <a href="../categories/life.html">Life</a>
-                    </div>
-                    <p>
-                        A short travel diary from my first onsite CTF final in Singapore, with memories from Grey Cat The Flag Finals 2026.
-                    </p>
-                </li>
-            </ul>
+        <section class="archive-section reveal">
+            <div class="section-heading">
+                <div>
+                    <p class="section-label">Latest first</p>
+                    <h2>Browse Life</h2>
+                </div>
+                <a class="text-link" href="../tags/index.html">Explore by tag <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="post-grid category-post-grid">
+<article class="post-card" data-tag-post data-tags="life ctf singapore greycat">
+        <div class="post-card-topline"><a class="category-badge" href="../categories/life.html">Life</a><time datetime="2026-07-13">2026-07-13</time></div>
+        <h3><a href="../posts/life-the-first-final.html">Grey The Cat Final CTF 2026</a></h3>
+        <p>A short travel diary from my first onsite CTF final in Singapore, with memories from Grey Cat The Flag Finals 2026.</p>
+        <div class="post-card-tags"><a href="../tags/index.html#life">#life</a><a href="../tags/index.html#ctf">#ctf</a><a href="../tags/index.html#singapore">#singapore</a><a href="../tags/index.html#greycat">#greycat</a></div>
+    </article>
+            </div>
         </section>
     </main>
 
+    <footer class="site-footer">
+        <p>Notes, writeups, and research from an information security student.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
     <script src="../assets/js/universe-background.bundle.js" defer></script>
-    <script src="../assets/js/common.js"></script>
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>
