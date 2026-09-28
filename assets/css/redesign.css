@@ -35,6 +35,8 @@ button,a,input,summary { -webkit-tap-highlight-color:transparent; }
 .profile-links { display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:24px; }
 .profile-links a,.profile-links button { color:var(--brand);background:transparent;border:1px solid var(--line);border-radius:9px;padding:9px 12px;text-decoration:none;font-size:.8rem;cursor:pointer; }
 .home-section { margin:36px 0 70px; }
+.home-video { max-width:960px;margin-inline:auto; }
+.home-video video { display:block;width:100%;height:auto;aspect-ratio:16/9;border:1px solid var(--line);border-radius:20px;background:#050c19; }
 .section-heading { display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:26px; }
 .section-heading h2 { font-size:clamp(1.6rem,3vw,2.4rem);line-height:1.2;letter-spacing:-.035em; }
 .section-heading .section-label { margin-bottom:8px; }
