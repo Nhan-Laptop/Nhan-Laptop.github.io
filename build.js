@@ -1,5 +1,6 @@
 const fs = require("fs/promises");
 const { addLocalImageDimensions } = require('./scripts/image-dimensions');
+const { encodeUrlPath, siteRootPrefix, collectMarkdownFiles } = require('./scripts/post-paths');
 const path = require("path");
 const { marked } = require("marked");
 const { markedHighlight } = require("marked-highlight");
@@ -19,6 +20,7 @@ if (!katexExtFactory) {
 const ROOT = __dirname;
 const PATHS = {
     postsDir: path.join(ROOT, "posts"),
+    postManifest: path.join(ROOT, "posts", "manifest.json"),
     templateHtml: path.join(ROOT, "templates", "writeup-template.html"),
     categoryTemplateHtml: path.join(ROOT, "templates", "category-template.html"),
     categoryWriteupHtml: path.join(ROOT, "categories", "writeup.html"),
@@ -188,7 +190,7 @@ function extractPostMetadata(markdown, outputFileName, fallbackDate) {
         date: normalizedDate,
         tags: metadata.tags,
         summary: metadata.summary || extractDescription(stripMetadataLines(markdown)),
-        link: `../posts/${outputFileName}`,
+        link: `../posts/${encodeUrlPath(outputFileName)}`,
         sourceFile: outputFileName,
     };
 }
@@ -382,7 +384,7 @@ function injectRenderedHtmlIntoTemplate(templateHtml, articleHtml) {
 
 // [MỚI] Hàm lấy tiêu đề từ Markdown và đắp vào HTML Template
 function inferPostCategory(fileName = "") {
-    const lower = String(fileName).toLowerCase();
+    const lower = path.basename(String(fileName)).toLowerCase();
 
     if (lower.startsWith("writeup-")) {
         return { label: "Writeup", href: "../categories/writeup.html" };
@@ -400,7 +402,7 @@ function inferPostCategory(fileName = "") {
         return { label: "Life", href: "../categories/life.html" };
     }
 
-    return { label: "Template", href: "writeup-template.html" };
+    return { label: "Template", href: "../templates/writeup-template.html" };
 }
 
 function injectMetadata(html, markdown, fallbackDate, outputFileName = "") {
@@ -409,7 +411,8 @@ function injectMetadata(html, markdown, fallbackDate, outputFileName = "") {
     const date = metadata.date || fallbackDate;
     const category = inferPostCategory(outputFileName);
     const summary = metadata.summary || extractDescription(stripMetadataLines(markdown));
-    const canonical = `https://nhan-laptop.github.io/posts/${encodeURIComponent(outputFileName)}`;
+    const rootPrefix = siteRootPrefix(outputFileName);
+    const canonical = `https://nhan-laptop.github.io/posts/${encodeUrlPath(outputFileName)}`;
     const documentTitle = `${title} | Nhan's Security Log`;
     const minutes = Math.max(1, Math.ceil(markdown.split(/\s+/).length / 220));
     const seo = [
@@ -423,9 +426,10 @@ function injectMetadata(html, markdown, fallbackDate, outputFileName = "") {
     ].join('\n    ');
     const values = {
         DOCUMENT_TITLE: escapeHtml(documentTitle), SEO_META: seo,
-        CATEGORY_HREF: category.href, CATEGORY_NAME: category.label,
+        ROOT_PREFIX: rootPrefix,
+        CATEGORY_HREF: rootPrefix + category.href.slice(3), CATEGORY_NAME: category.label,
         POST_TITLE: escapeHtml(title), POST_SUMMARY: escapeHtml(summary),
-        POST_META: `<time datetime="${escapeHtml(date)}">${escapeHtml(date)}</time><span>${minutes} min read</span>` + metadata.tags.map(tag => `<a href="../tags/index.html">${escapeHtml(tag)}</a>`).join(''),
+        POST_META: `<time datetime="${escapeHtml(date)}">${escapeHtml(date)}</time><span>${minutes} min read</span>` + metadata.tags.map(tag => `<a href="${rootPrefix}tags/index.html">${escapeHtml(tag)}</a>`).join(''),
     };
     return html.replace(/\{\{([A-Z_]+)\}\}/g, (match, key) => values[key] ?? match);
 }
@@ -439,9 +443,10 @@ function removeClientSideMarkdownScripts(html) {
     });
 }
 
-function injectLocalCssLinks(html) {
-    const highlightHref = "../assets/vendor/highlight/github-dark.min.css";
-    const katexHref = "../assets/vendor/katex/katex.min.css";
+function injectLocalCssLinks(html, outputFileName = "") {
+    const rootPrefix = siteRootPrefix(outputFileName);
+    const highlightHref = `${rootPrefix}assets/vendor/highlight/github-dark.min.css`;
+    const katexHref = `${rootPrefix}assets/vendor/katex/katex.min.css`;
 
     const links = [
         `<link rel="stylesheet" href="${highlightHref}">`,
@@ -478,9 +483,16 @@ async function build() {
     try {
         setupMarkdownRenderer();
 
-        const files = await fs.readdir(PATHS.postsDir);
-        const excluded = new Set((process.env.BLOG_SKIP_POSTS || '').split(',').filter(Boolean));
-        const mdFiles = files.filter(file => file.endsWith('.md') && !excluded.has(file));
+        const manifest = JSON.parse(await fs.readFile(PATHS.postManifest, 'utf8'));
+        const excluded = new Set([
+            ...(manifest.drafts || []),
+            ...(process.env.BLOG_SKIP_POSTS || '').split(',').map(file => file.trim()).filter(Boolean),
+        ]);
+        const mdFiles = await collectMarkdownFiles(PATHS.postsDir, excluded);
+        const ungroupedPosts = mdFiles.filter(file => !file.includes('/'));
+        if (ungroupedPosts.length > 0) {
+            throw new Error(`Move publishable Markdown into topic folders before building: ${ungroupedPosts.join(', ')}`);
+        }
 
         if (mdFiles.length === 0) {
             console.log("⚠️ Không tìm thấy file .md nào trong thư mục posts.");
@@ -495,7 +507,7 @@ async function build() {
 
         for (const file of mdFiles) {
             const inputPath = path.join(PATHS.postsDir, file);
-            const outputFileName = file.replace(".md", ".html");
+            const outputFileName = file.replace(/\.md$/, '.html');
             const outputPath = path.join(PATHS.postsDir, outputFileName);
 
             const rawMarkdown = await fs.readFile(inputPath, "utf8");
@@ -524,14 +536,14 @@ async function build() {
                 console.warn = originalWarn;
             }
 
-            renderedArticle = await addLocalImageDimensions(renderedArticle, PATHS.postsDir, ROOT);
+            renderedArticle = await addLocalImageDimensions(renderedArticle, path.dirname(outputPath), ROOT);
             let outputHtml = injectRenderedHtmlIntoTemplate(templateHtml, renderedArticle);
             
             // [MỚI] Gọi hàm đắp MetaData (Title) vào file HTML
             outputHtml = injectMetadata(outputHtml, rawMarkdown, fallbackDate, outputFileName);
             
             outputHtml = removeClientSideMarkdownScripts(outputHtml);
-            outputHtml = injectLocalCssLinks(outputHtml);
+            outputHtml = injectLocalCssLinks(outputHtml, outputFileName);
 
             await fs.writeFile(outputPath, outputHtml, "utf8");
 
@@ -552,4 +564,6 @@ async function build() {
     }
 }
 
-build();
+if (require.main === module) build();
+
+module.exports = { inferPostCategory, injectMetadata, injectLocalCssLinks, extractPostMetadata };

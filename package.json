@@ -6,6 +6,7 @@
   "scripts": {
     "build:universe": "esbuild src/universe/index.js --bundle --format=iife --global-name=NhanUniverse --target=es2020 --minify --outfile=assets/js/universe-background.bundle.js",
     "build:n1ctf": "npm run build:universe && node build.js",
+    "test": "node --test",
     "optimize:images": "node scripts/optimize-images.js"
   },
   "dependencies": {
