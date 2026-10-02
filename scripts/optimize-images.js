@@ -6,6 +6,7 @@ const ROOT = path.resolve(__dirname, "..");
 const TARGETS = [
     path.join(ROOT, "self.png"),
     path.join(ROOT, "assets", "greycatfinal"),
+    path.join(ROOT, "assets", "malware"),
 ];
 
 function run(command, args) {

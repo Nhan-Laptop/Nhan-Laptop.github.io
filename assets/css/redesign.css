@@ -95,7 +95,8 @@ button,a,input,summary { -webkit-tap-highlight-color:transparent; }
 .article-body p,.article-body ul,.article-body ol,.article-body blockquote,.article-body pre,.article-body details { margin:18px 0; }
 .article-body h2 { font-size:1.65rem;margin:44px 0 16px;line-height:1.35; }
 .article-body h3 { font-size:1.3rem;margin:32px 0 12px;line-height:1.4; }
-.article-body h4 { margin:24px 0 12px; }
+.article-body h4 { font-size:1.12rem;line-height:1.45;margin:26px 0 12px; }
+.article-body h5 { font-size:1rem;line-height:1.5;margin:22px 0 10px;color:var(--ink-soft); }
 .article-body ul,.article-body ol { padding-left:26px; }
 .article-body li+li { margin-top:8px; }
 .article-body blockquote { border-left:3px solid var(--brand);padding:4px 20px;color:var(--ink-soft);background:rgba(118,213,255,.04); }
@@ -106,6 +107,7 @@ button,a,input,summary { -webkit-tap-highlight-color:transparent; }
 .article-body summary { cursor:pointer;color:var(--brand); }
 .article-body code { overflow-wrap:anywhere; }
 .article-body pre code { overflow-wrap:normal; }
+.article-body table code { overflow-wrap:normal; }
 .article-toc { margin-top:18px; }
 .article-toc summary { cursor:pointer;font-weight:600; }
 .article-toc ol { list-style:none;columns:2;gap:30px;margin-top:18px; }
