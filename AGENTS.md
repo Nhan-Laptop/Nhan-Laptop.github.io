@@ -11,7 +11,7 @@ Published Markdown and its generated HTML live together under topic folders:
 posts/
   cryptography/       # Ciphers, lattices, NTT, HE, IBE/HIBE, PKEET, PRNG notes
   ctf/                # Competition writeups
-  malware-binary/     # Windows memory, PE, loading, shellcode; four separate parts
+  malware-binary/     # Windows memory, PE, loading, shellcode, malware overview; five separate parts
   security-protocols/ # mTLS and onion routing
   tools/              # Z3 and other analysis tooling notes
   projects/           # Research prototypes and pi-ctf-solver
@@ -23,7 +23,7 @@ posts/
 - Keep supporting source files, such as `learning-PKEET.tex`, with the corresponding post.
 - Keep media in `assets/`, not beside Markdown. A post one folder below `posts/` references it as `../../assets/...`.
 - Keep `posts/` free of root-level HTML. All published articles belong inside topic folders; legacy URL redirect stubs were intentionally removed at the user's request.
-- The removed merged malware article is not a source anymore. The current malware series has four separate articles.
+- The removed merged malware article is not a source anymore. The current malware series has five separate articles.
 - `posts/life-the-first-viasm-with-crypto.md` is an unfinished, untracked draft. Do not alter, move, or publish it without explicit approval.
 
 ## Build and templates

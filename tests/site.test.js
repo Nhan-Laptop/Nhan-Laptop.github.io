@@ -72,16 +72,16 @@ test('the protected life draft has no generated page or archive entry', async ()
     }
 });
 
-test('all four malware parts are listed, interlinked, and reference dimensioned WebP diagrams', async () => {
+test('all five malware parts are listed, interlinked, and reference dimensioned WebP diagrams', async () => {
     const learning = await fs.readFile(path.join(root, 'categories/learning.html'), 'utf8');
     const tags = await fs.readFile(path.join(root, 'tags/index.html'), 'utf8');
     let images = 0;
-    for (let part = 1; part <= 4; part += 1) {
+    for (let part = 1; part <= 5; part += 1) {
         const filename = `learning-Malware-for-beginner-part-${part}.html`;
         const html = await fs.readFile(path.join(postsDirectory, 'malware-binary', filename), 'utf8');
         assert.ok(learning.includes(`../posts/malware-binary/${filename}`), filename);
         assert.ok(tags.includes(`../posts/malware-binary/${filename}`), filename);
-        for (let sibling = 1; sibling <= 4; sibling += 1) {
+        for (let sibling = 1; sibling <= 5; sibling += 1) {
             if (sibling !== part) assert.ok(html.includes(`href="learning-Malware-for-beginner-part-${sibling}.html"`), filename);
         }
         assert.doesNotMatch(html, /katex-error|<h6\b/);
@@ -94,7 +94,7 @@ test('all four malware parts are listed, interlinked, and reference dimensioned 
             assert.doesNotMatch(match[0], /alt="alt text"/);
         }
     }
-    assert.equal(images, 21);
+    assert.equal(images, 24);
 });
 
 test('posts/ has no loose HTML or legacy redirect configuration', async () => {
