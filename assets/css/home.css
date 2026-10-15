@@ -5,12 +5,8 @@
 
 body.home-v4 { --col: 880px; --gap: clamp(72px, 10vw, 120px); }
 .home-v4 .v4-main { padding-bottom: 24px; }
-.v4-col { width: min(var(--col), calc(100% - 40px)); margin-inline: auto; }
+.v4-col { width: min(var(--col, 880px), calc(100% - 40px)); margin-inline: auto; }
 .v4-col + .v4-col { margin-top: var(--gap); }
-
-/* ---------- Header: logo left, small mono links right ---------- */
-.home-v4 .header-inner { width: min(1040px, calc(100% - 40px)); max-width: none; margin-inline: auto; }
-.home-v4 .main-nav a { font-family: var(--font-mono); font-size: .78rem; letter-spacing: .02em; padding: 8px 12px; }
 
 /* ---------- 1 · Welcome ---------- */
 .hero-v4 { padding-top: clamp(56px, 10vw, 112px); }
@@ -126,6 +122,9 @@ body.home-v4 { --col: 880px; --gap: clamp(72px, 10vw, 120px); }
 .tile:hover .tile-title { color: var(--brand); }
 .tile-sub { color: var(--ink-muted); font-size: .82rem; line-height: 1.55; }
 .tile-folder .tile-art { border-style: dashed; }
+.tiles.tiles-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; }
+.tiles-2 .tile-art.type-thumb { aspect-ratio: 21 / 9; }
+@media (max-width: 480px) { .tiles.tiles-2 { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- 6 · Story ---------- */
 .story { display: grid; grid-template-columns: 1fr 200px; gap: 40px; align-items: center; padding: 36px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); backdrop-filter: blur(8px); }

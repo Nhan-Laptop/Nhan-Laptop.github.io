@@ -333,6 +333,47 @@
             applyFilters();
         }
 
+        function collapseFilters() {
+            const box = explorer.querySelector(".tag-filters");
+            const limit = 14;
+            if (!box || filters.length <= limit + 3) return;
+
+            const counts = {};
+            posts.forEach((post) => {
+                (post.dataset.tags || "").split(/\s+/).filter(Boolean).forEach((tag) => {
+                    const key = normalize(tag);
+                    counts[key] = (counts[key] || 0) + 1;
+                });
+            });
+            const countOf = (chip) => counts[normalize(chip.dataset.tagFilter)] || 0;
+            const tagChips = filters.filter((chip) => normalize(chip.dataset.tagFilter) !== "all");
+            tagChips.sort((a, b) => countOf(b) - countOf(a) || a.textContent.localeCompare(b.textContent));
+
+            tagChips.forEach((chip, index) => {
+                const badge = document.createElement("span");
+                badge.className = "tag-count";
+                badge.textContent = String(countOf(chip));
+                chip.appendChild(badge);
+                if (index >= limit) chip.setAttribute("data-extra", "");
+                box.appendChild(chip);
+            });
+
+            const more = document.createElement("button");
+            more.type = "button";
+            more.className = "tag-more";
+            more.setAttribute("aria-expanded", "false");
+            const hidden = tagChips.length - limit;
+            const sync = (open) => {
+                box.classList.toggle("is-collapsed", !open);
+                more.setAttribute("aria-expanded", String(open));
+                more.textContent = open ? "Show fewer tags" : `Show ${hidden} more tags`;
+            };
+            more.addEventListener("click", () => sync(more.getAttribute("aria-expanded") !== "true"));
+            box.appendChild(more);
+            sync(false);
+        }
+        collapseFilters();
+
         filters.forEach((filter) => {
             filter.addEventListener("click", (event) => {
                 event.preventDefault();

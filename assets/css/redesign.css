@@ -349,3 +349,66 @@ body.has-universe-webgl::after { opacity: .55; }
   .main-nav a { padding: 10px 14px; }
 }
 @media (prefers-reduced-motion: reduce) { .profile-orbit { animation: none; } }
+
+
+/* ==========================================================================
+   v4: inner pages (categories, tags, articles) aligned with the new homepage.
+   Same column, same mono labels, same feed-style rows. Colours are untouched.
+   ========================================================================== */
+
+/* Header: one width and one link style on every page */
+@media (min-width: 781px) { .header-inner { width: min(1040px, calc(100% - 40px)); max-width: none; margin-inline: auto; } }
+.main-nav a { font-family: var(--font-mono); font-size: .78rem; letter-spacing: .02em; }
+
+/* Page heads: no boxed hero. The WebGL rule in common.css out-ranked the v3 reset, so it is repeated with more weight. */
+html body .hero.article-hero, html body .hero.archive-hero { background: none; backdrop-filter: none; box-shadow: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; overflow: visible; padding: 0 0 32px; margin: 0; }
+.breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-bottom: 36px; font-family: var(--font-mono); font-size: .74rem; letter-spacing: .02em; color: var(--ink-muted); }
+.breadcrumb a { color: var(--ink-muted); text-decoration: none; }
+.breadcrumb a:hover { color: var(--brand); }
+.breadcrumb [aria-current="page"] { color: var(--ink-soft); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.archive-hero .section-label, .article-hero .section-label { margin-top: 0; }
+.archive-hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); margin-top: 10px; }
+.archive-hero .lead { max-width: 56ch; }
+
+/* Archive lists: one column of feed rows, date and category on the left */
+@media (min-width: 781px) { .archive-page { width: min(880px, calc(100% - 40px)); } }
+.archive-section { margin: 36px 0 0; }
+.archive-section > .section-heading { margin-bottom: 18px; align-items: center; }
+.archive-section > .section-heading h2 { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.archive-page .post-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.archive-page .post-card { display: grid; grid-template-columns: 128px minmax(0, 1fr); column-gap: 28px; row-gap: 10px; align-items: start; padding: 22px 24px; }
+.archive-page .post-card-topline { grid-column: 1; grid-row: 1 / span 3; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 10px; font-family: var(--font-mono); font-size: .72rem; }
+.archive-page .post-card > :not(.post-card-topline) { grid-column: 2; margin: 0; min-width: 0; }
+.archive-page .post-card h3 { font-size: 1.2rem; }
+.archive-page .post-card-tags { margin-top: 4px; }
+@media (max-width: 640px) {
+    .archive-page .post-card { grid-template-columns: minmax(0, 1fr); padding: 18px; }
+    .archive-page .post-card-topline { grid-column: 1; grid-row: auto; flex-direction: row; align-items: center; justify-content: space-between; }
+    .archive-page .post-card > :not(.post-card-topline) { grid-column: 1; }
+}
+
+/* Tags page: popular tags first, the rest behind a toggle */
+.tag-filters { gap: 8px; margin-bottom: 14px; }
+.tag-filter { font-family: var(--font-mono); font-size: .76rem; padding: 6px 12px; }
+.tag-count { margin-left: 6px; color: var(--ink-muted); font-size: .68rem; }
+.tag-filter.is-active .tag-count { color: inherit; opacity: .65; }
+.tag-filters.is-collapsed [data-extra]:not(.is-active) { display: none; }
+.tag-more { font-family: var(--font-mono); font-size: .76rem; padding: 6px 12px; border-radius: 999px; border: 1px dashed var(--line-strong); background: none; color: var(--brand); cursor: pointer; }
+.tag-more:hover { border-color: var(--brand); color: #fff; }
+[data-tag-status] { margin: 4px 0 18px; font-family: var(--font-mono); font-size: .76rem; color: var(--ink-muted); }
+
+/* Articles: calmer panel, scrollable display math */
+.panel.article-body { padding: 44px 48px; }
+.markdown-content .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 4px 0 10px; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+.article-body .code-block pre { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+.article-hero .post-meta { gap: 6px 14px; font-family: var(--font-mono); font-size: .76rem; }
+
+/* Footer: same centred closing line as the homepage */
+.site-footer { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+@media (min-width: 781px) { .site-footer { width: min(880px, calc(100% - 40px)); } }
+
+/* Pause button: smaller on phones so it covers less text */
+@media (max-width: 780px) {
+    .panel.article-body { padding: 26px 20px; }
+    .cosmic-motion-button { min-height: 36px; padding: 6px 12px; font-size: .64rem; bottom: 10px; right: 10px; }
+}

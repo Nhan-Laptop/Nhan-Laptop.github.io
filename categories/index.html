@@ -3,57 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories</title>
+    <title>Categories | Nhan's Security Log</title>
+    <meta name="description" content="Browse cryptography writeups, learning notes, research projects, and life logs.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/common.css">
     <link rel="stylesheet" href="../assets/css/redesign.css">
-    <meta name="description" content="Browse cryptography writeups, learning notes, research projects, and life logs.">
+    <link rel="stylesheet" href="../assets/css/home.css">
 </head>
 <body class="universe-page universe-category">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="../index.html">Nhan's Security Log</a>
-            <nav class="main-nav">
+            <a class="brand" href="../index.html" aria-label="Nhan's Security Log home">Nhan's Security Log</a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
+                <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+                <span class="sr-only">Menu</span>
+            </button>
+            <nav id="site-navigation" class="main-nav" aria-label="Primary navigation">
                 <a href="../index.html">Home</a>
                 <a href="../universe.html">Universe</a>
-                <a class="is-active" href="index.html">Categories</a>
+                <a class="is-active" aria-current="page" href="index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
             </nav>
         </div>
     </header>
 
-    <main class="article-wrap">
-        <section class="hero reveal is-visible">
-            <p class="section-label">Categories</p>
-            <h1>All Categories</h1>
-            <p class="lead">Moi category la mot trang that, khong phai placeholder.</p>
+    <main id="main-content" class="article-wrap archive-page">
+        <section class="hero archive-hero reveal is-visible">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="../index.html">Home</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Categories</span>
+            </nav>
+            <p class="section-label">Archive · 4 categories</p>
+            <h1>All categories</h1>
+            <p class="lead">Writeups, learning notes, projects, and life logs, each in its own folder.</p>
         </section>
 
-        <section class="panel reveal section">
-            <div class="grid-3">
-                <article class="card">
-                    <h3><a href="writeup.html">Writeup</a></h3>
-                    <p>CTF challenge writeups, crypto analysis, script-first explanation.</p>
-                </article>
-                <article class="card">
-                    <h3><a href="learning.html">Learning</a></h3>
-                    <p>Notes from books, papers, and lectures that are useful for later reference.</p>
-                </article>
-                <article class="card">
-                    <h3><a href="project.html">Project</a></h3>
-                    <p>Research prototypes, tools, and systems I build while exploring security and cryptography.</p>
-                </article>
-                <article class="card">
-                    <h3><a href="life.html">Life</a></h3>
-                    <p>Weekly journaling, study process, balance between school and CTF.</p>
-                </article>
+        <section class="archive-section reveal" aria-label="Categories">
+            <div class="tiles tiles-2">
+                <a class="tile tile-folder" href="writeup.html">
+                    <span class="tile-art type-thumb"><span>01 / writeups</span></span>
+                    <span class="fname">writeup/ · 8 posts</span>
+                    <span class="tile-title">Writeup</span>
+                    <span class="tile-sub">CTF challenge writeups, crypto analysis, script-first explanation.</span>
+                </a>
+                <a class="tile tile-folder" href="learning.html">
+                    <span class="tile-art type-thumb"><span>02 / learning</span></span>
+                    <span class="fname">learning/ · 15 posts</span>
+                    <span class="tile-title">Learning</span>
+                    <span class="tile-sub">Notes from books, papers, and lectures that are useful for later reference.</span>
+                </a>
+                <a class="tile tile-folder" href="project.html">
+                    <span class="tile-art type-thumb"><span>03 / projects</span></span>
+                    <span class="fname">project/ · 2 posts</span>
+                    <span class="tile-title">Project</span>
+                    <span class="tile-sub">Research prototypes, tools, and systems I build while exploring security and cryptography.</span>
+                </a>
+                <a class="tile tile-folder" href="life.html">
+                    <span class="tile-art type-thumb"><span>04 / life logs</span></span>
+                    <span class="fname">life/ · 1 post</span>
+                    <span class="tile-title">Life</span>
+                    <span class="tile-sub">Weekly journaling, study process, balance between school and CTF.</span>
+                </a>
             </div>
         </section>
     </main>
 
+    <footer class="site-footer">
+        <p>Notes, writeups, and research from an information security student.</p>
+        <p>© <span data-current-year></span> Nguyen Trong Nhan</p>
+    </footer>
+
     <script src="../assets/js/universe-background.bundle.js" defer></script>
-    <script src="../assets/js/common.js"></script>
+    <script src="../assets/js/common.js" defer></script>
 </body>
 </html>
