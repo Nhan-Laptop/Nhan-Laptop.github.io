@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{DOCUMENT_TITLE}}</title>
     {{SEO_META}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="{{ROOT_PREFIX}}assets/fonts/newsreader-latin-standard-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ROOT_PREFIX}}assets/css/common.css">
     <link rel="stylesheet" href="{{ROOT_PREFIX}}assets/css/redesign.css">
 </head>
-<body class="article-page">
+<body class="article-page" data-topic="{{CATEGORY_SLUG}}">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
@@ -25,6 +23,7 @@
                 <a href="{{ROOT_PREFIX}}universe.html">Universe</a>
                 <a href="{{ROOT_PREFIX}}categories/index.html">Categories</a>
                 <a href="{{ROOT_PREFIX}}tags/index.html">Tags</a>
+                <a href="https://github.com/Nhan-Laptop" target="_blank" rel="noopener noreferrer">GitHub</a>
             </nav>
         </div>
     </header>
@@ -34,11 +33,10 @@
             <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="{{ROOT_PREFIX}}index.html">Home</a>
                 <span aria-hidden="true">/</span>
-                <a href="{{CATEGORY_HREF}}">{{CATEGORY_NAME}}</a>
+                <a class="topic-link" href="{{CATEGORY_HREF}}">{{CATEGORY_NAME}}</a>
                 <span aria-hidden="true">/</span>
                 <span aria-current="page">{{POST_TITLE}}</span>
             </nav>
-            <p class="section-label">{{CATEGORY_NAME}} · field notes</p>
             <h1>{{POST_TITLE}}</h1>
             <div class="post-meta">{{POST_META}}</div>
             <p class="lead">{{POST_SUMMARY}}</p>

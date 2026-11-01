@@ -195,10 +195,15 @@ function extractPostMetadata(markdown, outputFileName, fallbackDate) {
     };
 }
 
+// "../categories/writeup.html" -> "writeup": the stylesheet colours each topic from this hook.
+function categorySlug(category) {
+    return path.basename(category.href, ".html");
+}
+
 function renderCategoryPostItem(post) {
     const category = inferPostCategory(post.sourceFile);
     const tags = (post.tags || []).map(t => t.replace(/^#/, '').toLowerCase());
-    return `<article class="post-card" data-tag-post data-tags="${escapeHtml(tags.join(' '))}">
+    return `<article class="post-card" data-topic="${categorySlug(category)}" data-tag-post data-tags="${escapeHtml(tags.join(' '))}">
         <div class="post-card-topline"><a class="category-badge" href="${category.href}">${category.label}</a><time datetime="${escapeHtml(post.date)}">${escapeHtml(post.date)}</time></div>
         <h3><a href="${escapeHtml(post.link)}">${escapeHtml(post.title)}</a></h3>
         <p>${escapeHtml(post.summary)}</p>
@@ -428,6 +433,7 @@ function injectMetadata(html, markdown, fallbackDate, outputFileName = "") {
         DOCUMENT_TITLE: escapeHtml(documentTitle), SEO_META: seo,
         ROOT_PREFIX: rootPrefix,
         CATEGORY_HREF: rootPrefix + category.href.slice(3), CATEGORY_NAME: category.label,
+        CATEGORY_SLUG: categorySlug(category),
         POST_TITLE: escapeHtml(title), POST_SUMMARY: escapeHtml(summary),
         POST_META: `<time datetime="${escapeHtml(date)}">${escapeHtml(date)}</time><span>${minutes} min read</span>` + metadata.tags.map(tag => `<a href="${rootPrefix}tags/index.html">${escapeHtml(tag)}</a>`).join(''),
     };

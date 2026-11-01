@@ -11,13 +11,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nhan-laptop.github.io/categories/life.html">
     <meta name="twitter:card" content="summary">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="../assets/fonts/newsreader-latin-standard-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../assets/css/common.css">
     <link rel="stylesheet" href="../assets/css/redesign.css">
 </head>
-<body class="universe-page universe-category">
+<body class="universe-page universe-category" data-topic="life">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
@@ -31,12 +29,14 @@
                 <a href="../universe.html">Universe</a>
                 <a class="is-active" aria-current="page" href="index.html">Categories</a>
                 <a href="../tags/index.html">Tags</a>
+                <a href="https://github.com/Nhan-Laptop" target="_blank" rel="noopener noreferrer">GitHub</a>
             </nav>
         </div>
     </header>
 
     <main id="main-content" class="article-wrap archive-page">
         <section class="hero archive-hero reveal is-visible">
+            <span class="planet" aria-hidden="true"></span>
             <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="../index.html">Home</a>
                 <span aria-hidden="true">/</span>
@@ -44,7 +44,7 @@
                 <span aria-hidden="true">/</span>
                 <span aria-current="page">Life</span>
             </nav>
-            <p class="section-label">Archive · 1 posts</p>
+            <p class="section-label">1 posts</p>
             <h1>Life</h1>
             <p class="lead">Competition travel, academic milestones, and life beyond the terminal.</p>
         </section>
@@ -55,10 +55,10 @@
                     <p class="section-label">Latest first</p>
                     <h2>Browse Life</h2>
                 </div>
-                <a class="text-link" href="../tags/index.html">Explore by tag <span aria-hidden="true">→</span></a>
+                <a class="text-link" href="../tags/index.html">Explore by tag</a>
             </div>
             <div class="post-grid category-post-grid">
-<article class="post-card" data-tag-post data-tags="life ctf singapore greycat">
+<article class="post-card" data-topic="life" data-tag-post data-tags="life ctf singapore greycat">
         <div class="post-card-topline"><a class="category-badge" href="../categories/life.html">Life</a><time datetime="2026-07-13">2026-07-13</time></div>
         <h3><a href="../posts/life/life-the-first-final.html">Grey The Cat Final CTF 2026</a></h3>
         <p>A short travel diary from my first onsite CTF final in Singapore, with memories from Grey Cat The Flag Finals 2026.</p>

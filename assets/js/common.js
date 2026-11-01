@@ -218,7 +218,11 @@
             const distance = Math.max(article.offsetHeight - window.innerHeight + 140, 1);
             const value = Math.max(0, Math.min((window.scrollY - start) / distance, 1));
             progressBar.style.transform = `scaleX(${value})`;
+            updateCurrentSection();
         }
+
+        // Filled in below once the table of contents exists.
+        let updateCurrentSection = () => {};
 
         window.addEventListener("scroll", () => {
             if (progressTicking) return;
@@ -261,14 +265,49 @@
             ].join("");
             article.parentNode.insertBefore(toc, article);
             toc.addEventListener("click", (event) => {
-                if (event.target.closest("a") && window.innerWidth < 780) toc.open = false;
+                if (event.target.closest("a") && !wideToc.matches) toc.open = false;
             });
+
+            // At margin-column width the contents are always open and follow the reader.
+            const wideToc = window.matchMedia("(min-width: 1240px)");
+            const syncToc = () => { toc.open = wideToc.matches; };
+            syncToc();
+            if (wideToc.addEventListener) wideToc.addEventListener("change", syncToc);
+
+            const items = Array.from(toc.querySelectorAll("li"));
+            let current = -1;
+            updateCurrentSection = () => {
+                let next = 0;
+                for (let i = 0; i < headings.length; i += 1) {
+                    if (headings[i].getBoundingClientRect().top > 140) break;
+                    next = i;
+                }
+                if (next === current) return;
+                current = next;
+                // Show only the subsections of the part being read, so long articles stay scannable.
+                let chapter = next;
+                while (chapter > 0 && headings[chapter].tagName !== "H2") chapter -= 1;
+                let chapterEnd = chapter + 1;
+                while (chapterEnd < headings.length && headings[chapterEnd].tagName !== "H2") chapterEnd += 1;
+                items.forEach((item, index) => {
+                    item.classList.toggle("is-current", index === next);
+                    item.classList.toggle("is-near", index > chapter && index < chapterEnd);
+                });
+                if (wideToc.matches && toc.scrollHeight > toc.clientHeight) {
+                    const item = items[next];
+                    toc.scrollTop = Math.max(0, item.offsetTop - toc.offsetTop - toc.clientHeight / 2);
+                }
+            };
+            updateCurrentSection();
         }
 
         article.querySelectorAll("pre").forEach((pre) => {
             if (pre.parentElement.classList.contains("code-block")) return;
             const wrapper = document.createElement("div");
             wrapper.className = "code-block";
+            const language = pre.querySelector("code[class*='language-']");
+            const languageName = language && language.className.match(/language-([\w+-]+)/);
+            if (languageName && languageName[1] !== "plaintext") wrapper.dataset.lang = languageName[1];
             pre.parentNode.insertBefore(wrapper, pre);
             wrapper.appendChild(pre);
 
