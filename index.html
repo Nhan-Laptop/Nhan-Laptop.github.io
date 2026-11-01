@@ -14,16 +14,21 @@
     <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/common.css">
-    <link rel="stylesheet" href="assets/css/redesign.css">
-    <link rel="stylesheet" href="assets/css/home.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Layers let the sky's Tailwind utilities win over the site's older stylesheets. -->
+    <style>
+        @layer theme, base, legacy, sky-reset, components, utilities;
+        @import url("assets/css/common.css") layer(legacy);
+        @import url("assets/css/redesign.css") layer(legacy);
+        @import url("assets/css/home.css") layer(legacy);
+    </style>
+    <link rel="stylesheet" href="assets/css/landing.css">
 </head>
-<body class="universe-page universe-home home-v4">
+<body class="home-v4 home-sky">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="#welcome" aria-label="Nhan's Security Log, back to top">Nhan's Security Log</a>
+            <a class="brand" href="#sky-root" aria-label="Nhan's Security Log, back to top">Nhan's Security Log</a>
             <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" aria-label="Open navigation menu">
                 <span class="nav-toggle-lines" aria-hidden="true"><span></span><span></span></span>
                 <span class="sr-only">Menu</span>
@@ -40,50 +45,14 @@
 
     <main id="main-content" class="v4-main">
 
-        <!-- 1 · Welcome -->
-        <section id="welcome" class="v4-col hero-v4">
-            <p class="greet" lang="vi">xin chào,</p>
-            <h1 class="hero-line">
-                <span class="hl-a">I break</span>
-                <span class="hl-b" id="heroWord" data-words="hard problems|weak PRNGs|lattices|opaque agents">hard problems</span>
-            </h1>
-            <p class="hero-name">Nguyen Trong Nhan · cryptography · CTF · research</p>
-
-            <dl class="credits">
-                <div><dt>currently</dt><dd>B.Sc. Information Security, Honor Program at <strong>UIT – VNUHCM</strong></dd></div>
-                <div><dt>recently</dt><dd>Top 7 at <strong>GreyCats CTF 2026 Final</strong>, Singapore</dd></div>
-                <div><dt>previously</dt><dd>Bronze at NSUCRYPTO 2025 · Top 1 at Wanna.W1n Crypto Recruitment</dd></div>
-            </dl>
-            <p class="status"><span class="dot" aria-hidden="true"></span> learning in public: every solved problem becomes a reusable note</p>
-
-            <div class="hero-media">
-                <figure class="frame frame-portrait">
-                    <img id="profilePhoto" class="rot270" src="self.webp" alt="Pastel painting of a cat riding a rocket through a blue spiral galaxy" width="375" height="333" decoding="async" fetchpriority="high">
-                </figure>
-                <figure class="frame frame-plush">
-                    <img src="assets/greycatfinal/image-1.webp" alt="Black plush cat wearing a salmon-pink hood, held in a hand" width="1013" height="1800" decoding="async">
-                </figure>
-
-                <aside class="orbit-widget" aria-label="Flag catcher mini game">
-                    <div class="ow-screen">
-                        <span class="ow-label">flags captured</span>
-                        <output id="flagCount" aria-live="polite">0</output>
-                        <span id="flagSprite" class="ow-sprite" aria-hidden="true">✦</span>
-                        <span id="flagMsg" class="ow-msg">press capture</span>
-                    </div>
-                    <div class="ow-buttons">
-                        <button id="flagCapture" type="button">capture</button>
-                        <button id="flagReset" type="button">reset</button>
-                        <button id="copyEmail" data-copy-email="nguyentrongnhan06cm@gmail.com" type="button">email</button>
-                    </div>
-                </aside>
-            </div>
-            <p class="hero-links">
-                <button id="photoTrigger" type="button">view portrait</button>
-                <a href="https://hackmd.io/@NhanLAPTOP" target="_blank" rel="noopener noreferrer">HackMD</a>
-                <a href="categories/writeup.html">browse writeups</a>
-            </p>
-        </section>
+        <!-- Galaxy journey: hero, one scene per topic, closing call. Rendered by src/landing. -->
+        <div id="sky-root"></div>
+        <noscript>
+            <section class="v4-col hero-v4">
+                <h1 class="hero-line">Every secret leaves a trace.</h1>
+                <p>Notes on cryptography, CTF challenges and malware, written while figuring them out.</p>
+            </section>
+        </noscript>
 
         <!-- 2 · Feed of latest posts -->
         <section id="latest-posts" class="v4-col feed reveal" aria-labelledby="feed-title">
@@ -151,6 +120,51 @@
                     <a class="text-link" href="posts/projects/project-Verifier-Guided%20Multi-AI-Agent%20RAG%20for%20Automated%20Cryptography%20Challenge%20Solving.html" aria-label="Read Verifier-Guided Multi-AI-Agent RAG">Read article <span aria-hidden="true">→</span></a>
                 </footer>
             </article>
+        </section>
+
+        <!-- 1 · About the author, first thing after the feed -->
+        <section id="welcome" class="v4-col hero-v4">
+            <p class="greet" lang="vi">xin chào,</p>
+            <h2 class="hero-line">
+                <span class="hl-a">I break</span>
+                <span class="hl-b" id="heroWord" data-words="hard problems|weak PRNGs|lattices|opaque agents">hard problems</span>
+            </h2>
+            <p class="hero-name">Nguyen Trong Nhan · cryptography · CTF · research</p>
+
+            <dl class="credits">
+                <div><dt>currently</dt><dd>B.Sc. Information Security, Honor Program at <strong>UIT – VNUHCM</strong></dd></div>
+                <div><dt>recently</dt><dd>Top 7 at <strong>GreyCats CTF 2026 Final</strong>, Singapore</dd></div>
+                <div><dt>previously</dt><dd>Bronze at NSUCRYPTO 2025 · Top 1 at Wanna.W1n Crypto Recruitment</dd></div>
+            </dl>
+            <p class="status"><span class="dot" aria-hidden="true"></span> learning in public: every solved problem becomes a reusable note</p>
+
+            <div class="hero-media">
+                <figure class="frame frame-portrait">
+                    <img id="profilePhoto" class="rot270" src="self.webp" alt="Pastel painting of a cat riding a rocket through a blue spiral galaxy" width="375" height="333" decoding="async" fetchpriority="high">
+                </figure>
+                <figure class="frame frame-plush">
+                    <img src="assets/greycatfinal/image-1.webp" alt="Black plush cat wearing a salmon-pink hood, held in a hand" width="1013" height="1800" decoding="async">
+                </figure>
+
+                <aside class="orbit-widget" aria-label="Flag catcher mini game">
+                    <div class="ow-screen">
+                        <span class="ow-label">flags captured</span>
+                        <output id="flagCount" aria-live="polite">0</output>
+                        <span id="flagSprite" class="ow-sprite" aria-hidden="true">✦</span>
+                        <span id="flagMsg" class="ow-msg">press capture</span>
+                    </div>
+                    <div class="ow-buttons">
+                        <button id="flagCapture" type="button">capture</button>
+                        <button id="flagReset" type="button">reset</button>
+                        <button id="copyEmail" data-copy-email="nguyentrongnhan06cm@gmail.com" type="button">email</button>
+                    </div>
+                </aside>
+            </div>
+            <p class="hero-links">
+                <button id="photoTrigger" type="button">view portrait</button>
+                <a href="https://hackmd.io/@NhanLAPTOP" target="_blank" rel="noopener noreferrer">HackMD</a>
+                <a href="categories/writeup.html">browse writeups</a>
+            </p>
         </section>
 
         <!-- 3 · Photo strip -->
@@ -350,7 +364,7 @@
         <button id="closeDialog" class="secondary-btn" type="button">Close preview</button>
     </dialog>
 
-    <script src="assets/js/universe-background.bundle.js" defer></script>
+    <script src="assets/js/landing.bundle.js" defer></script>
     <script src="assets/js/common.js" defer></script>
     <script src="assets/js/home.js" defer></script>
 </body>

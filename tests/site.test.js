@@ -105,3 +105,12 @@ test('posts/ has no loose HTML or legacy redirect configuration', async () => {
     assert.deepEqual(looseHtml, [], 'Article HTML must stay inside topic folders');
     await assert.rejects(fs.access(path.join(postsDirectory, 'learning-malware-for-beginners.md')), { code: 'ENOENT' });
 });
+
+test('the homepage keeps its feed and about sections below the galaxy journey', async () => {
+    const html = await fs.readFile(path.join(root, 'index.html'), 'utf8');
+    for (const marker of ['id="sky-root"', 'id="latest-posts"', 'id="welcome"', 'id="about"', 'assets/js/landing.bundle.js']) {
+        assert.ok(html.includes(marker), marker);
+    }
+    assert.ok(!html.includes('universe-background.bundle.js'));
+    assert.equal(html.match(/<h1\b/g).length, 1, 'only the noscript headline is an h1 in the static HTML');
+});
