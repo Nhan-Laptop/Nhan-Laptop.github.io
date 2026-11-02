@@ -424,6 +424,57 @@
         selectTag(location.hash || "all", false);
     }
 
+    // Titles resolve from hex when a reader reaches for them, and a page's title does once on arrival.
+    // Each letter keeps its place and only turns transparent, so the line never reflows.
+    function decode(element, duration) {
+        if (element.dataset.decoding || element.children.length) return;
+        const text = element.textContent;
+        const letters = [];
+        const fragment = document.createDocumentFragment();
+        Array.from(text).forEach((letter) => {
+            if (/\s/.test(letter)) {
+                fragment.append(letter);
+                return;
+            }
+            const span = document.createElement("span");
+            span.className = "dc is-coded";
+            span.textContent = letter;
+            letters.push(span);
+            fragment.append(span);
+        });
+        element.dataset.decoding = "true";
+        element.replaceChildren(fragment);
+        const started = performance.now();
+        const paint = (now) => {
+            const resolved = Math.floor(((now - started) / duration) * letters.length);
+            const roll = Math.floor(now / 70);
+            letters.forEach((span, index) => {
+                if (index < resolved) span.classList.remove("is-coded");
+                else span.dataset.g = "0123456789abcdef"[(index * 7 + roll * (1 + (index % 3))) % 16];
+            });
+            if (resolved < letters.length) {
+                requestAnimationFrame(paint);
+                return;
+            }
+            element.textContent = text;
+            delete element.dataset.decoding;
+        };
+        requestAnimationFrame(paint);
+    }
+
+    function setupDecode() {
+        if (reducedMotion) return;
+        document.querySelectorAll(".post-card h3 a, .feed-item h2 a").forEach((link) => {
+            const run = () => decode(link, 480);
+            link.closest(".post-card, .feed-item").addEventListener("pointerenter", (event) => {
+                if (event.pointerType === "mouse") run();
+            });
+            link.addEventListener("focus", run);
+        });
+        const title = document.querySelector(".article-wrap h1");
+        if (title) decode(title, 850);
+    }
+
     function setCurrentYear() {
         document.querySelectorAll("[data-current-year]").forEach((element) => {
             element.textContent = String(new Date().getFullYear());
@@ -437,5 +488,6 @@
     setupReveal();
     setupReadingTools();
     setupTagExplorer();
+    setupDecode();
     setCurrentYear();
 }());

@@ -33,6 +33,7 @@
     --link: #b4baff;
     --gold: #e3c394;
     --topic: #b4bad6;
+    --halpha: #ff6b99; /* Hydrogen's own red: used only for traces, what the reader leaves behind. */
 
     /* Names kept because common.css reads them. */
     --bg: var(--void);
@@ -72,7 +73,7 @@ body, body.universe-page {
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
 }
-::selection { background:color-mix(in srgb,var(--topic) 40%,transparent); color:#fff; }
+::selection { background:color-mix(in srgb,var(--halpha) 45%,transparent); color:#fff; }
 button,input { font:inherit; }
 button,a,input,summary { -webkit-tap-highlight-color:transparent; }
 h1,h2,h3,h4,h5 { font-weight:400; text-wrap:balance; }
@@ -225,7 +226,7 @@ html body .article-toc { margin:clamp(2rem,5vw,3rem) auto 0; padding:0; max-widt
 .article-toc a:hover { color:var(--ink); }
 .article-toc .toc-h3 a { padding-left:1rem; font-size:1rem; color:var(--ink-muted); }
 .reading-progress { position:fixed; top:0; left:0; right:0; height:2px; z-index:100; pointer-events:none; }
-.reading-progress span { display:block; height:100%; background:var(--topic); transform:scaleX(0); transform-origin:left; }
+.reading-progress span { display:block; height:100%; background:var(--halpha); transform:scaleX(0); transform-origin:left; }
 
 @media (min-width:1240px) {
     .article-page .article-wrap { display:grid; grid-template-columns:14rem minmax(0,var(--wide)) 14rem; column-gap:2rem; align-items:start; width:min(78rem,calc(100% - 2*var(--gutter))); }
@@ -239,7 +240,7 @@ html body .article-toc { margin:clamp(2rem,5vw,3rem) auto 0; padding:0; max-widt
     .article-page .article-toc .toc-h3.is-near { display:block; }
     .article-page .article-toc .toc-h3 a { padding-left:1.5rem; font-size:.9375rem; }
     .article-page .article-toc a:hover { color:var(--ink); }
-    .article-page .article-toc li.is-current > a { color:var(--ink); border-left-color:var(--topic); }
+    .article-page .article-toc li.is-current > a { color:var(--ink); border-left-color:var(--halpha); }
 }
 
 /* ---------- Archives: categories and tags ---------- */
@@ -347,3 +348,46 @@ body.cosmos-paused::before { animation-play-state:paused; }
     .reveal.reveal-pending { opacity:1; }
     body.has-universe-webgl .universe-canvas-shell { display:block !important; }
 }
+
+/* ==========================================================================
+   Details: how things answer the reader. Colour moves, layout never does.
+   ========================================================================== */
+
+/* Archive heads show the topic's world from the homepage sky, faded into the page. */
+:root { --plate-image:url("../plates/galaxy.webp"); }
+[data-topic="learning"] { --plate-image:url("../plates/learning.webp"); }
+[data-topic="writeup"]  { --plate-image:url("../plates/writeup.webp"); }
+[data-topic="project"]  { --plate-image:url("../plates/project.webp"); }
+[data-topic="life"]     { --plate-image:url("../plates/life.webp"); }
+.archive-hero > .planet { opacity:.9; box-shadow:none; border-radius:0; background:var(--plate-image) center / cover no-repeat; -webkit-mask-image:radial-gradient(closest-side,#000 60%,transparent); mask-image:radial-gradient(closest-side,#000 60%,transparent); }
+/* The world can sit behind the heading's last word, so the type keeps a dark edge of its own. */
+html body .archive-hero h1, html body .archive-hero .lead { position:relative; text-shadow:0 0 .25rem var(--void), 0 0 1.5rem var(--void); }
+
+/* The row you are on leaves a trace beside it. */
+.post-card { position:relative; }
+.post-card::before { content:""; position:absolute; left:-1rem; top:1.5rem; bottom:1.5rem; width:2px; border-radius:1px; background:var(--halpha); transform:scaleY(0); transform-origin:50% 0; transition:transform .35s cubic-bezier(.16,1,.3,1); }
+.post-card:hover::before, .post-card:focus-within::before { transform:scaleY(1); }
+.post-card-tags a:hover, .post-card-tags a:focus-visible { color:var(--ink); text-decoration:underline; text-underline-offset:.25em; }
+
+/* Code: a quiet header strip holds the language and the copy button. */
+.code-block::after { content:""; position:absolute; left:1px; right:1px; top:2.25rem; height:1px; background:var(--line); pointer-events:none; }
+.article-body pre { padding-top:3rem; }
+.code-copy { border-radius:3px; }
+.article-body :not(pre) > code { border:1px solid var(--line); }
+.article-body h2, .article-body h3 { scroll-margin-top:5.5rem; }
+
+@media (max-width:780px) {
+    .post-card::before { left:-.75rem; }
+}
+@media (prefers-reduced-motion:reduce) {
+    .post-card::before { transition:none; }
+}
+
+/* Decoding text: each letter stays in place and transparent while a hex digit is drawn over it, so
+   nothing reflows. Shared by the homepage journey and the hover effect in common.js. */
+.dc { position:relative; }
+.dc.is-coded { color:transparent; }
+.dc.is-coded::after { content:attr(data-g); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); color:#ff6b99; font:500 .6em/1 'IBM Plex Mono',ui-monospace,monospace; letter-spacing:0; text-shadow:0 0 .6em rgb(255 107 153 / .55); }
+.dc-hit { animation:dc-resolve .75s ease-out; }
+@keyframes dc-resolve { from { color:#fff; text-shadow:0 0 .4em #ff6b99; } }
+@media (prefers-reduced-motion:reduce) { .dc-hit { animation:none; } }

@@ -23,15 +23,15 @@ body.home-v4 { --col: 56rem; --gap: clamp(5rem, 11vw, 9rem); }
 .feed-item:hover h2 a, .feed-item h2 a:focus-visible { text-decoration-color: var(--topic); }
 .feed-item p { margin-top: .625rem; color: var(--ink-soft); font-size: 1.125rem; line-height: 1.45; max-width: 36rem; text-wrap: pretty; }
 .feed-item .feed-keywords { font-family: var(--font-mono); font-size: .875rem; }
-.feed-media { display: block; margin-top: 1.25rem; margin-left: 1.5rem; padding-left: 0 !important; border-radius: 4px; overflow: hidden; background: var(--plate); }
-.feed-media img { display: block; width: 100%; height: auto; max-height: 26rem; object-fit: cover; transition: opacity .25s; }
-.feed-item:hover .feed-media img { opacity: .88; }
+.feed-media { display: block; margin-top: 1.25rem; margin-left: 1.5rem; padding-left: 0 !important; border-radius: 4px; overflow: hidden; background: var(--plate); box-shadow: 0 0 0 1px var(--line); transition: box-shadow .25s; }
+.feed-item:hover .feed-media { box-shadow: 0 0 0 1px color-mix(in srgb, var(--topic) 55%, transparent); }
+.feed-media img { display: block; width: 100%; height: auto; max-height: 26rem; object-fit: cover; }
 .feed-foot { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem 1.25rem; margin-top: 1rem; color: var(--ink-muted); }
 .status-chip { font-size: 1rem; font-style: italic; color: var(--ink-soft); }
 .status-chip i { display: none; }
 .feed-tags { display: flex; flex-wrap: wrap; gap: 0 .875rem; font-family: var(--font-mono); font-size: .8125rem; }
 .feed-tags a { color: var(--ink-muted); text-decoration: none; padding-block: .25rem; transition: color .15s; }
-.feed-tags a:hover { color: var(--ink); }
+.feed-tags a:hover, .feed-tags a:focus-visible { color: var(--ink); text-decoration: underline; text-underline-offset: .25em; }
 .composer { position: relative; display: flex; align-items: center; gap: .75rem; padding: 1.5rem 0 .5rem calc(7.5rem + 3.5rem); color: var(--link); font-size: 1.125rem; text-decoration: underline; text-decoration-color: color-mix(in srgb,var(--link) 40%,transparent); text-underline-offset: .2em; transition: text-decoration-color .2s; }
 .composer:hover { text-decoration-color: var(--link); }
 .composer img { display: none; }
@@ -183,5 +183,5 @@ body.home-v4 { --col: 56rem; --gap: clamp(5rem, 11vw, 9rem); }
 }
 @media (prefers-reduced-motion: reduce) {
     .hl-b.is-swapping, .ow-sprite.is-pop { animation: none; }
-    .strip figure, .feed-item::after, .type-thumb::after { transition: none; }
+    .strip figure, .feed-item::after, .type-thumb::after, .feed-media { transition: none; }
 }

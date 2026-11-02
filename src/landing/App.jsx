@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { startSky } from './sky.js';
+import { motion, useMotionValue, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { cometX, startSky } from './sky.js';
 
 // Listed in scene order: each chapter sits over the matching body in formations.js.
 const CHAPTERS = [
@@ -38,6 +38,50 @@ const CHAPTERS = [
 const chapterId = (chapter) => (chapter.topic === 'learning' ? 'topics' : `chapter-${chapter.topic}`);
 
 const HEADLINE = ['Every secret', 'leaves a trace.'];
+const GLYPHS = '0123456789abcdef';
+const CHAPTER_DECODE = [0.26, 0.38, 0.62, 0.74];
+
+// Text that reads as hex until `share` (0 to 1) has resolved it, left to right. Digits are drawn over
+// each transparent letter, so the line never reflows. `tick` keeps them rolling while share holds still.
+function DecodeText({ text, share, tick, reducedMotion }) {
+  const root = useRef(null);
+
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const letters = [...root.current.querySelectorAll('.dc')];
+    const paint = () => {
+      const resolved = Math.round(share.get() * letters.length);
+      const roll = Math.floor(performance.now() / 90);
+      letters.forEach((letter, index) => {
+        const coded = index >= resolved;
+        const was = letter.classList.contains('is-coded');
+        if (coded) letter.dataset.g = GLYPHS[(index * 7 + roll * (1 + (index % 3))) % 16];
+        if (coded !== was) {
+          letter.classList.toggle('is-coded', coded);
+          letter.classList.toggle('dc-hit', !coded);
+        }
+      });
+    };
+    paint();
+    const stops = [share.on('change', paint), tick?.on('change', paint)];
+    return () => stops.forEach((stop) => stop?.());
+  }, [share, tick, reducedMotion]);
+
+  if (reducedMotion) return text;
+  return (
+    <span aria-hidden="true" ref={root}>
+      {Array.from(text).map((letter, index) =>
+        letter === ' ' ? (
+          ' '
+        ) : (
+          <span key={index} className="dc is-coded" data-g="0">
+            {letter}
+          </span>
+        ),
+      )}
+    </span>
+  );
+}
 
 // Reads where each [data-scene] section holds still, then maps scrollY onto a
 // fractional scene index. Offsets are cached because reading layout per frame is slow.
@@ -123,28 +167,37 @@ function Sky({ reducedMotion, dim }) {
 // copy blurred while its planet was at rest, so this reads the page's scrollY directly.
 function useSectionProgress(ref, range) {
   const { scrollY } = useScroll();
-  const box = useRef({ top: 0, height: 0, viewport: 1 });
+  const progress = useMotionValue(0);
 
   useEffect(() => {
+    let box = { top: 0, height: 0, viewport: 1 };
+    const update = (y) => {
+      const [start, end] = range(box);
+      progress.set(end > start ? Math.min(Math.max((y - start) / (end - start), 0), 1) : 0);
+    };
     const measure = () => {
       const rect = ref.current.getBoundingClientRect();
-      box.current = { top: rect.top + window.scrollY, height: rect.height, viewport: window.innerHeight };
-      scrollY.set(window.scrollY);
+      box = { top: rect.top + window.scrollY, height: rect.height, viewport: window.innerHeight };
+      // Called directly: setting scrollY to the value it already holds would notify nobody,
+      // leaving the page at the top with progress worked out from an unmeasured box.
+      update(window.scrollY);
     };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(document.documentElement);
-    return () => observer.disconnect();
-  }, [ref, scrollY]);
+    const unsubscribe = scrollY.on('change', update);
+    return () => {
+      observer.disconnect();
+      unsubscribe();
+    };
+  }, [ref, range, scrollY, progress]);
 
-  return useTransform(scrollY, (y) => {
-    const [start, end] = range(box.current);
-    return end > start ? Math.min(Math.max((y - start) / (end - start), 0), 1) : 0;
-  });
+  return progress;
 }
 
 const CHAPTER_RANGE = ({ top, height, viewport }) => [top - viewport, top + height];
 const HERO_RANGE = ({ top, height, viewport }) => [top, top + height - viewport];
+const CLOSING_ENTRY = ({ top, height, viewport }) => [top - viewport, top + height - viewport];
 const CLOSING_RANGE = ({ top, height, viewport }) => [top + height / 2 - viewport / 2, top + height];
 
 // Which chapter is on screen. A one-pixel band across the viewport's middle means
@@ -181,11 +234,11 @@ function JourneyRail() {
           data-topic={chapter.topic}
           aria-current={active === index + 1 ? 'true' : undefined}
         >
-          {chapter.name}
+          <span>{chapter.name}</span>
         </a>
       ))}
       <a className="sky-rail-skip" href="#latest-posts">
-        Skip to the notes
+        <span>Skip to the notes</span>
       </a>
     </nav>
   );
@@ -215,11 +268,7 @@ function Chapter({ chapter, reducedMotion }) {
   const ref = useRef(null);
   const scrollYProgress = useSectionProgress(ref, CHAPTER_RANGE);
   const opacity = useTransform(scrollYProgress, [0.24, 0.38, 0.62, 0.76], [0, 1, 1, 0]);
-  const blur = useTransform(
-    scrollYProgress,
-    [0.24, 0.38, 0.62, 0.76],
-    ['blur(12px)', 'blur(0px)', 'blur(0px)', 'blur(12px)'],
-  );
+  const decoded = useTransform(scrollYProgress, CHAPTER_DECODE, [0, 1, 1, 0]);
 
   return (
     <section
@@ -231,17 +280,19 @@ function Chapter({ chapter, reducedMotion }) {
       className="relative h-[130svh]"
     >
       <div className="sticky top-0 flex h-svh items-end overflow-hidden px-4 pb-28 sm:items-center sm:px-8 sm:pb-0">
+        <motion.div aria-hidden="true" className="chapter-scrim absolute inset-0" style={reducedMotion ? undefined : { opacity }} />
         <motion.div
-          className="mx-auto w-full max-w-6xl"
-          style={reducedMotion ? undefined : { opacity, filter: blur }}
+          className="relative mx-auto w-full max-w-6xl"
+          style={reducedMotion ? undefined : { opacity }}
         >
+          <h2
+            id={`${chapter.name}-title`}
+            aria-label={chapter.name}
+            className="text-[clamp(3.5rem,19vw,5rem)] leading-[0.92] sm:text-[clamp(5rem,11.5vw,11rem)] font-light tracking-[-0.032em] whitespace-nowrap text-star"
+          >
+            <DecodeText text={chapter.name} share={decoded} reducedMotion={reducedMotion} />
+          </h2>
           <div className="max-w-[26rem]">
-            <h2
-              id={`${chapter.name}-title`}
-              className="text-[clamp(3.5rem,8vw,6.5rem)] leading-none font-light tracking-[-0.022em] text-star"
-            >
-              {chapter.name}
-            </h2>
             <p className="mt-3 text-xl leading-snug text-balance text-mist sm:text-2xl">{chapter.text}</p>
             <a className="btn btn-secondary mt-4" href={chapter.href}>
               {chapter.action}
@@ -259,10 +310,44 @@ export default function App() {
   const heroProgress = useSectionProgress(heroRef, HERO_RANGE);
   const copyOpacity = useTransform(heroProgress, [0.45, 0.95], [1, 0]);
   const copyY = useTransform(heroProgress, [0.45, 0.95], [0, -70]);
-  const copyBlur = useTransform(heroProgress, [0.45, 0.95], ['blur(0px)', 'blur(10px)']);
+  // The comet decodes the headline on the way in, and leaving the hero encrypts it again.
+  const staying = useTransform(heroProgress, [0.45, 0.85], [1, 0]);
+  const introA = useMotionValue(reducedMotion ? 1 : 0);
+  const introB = useMotionValue(reducedMotion ? 1 : 0);
+  const decodedA = useTransform([introA, staying], ([a, b]) => Math.min(a, b));
+  const decodedB = useTransform([introB, staying], ([a, b]) => Math.min(a, b));
+  const introTick = useMotionValue(0);
+  const lineRefs = useRef([]);
+
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const started = performance.now();
+    let frame = 0;
+    const step = (now) => {
+      const seconds = (now - started) / 1000;
+      const x = cometX(seconds);
+      [introA, introB].forEach((intro, index) => {
+        const box = lineRefs.current[index]?.getBoundingClientRect();
+        if (!box?.width) return;
+        const left = box.left / window.innerWidth;
+        const width = box.width / window.innerWidth;
+        intro.set(Math.min(Math.max((x - left) / width, 0), 1));
+      });
+      introTick.set(now);
+      if (x < 1) frame = requestAnimationFrame(step);
+      else {
+        introA.set(1);
+        introB.set(1);
+      }
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [reducedMotion, introA, introB, introTick]);
 
   // Fades the sky back so the posts that follow the journey stay easy to read.
   const closingRef = useRef(null);
+  const closingEntry = useSectionProgress(closingRef, CLOSING_ENTRY);
+  const closingDecoded = useTransform(closingEntry, [0.25, 0.8], [0, 1]);
   const closingProgress = useSectionProgress(closingRef, CLOSING_RANGE);
   const skyDim = useTransform(closingProgress, [0, 1], [1, 0.2]);
 
@@ -281,19 +366,30 @@ export default function App() {
           <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden px-4 pb-[24svh]">
             <div aria-hidden="true" className="hero-scrim absolute inset-0" />
             <motion.div
-              className="relative max-w-3xl text-center"
-              style={reducedMotion ? undefined : { opacity: copyOpacity, y: copyY, filter: copyBlur }}
+              className="relative max-w-5xl text-center"
+              style={reducedMotion ? undefined : { opacity: copyOpacity, y: copyY }}
             >
-              <h1 className="text-[clamp(3.25rem,9.5vw,7.75rem)] leading-[0.98] font-light tracking-[-0.024em] text-star">
+              <h1
+                aria-label={HEADLINE.join(' ')}
+                className="text-[clamp(3.25rem,16.5vw,4.5rem)] leading-[0.96] sm:text-[clamp(4.5rem,10vw,9.25rem)] font-light tracking-[-0.03em] text-star"
+              >
                 {HEADLINE.map((line, index) => (
-                  <FocusIn
+                  <motion.span
                     key={line}
-                    delay={1.1 + index * 0.35}
-                    reducedMotion={reducedMotion}
                     className="block"
+                    initial={reducedMotion ? false : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.7 }}
                   >
-                    {line}
-                  </FocusIn>
+                    <span className="inline-block" ref={(node) => { lineRefs.current[index] = node; }}>
+                      <DecodeText
+                        text={line}
+                        share={index === 0 ? decodedA : decodedB}
+                        tick={introTick}
+                        reducedMotion={reducedMotion}
+                      />
+                    </span>
+                  </motion.span>
                 ))}
               </h1>
               <FocusIn
@@ -317,6 +413,11 @@ export default function App() {
                   Browse topics
                 </a>
               </FocusIn>
+              {!reducedMotion && (
+                <FocusIn delay={3.3} reducedMotion={reducedMotion} className="sky-hint">
+                  Move through the sky. Press and hold to bend it.
+                </FocusIn>
+              )}
             </motion.div>
           </div>
         </section>
@@ -331,8 +432,11 @@ export default function App() {
 
         <section ref={closingRef} data-scene className="relative flex h-[90svh] items-end px-4">
           <div className="mx-auto w-full max-w-[56rem]">
-            <h2 className="text-[clamp(2.75rem,7vw,5.5rem)] leading-none font-light tracking-[-0.022em] text-balance text-star">
-              Start with what's new.
+            <h2
+              aria-label="Start with what's new."
+              className="text-[clamp(2.75rem,7vw,5.5rem)] leading-none font-light tracking-[-0.022em] text-balance text-star"
+            >
+              <DecodeText text="Start with what's new." share={closingDecoded} reducedMotion={reducedMotion} />
             </h2>
           </div>
         </section>
