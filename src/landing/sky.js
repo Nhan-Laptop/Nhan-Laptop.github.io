@@ -603,6 +603,13 @@ export function startSky(canvas, { getView, isPaused, reducedMotion, onLost }) {
   } catch {
     return null;
   }
+  // The wake and the post-processing both render to half-float textures, which some older Safari
+  // versions cannot do. The CSS sky is a better answer there than a black or broken one.
+  const gl = renderer.getContext();
+  if (!gl.getExtension('EXT_color_buffer_float') && !gl.getExtension('EXT_color_buffer_half_float')) {
+    renderer.dispose();
+    return null;
+  }
   renderer.autoClear = true;
   renderer.setClearColor(0x000000, 1);
 
@@ -1235,7 +1242,18 @@ export function startSky(canvas, { getView, isPaused, reducedMotion, onLost }) {
     if (!frame) frame = requestAnimationFrame(drawStill);
   };
 
+  let sizedWidth = window.innerWidth;
+  let sizedHeight = window.innerHeight;
   const onResize = () => {
+    // A phone's address bar changes the height mid-scroll. Rebuilding every render target for that
+    // would stutter, and the canvas stretching by a few percent cannot be seen.
+    const barOnly =
+      window.innerWidth === sizedWidth &&
+      Math.abs(window.innerHeight - sizedHeight) < 200 &&
+      window.matchMedia('(pointer: coarse)').matches;
+    if (barOnly) return;
+    sizedWidth = window.innerWidth;
+    sizedHeight = window.innerHeight;
     resize();
     if (reducedMotion) drawStill();
   };

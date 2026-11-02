@@ -41,6 +41,18 @@ body.home-sky::after {
   }
 }
 
+/* The copy in index.html, for slow connections and no JavaScript. The delay keeps it unseen when
+   the bundle arrives quickly, so a normal visit goes straight to the opening. */
+.sky-static {
+  animation: sky-static-in 0.4s ease 1s both;
+}
+
+@keyframes sky-static-in {
+  from {
+    opacity: 0;
+  }
+}
+
 /* Keeps the headline legible over the stars. */
 .hero-scrim {
   background: radial-gradient(
@@ -240,6 +252,10 @@ body.home-sky::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sky-static {
+    animation: none;
+  }
+
   .sky-rail,
   .sky-rail::before,
   .sky-rail a,

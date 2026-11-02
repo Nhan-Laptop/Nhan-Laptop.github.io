@@ -43,14 +43,72 @@
 
     <main id="main-content" class="v4-main">
 
-        <!-- Galaxy journey: hero, one scene per topic, closing call. Rendered by src/landing. -->
-        <div id="sky-root"></div>
-        <noscript>
-            <section class="v4-col hero-v4">
-                <h1 class="hero-line">Every secret leaves a trace.</h1>
-                <p>Notes on cryptography, CTF challenges and malware, written while figuring them out.</p>
+        <!-- Galaxy journey: hero, one scene per topic, closing call. Rendered by src/landing.
+             This copy has the same text and heights as src/landing/App.jsx, so a slow connection or
+             no JavaScript still gets the words, and nothing below moves when the bundle takes over. -->
+        <div id="sky-root"><div class="sky-static">
+            <section data-scene class="relative h-[130svh]">
+                <div class="sticky top-0 flex h-svh items-center justify-center overflow-hidden px-4 pb-[24svh]">
+                    <div class="relative max-w-5xl text-center">
+                        <h1 class="text-[clamp(3.25rem,16.5vw,4.5rem)] leading-[0.96] sm:text-[clamp(4.5rem,10vw,9.25rem)] font-light tracking-[-0.03em] text-star"><span class="block">Every secret</span> <span class="block">leaves a trace.</span></h1>
+                        <p class="mx-auto mt-5 max-w-[34rem] text-xl leading-snug text-balance text-mist sm:text-2xl">Nguyen Trong Nhan's notes on cryptography, CTF challenges and malware, written while figuring them out.</p>
+                        <div class="mt-7 flex flex-col items-center justify-center gap-x-6 gap-y-1 sm:flex-row">
+                            <a class="btn btn-primary" href="#latest-posts">Read the latest notes</a>
+                            <a class="btn btn-secondary" href="#topics">Browse topics</a>
+                        </div>
+                    </div>
+                </div>
             </section>
-        </noscript>
+            <section id="topics" data-scene data-topic="learning" aria-labelledby="Learning-title" class="relative h-[130svh]">
+                <div class="sticky top-0 flex h-svh items-end overflow-hidden px-4 pb-28 sm:items-center sm:px-8 sm:pb-0">
+                    <div class="relative mx-auto w-full max-w-6xl">
+                        <h2 id="Learning-title" class="text-[clamp(3.5rem,19vw,5rem)] leading-[0.92] sm:text-[clamp(5rem,11.5vw,11rem)] font-light tracking-[-0.032em] whitespace-nowrap text-star">Learning</h2>
+                        <div class="max-w-[26rem]">
+                            <p class="mt-3 text-xl leading-snug text-balance text-mist sm:text-2xl">Long notes on cryptography, lattices and malware internals.</p>
+                            <a class="btn btn-secondary mt-4" href="categories/learning.html">Read the learning notes</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="chapter-writeup" data-scene data-topic="writeup" aria-labelledby="Writeups-title" class="relative h-[130svh]">
+                <div class="sticky top-0 flex h-svh items-end overflow-hidden px-4 pb-28 sm:items-center sm:px-8 sm:pb-0">
+                    <div class="relative mx-auto w-full max-w-6xl">
+                        <h2 id="Writeups-title" class="text-[clamp(3.5rem,19vw,5rem)] leading-[0.92] sm:text-[clamp(5rem,11.5vw,11rem)] font-light tracking-[-0.032em] whitespace-nowrap text-star">Writeups</h2>
+                        <div class="max-w-[26rem]">
+                            <p class="mt-3 text-xl leading-snug text-balance text-mist sm:text-2xl">CTF challenges, solved step by step.</p>
+                            <a class="btn btn-secondary mt-4" href="categories/writeup.html">Read the writeups</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="chapter-project" data-scene data-topic="project" aria-labelledby="Projects-title" class="relative h-[130svh]">
+                <div class="sticky top-0 flex h-svh items-end overflow-hidden px-4 pb-28 sm:items-center sm:px-8 sm:pb-0">
+                    <div class="relative mx-auto w-full max-w-6xl">
+                        <h2 id="Projects-title" class="text-[clamp(3.5rem,19vw,5rem)] leading-[0.92] sm:text-[clamp(5rem,11.5vw,11rem)] font-light tracking-[-0.032em] whitespace-nowrap text-star">Projects</h2>
+                        <div class="max-w-[26rem]">
+                            <p class="mt-3 text-xl leading-snug text-balance text-mist sm:text-2xl">Research prototypes and security tooling.</p>
+                            <a class="btn btn-secondary mt-4" href="categories/project.html">See the projects</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="chapter-life" data-scene data-topic="life" aria-labelledby="Life-title" class="relative h-[130svh]">
+                <div class="sticky top-0 flex h-svh items-end overflow-hidden px-4 pb-28 sm:items-center sm:px-8 sm:pb-0">
+                    <div class="relative mx-auto w-full max-w-6xl">
+                        <h2 id="Life-title" class="text-[clamp(3.5rem,19vw,5rem)] leading-[0.92] sm:text-[clamp(5rem,11.5vw,11rem)] font-light tracking-[-0.032em] whitespace-nowrap text-star">Life</h2>
+                        <div class="max-w-[26rem]">
+                            <p class="mt-3 text-xl leading-snug text-balance text-mist sm:text-2xl">Travel and personal logs between the work.</p>
+                            <a class="btn btn-secondary mt-4" href="categories/life.html">Read the life log</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section data-scene class="relative flex h-[90svh] items-end px-4">
+                <div class="mx-auto w-full max-w-[56rem]">
+                    <h2 class="text-[clamp(2.75rem,7vw,5.5rem)] leading-none font-light tracking-[-0.022em] text-balance text-star">Start with what's new.</h2>
+                </div>
+            </section>
+        </div></div>
 
         <!-- 2 · Feed of latest posts -->
         <section id="latest-posts" class="v4-col feed reveal" aria-labelledby="feed-title">
@@ -269,8 +327,8 @@
         <section class="v4-col story reveal" aria-labelledby="story-title">
             <div class="story-text">
                 <h3 id="story-title">Behind the sky</h3>
-                <p>The galaxy behind this page is procedural: three spiral arms of seeded scatter, a compact warm core, pale blue and white outer stars, and a muted violet haze. It is artistic, not an astronomical simulation.</p>
-                <p>It runs as three draw calls with slow rotation and a little pointer parallax. The button in the corner pauses it, and visitors who prefer reduced motion get a still first frame. The <a href="universe.html">Universe</a> page shows it at full strength.</p>
+                <p>The sky behind this page is procedural and drawn live with Three.js. One cloud of stars travels from a spiral galaxy to a ringed giant, a solar system, a lava world and an ocean planet. It is artistic, not an astronomical simulation.</p>
+                <p>Move through it and the stars you disturb turn into hex digits, then fade. With a mouse, press and hold to bend it. The button in the corner pauses it, and visitors who prefer reduced motion get a still sky. The <a href="universe.html">Universe</a> page has a calmer sky of its own.</p>
             </div>
             <div class="mini-galaxy" aria-hidden="true"></div>
         </section>
@@ -361,8 +419,9 @@
         <button id="closeDialog" class="secondary-btn" type="button">Close preview</button>
     </dialog>
 
-    <script src="assets/js/landing.bundle.js" defer></script>
+    <!-- The small scripts go first: deferred scripts run in order, so the menu must not wait for the sky. -->
     <script src="assets/js/common.js" defer></script>
     <script src="assets/js/home.js" defer></script>
+    <script src="assets/js/landing.bundle.js" defer></script>
 </body>
 </html>

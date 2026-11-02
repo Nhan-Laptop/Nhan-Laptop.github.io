@@ -114,3 +114,18 @@ test('the homepage keeps its feed and about sections below the galaxy journey', 
     assert.ok(!html.includes('universe-background.bundle.js'));
     assert.equal(html.match(/<h1\b/g).length, 1, 'only the noscript headline is an h1 in the static HTML');
 });
+
+test('homepage static copy matches the journey it stands in for', async () => {
+    const home = await fs.readFile(path.join(root, 'index.html'), 'utf8');
+    const app = await fs.readFile(path.join(root, 'src/landing/App.jsx'), 'utf8');
+    const chapters = [...app.matchAll(/name: '([^']+)',\s*topic: '([^']+)',\s*text: '([^']+)',\s*action: '([^']+)',\s*href: '([^']+)'/g)];
+    assert.equal(chapters.length, 4);
+    for (const [, name, , text, action, href] of chapters) {
+        for (const value of [`>${name}</h2>`, text, `href="${href}">${action}`]) {
+            assert.ok(home.includes(value), `index.html is missing ${value}`);
+        }
+    }
+    assert.ok(home.includes('Every secret') && home.includes('leaves a trace.'));
+    assert.equal((home.match(/<h1[\s>]/g) || []).length, 1);
+    assert.ok(home.indexOf('assets/js/common.js') < home.indexOf('assets/js/landing.bundle.js'));
+});

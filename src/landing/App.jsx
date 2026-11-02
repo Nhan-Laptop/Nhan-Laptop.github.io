@@ -74,7 +74,7 @@ function DecodeText({ text, share, tick, reducedMotion }) {
         letter === ' ' ? (
           ' '
         ) : (
-          <span key={index} className="dc is-coded" data-g="0">
+          <span key={index} className={share.get() < 1 ? 'dc is-coded' : 'dc'} data-g="0">
             {letter}
           </span>
         ),
@@ -123,6 +123,9 @@ function Sky({ reducedMotion, dim }) {
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
   pausedRef.current = paused;
+  // iOS can drop a page's WebGL context while it is in the background. A new canvas gets a new
+  // context, so try that twice before settling for the CSS sky.
+  const [attempt, setAttempt] = useState(0);
   const getView = useSceneTracker();
   const viewRef = useRef(getView);
   viewRef.current = getView;
@@ -133,7 +136,10 @@ function Sky({ reducedMotion, dim }) {
         getView: () => viewRef.current(),
         isPaused: () => pausedRef.current,
         reducedMotion,
-        onLost: () => setFailed(true),
+        onLost: () => {
+          if (attempt < 2) setAttempt(attempt + 1);
+          else setFailed(true);
+        },
       });
       if (!stop) setFailed(true);
       return stop ?? undefined;
@@ -142,7 +148,7 @@ function Sky({ reducedMotion, dim }) {
       setFailed(true);
       return undefined;
     }
-  }, [reducedMotion]);
+  }, [reducedMotion, attempt]);
 
   return (
     <>
@@ -150,7 +156,7 @@ function Sky({ reducedMotion, dim }) {
         {failed ? (
           <div className="sky-fallback absolute inset-0" />
         ) : (
-          <canvas ref={canvasRef} className="absolute inset-0 size-full" />
+          <canvas key={attempt} ref={canvasRef} className="absolute inset-0 size-full" />
         )}
       </motion.div>
       {!failed && !reducedMotion && (
@@ -312,15 +318,17 @@ export default function App() {
   const copyY = useTransform(heroProgress, [0.45, 0.95], [0, -70]);
   // The comet decodes the headline on the way in, and leaving the hero encrypts it again.
   const staying = useTransform(heroProgress, [0.45, 0.85], [1, 0]);
-  const introA = useMotionValue(reducedMotion ? 1 : 0);
-  const introB = useMotionValue(reducedMotion ? 1 : 0);
+  // Someone who has already been reading the static copy should not see it turn back into digits.
+  const skipIntro = useRef(Boolean(reducedMotion) || performance.now() > 2500).current;
+  const introA = useMotionValue(skipIntro ? 1 : 0);
+  const introB = useMotionValue(skipIntro ? 1 : 0);
   const decodedA = useTransform([introA, staying], ([a, b]) => Math.min(a, b));
   const decodedB = useTransform([introB, staying], ([a, b]) => Math.min(a, b));
   const introTick = useMotionValue(0);
   const lineRefs = useRef([]);
 
   useEffect(() => {
-    if (reducedMotion) return undefined;
+    if (skipIntro) return undefined;
     const started = performance.now();
     let frame = 0;
     const step = (now) => {
@@ -342,7 +350,7 @@ export default function App() {
     };
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [reducedMotion, introA, introB, introTick]);
+  }, [skipIntro, introA, introB, introTick]);
 
   // Fades the sky back so the posts that follow the journey stay easy to read.
   const closingRef = useRef(null);
@@ -377,7 +385,7 @@ export default function App() {
                   <motion.span
                     key={line}
                     className="block"
-                    initial={reducedMotion ? false : { opacity: 0 }}
+                    initial={skipIntro ? false : { opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5, duration: 0.7 }}
                   >
@@ -395,7 +403,7 @@ export default function App() {
               <FocusIn
                 as="p"
                 delay={1.9}
-                reducedMotion={reducedMotion}
+                reducedMotion={skipIntro}
                 className="mx-auto mt-5 max-w-[34rem] text-xl leading-snug text-balance text-mist sm:text-2xl"
               >
                 Nguyen Trong Nhan's notes on cryptography, CTF challenges and malware,
@@ -403,7 +411,7 @@ export default function App() {
               </FocusIn>
               <FocusIn
                 delay={2.25}
-                reducedMotion={reducedMotion}
+                reducedMotion={skipIntro}
                 className="mt-7 flex flex-col items-center justify-center gap-x-6 gap-y-1 sm:flex-row"
               >
                 <a className="btn btn-primary" href="#latest-posts">
@@ -414,7 +422,7 @@ export default function App() {
                 </a>
               </FocusIn>
               {!reducedMotion && (
-                <FocusIn delay={3.3} reducedMotion={reducedMotion} className="sky-hint">
+                <FocusIn delay={3.3} reducedMotion={skipIntro} className="sky-hint">
                   Move through the sky. Press and hold to bend it.
                 </FocusIn>
               )}
