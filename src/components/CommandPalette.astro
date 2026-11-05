@@ -1,0 +1,37 @@
+---
+import { getSummaries } from '../lib/posts';
+import { CATEGORIES } from '../lib/site';
+
+const posts = (await getSummaries()).map((p) => ({
+  t: p.title,
+  h: p.href,
+  c: p.category,
+  d: p.date,
+  g: p.tags.join(' '),
+}));
+const colors = Object.fromEntries(Object.values(CATEGORIES).map((c) => [c.key, c.color]));
+---
+
+<dialog
+  data-cmdk
+  aria-label="Search posts"
+  class="m-0 mx-auto mt-[12vh] w-[min(640px,calc(100vw-32px))] max-w-none overflow-hidden rounded-3xl border border-line-strong bg-panel/95 p-0 text-ink shadow-[0_40px_120px_-20px_rgb(0_0_0/0.8)] backdrop-blur-2xl backdrop:bg-void/70 backdrop:backdrop-blur-sm"
+>
+  <form method="dialog" class="flex items-center gap-3 border-b border-line px-5">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="text-dim"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+    <label for="cmdk-input" class="sr-only">Search posts</label>
+    <input
+      id="cmdk-input"
+      data-cmdk-input
+      type="search"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Search notes, writeups, tags…"
+      class="h-16 flex-1 bg-transparent text-lg outline-none placeholder:text-dim"
+    />
+    <button class="rounded-full border border-line px-2.5 py-1 font-mono text-[11px] text-dim" value="close">ESC</button>
+  </form>
+  <ul data-cmdk-list role="listbox" aria-label="Results" class="max-h-[56vh] overflow-y-auto p-2"></ul>
+  <p data-cmdk-empty hidden class="px-6 py-10 text-center text-mist">No stars match that search.</p>
+</dialog>
+<script type="application/json" data-cmdk-data set:html={JSON.stringify({ posts, colors })} />

@@ -1,0 +1,36 @@
+---
+/* Hand-written post with no Markdown source (kept from the original site). */
+import Article from '../../../layouts/Article.astro';
+import { SEMESTER_LOG } from '../../../lib/posts';
+const p = SEMESTER_LOG;
+---
+
+<Article
+  id={p.id}
+  title={p.title}
+  summary={p.summary}
+  date={p.date}
+  category="life"
+  tags={p.tags}
+  minutes={p.minutes}
+  headings={[]}
+  path={p.href}
+>
+  <p class="eyebrow">Weekly Notes</p>
+  <h2 id="what-worked">What Worked</h2>
+  <p>Chia lich theo block ngan 90 phut, moi block chi co 1 muc tieu ro. Sau moi buoi CTF, ghi nhanh 5 dong summary.</p>
+
+  <h2 id="what-failed">What Failed</h2>
+  <p>Danh qua nhieu thoi gian cho viec setup tool trong khi chua xac dinh challenge type. Tuan sau se fix bang checklist.</p>
+
+  <h2 id="next-week-plan">Next Week Plan</h2>
+  <ul>
+    <li>Hoan thien 1 writeup ve crypto challenge medium.</li>
+    <li>Doc them 1 paper nhe ve zk argument intuition.</li>
+    <li>Viet 1 bai life log tong ket 7 ngay hoc.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Note:</strong> Daily post ngan, uu tien tinh thuc dung thay vi viet dai.</p>
+  </div>
+</Article>

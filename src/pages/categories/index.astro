@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+import SplitText from '../../components/SplitText.astro';
+import PostRow from '../../components/PostRow.astro';
+import { countByCategory, getSummaries } from '../../lib/posts';
+import { url, CATEGORIES, CATEGORY_ORDER } from '../../lib/site';
+
+const posts = await getSummaries();
+const counts = countByCategory(posts);
+---
+
+<Base title="Writing" description="Every note, writeup, project and life log — grouped by topic." path={url('/categories/index.html')} active="writing">
+  <section class="shell pt-[calc(var(--header-h)+64px)] pb-12 sm:pt-[calc(var(--header-h)+104px)]">
+    <p class="eyebrow" data-reveal>{posts.length} entries · 4 constellations</p>
+    <h1 class="mt-5 max-w-4xl text-[clamp(3rem,2rem+5vw,6.5rem)] font-medium leading-[0.95] tracking-[-0.055em]">
+      <SplitText text="Everything I've written down." />
+    </h1>
+  </section>
+
+  <section class="shell grid gap-4 pb-20 sm:grid-cols-2" aria-label="Categories">
+    {
+      CATEGORY_ORDER.map((k, i) => {
+        const c = CATEGORIES[k];
+        return (
+          <a
+            href={c.href}
+            data-reveal
+            style={`--i:${i}`}
+            class="group relative flex min-h-[260px] flex-col justify-between overflow-hidden rounded-[28px] border border-line p-7 transition-colors duration-500 hover:border-line-strong"
+          >
+            <span
+              aria-hidden="true"
+              class="absolute -right-16 -top-16 size-64 rounded-full opacity-40 blur-3xl transition-all duration-700 group-hover:scale-125 group-hover:opacity-70"
+              style={`background: radial-gradient(circle, ${c.color}, transparent 65%)`}
+            />
+            <span class="relative flex items-center justify-between font-mono text-xs text-dim">
+              <span class="flex items-center gap-2 uppercase tracking-[0.08em]" style={`color:${c.color}`}>
+                <span class="dot" />
+                0{i + 1}
+              </span>
+              <span>{counts[k]} entries</span>
+            </span>
+            <span class="relative flex flex-col gap-3">
+              <span class="text-5xl font-medium tracking-[-0.045em] sm:text-6xl">{c.plural}</span>
+              <span class="max-w-md text-[15px] leading-relaxed text-mist">{c.blurb}</span>
+            </span>
+          </a>
+        );
+      })
+    }
+  </section>
+
+  <section class="shell pb-24" aria-labelledby="all-title">
+    <h2 id="all-title" class="eyebrow">All entries, newest first</h2>
+    <div class="mt-4 border-t border-line">
+      {posts.map((post, i) => <PostRow post={post} index={i} showSummary={false} />)}
+    </div>
+  </section>
+</Base>

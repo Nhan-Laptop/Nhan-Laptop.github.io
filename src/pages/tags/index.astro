@@ -1,0 +1,65 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostRow from '../../components/PostRow.astro';
+import SplitText from '../../components/SplitText.astro';
+import { getSummaries } from '../../lib/posts';
+
+const posts = await getSummaries();
+const counts = new Map<string, number>();
+for (const p of posts) for (const t of p.tags) counts.set(t, (counts.get(t) || 0) + 1);
+const tags = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+import { url } from '../../lib/site';
+---
+
+<Base title="Tags" description="Browse every post by tag." path={url('/tags/index.html')} active="tags">
+  <section class="shell pt-[calc(var(--header-h)+64px)] pb-10 sm:pt-[calc(var(--header-h)+104px)]">
+    <p class="eyebrow" data-reveal>{tags.length} tags</p>
+    <h1 class="mt-5 text-[clamp(3rem,2rem+5vw,6.5rem)] font-medium leading-[0.95] tracking-[-0.055em]">
+      <SplitText text="Filter the sky." />
+    </h1>
+    <div class="mt-10 flex flex-wrap gap-2" role="group" aria-label="Filter by tag" data-reveal style="--i:2">
+      <button type="button" class="chip" data-tag-filter="" aria-pressed="true">All <span class="text-dim">{posts.length}</span></button>
+      {
+        tags.map(([t, n]) => (
+          <button type="button" class="chip" data-tag-filter={t} aria-pressed="false" id={`tag-${t}`}>
+            #{t} <span class="opacity-60">{n}</span>
+          </button>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="shell pb-24" aria-live="polite">
+    <p class="eyebrow mb-4" data-tag-status>Showing all {posts.length} entries</p>
+    <div class="border-t border-line">
+      {posts.map((post, i) => <PostRow post={post} index={i} showTags />)}
+    </div>
+  </section>
+
+  <script>
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-tag-filter]')];
+    const rows = [...document.querySelectorAll<HTMLElement>('[data-post]')];
+    const status = document.querySelector<HTMLElement>('[data-tag-status]');
+    function apply(tag: string, push = true) {
+      let shown = 0;
+      for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.tagFilter === tag));
+      for (const r of rows) {
+        const hit = !tag || (r.dataset.tags || '').split(' ').includes(tag);
+        r.hidden = !hit;
+        if (hit) {
+          shown++;
+          r.classList.add('is-in');
+        }
+      }
+      if (status) status.textContent = tag ? `#${tag} · ${shown} ${shown === 1 ? 'entry' : 'entries'}` : `Showing all ${shown} entries`;
+      if (push) history.replaceState(null, '', tag ? `#${encodeURIComponent(tag)}` : location.pathname);
+    }
+    buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.tagFilter || '')));
+    const fromHash = () => {
+      const t = decodeURIComponent(location.hash.slice(1));
+      if (buttons.some((b) => b.dataset.tagFilter === t)) apply(t, false);
+    };
+    addEventListener('hashchange', fromHash);
+    fromHash();
+  </script>
+</Base>

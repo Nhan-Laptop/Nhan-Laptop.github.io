@@ -1,0 +1,82 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CommandPalette from '../components/CommandPalette.astro';
+import Starfield from '../components/Starfield.astro';
+import { url, SITE } from '../lib/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Path of this page, e.g. "/posts/ctf/writeup-x.html". Defaults to Astro.url.pathname. */
+  path?: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  /** Pages with their own WebGL galaxy skip the CSS starfield. */
+  starfield?: boolean;
+  footer?: boolean;
+  active?: string;
+  bodyClass?: string;
+}
+
+const {
+  title,
+  description = SITE.description,
+  path = Astro.url.pathname,
+  ogType = 'website',
+  ogImage = url('/og.jpg'),
+  starfield = true,
+  footer = true,
+  active,
+  bodyClass = '',
+} = Astro.props;
+
+const fullTitle = title ? `${title} · ${SITE.name}` : `${SITE.author} — ${SITE.name}`;
+const canonical = new URL(path, SITE.url).href;
+const image = new URL(ogImage, SITE.url).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#020309" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="author" content={SITE.author} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={image} />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE.name} href={url('/rss.xml')} />
+    <link rel="sitemap" href={url('/sitemap-index.xml')} />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-3 focus:text-void"
+      >Skip to content</a
+    >
+    {starfield && <Starfield />}
+    <SiteHeader active={active} />
+    <main id="main">
+      <slot />
+    </main>
+    {footer && <SiteFooter />}
+    <CommandPalette />
+    <script>
+      import '../scripts/ui';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,173 @@
+---
+import 'katex/dist/katex.min.css';
+import Base from './Base.astro';
+import { url, CATEGORIES, formatDate, hash, tagHref, type CategoryKey } from '../lib/site';
+import type { PostSummary } from '../lib/posts';
+
+interface Heading {
+  depth: number;
+  id: string;
+  text: string;
+}
+interface Props {
+  id: string;
+  title: string;
+  summary: string;
+  date: string;
+  category: CategoryKey;
+  tags: string[];
+  minutes: number;
+  headings: Heading[];
+  path: string;
+  series?: { title: string; href: string; current: boolean; n: number }[] | null;
+  prev?: PostSummary | null;
+  next?: PostSummary | null;
+  related?: PostSummary[];
+}
+const { id, title, summary, date, category, tags, minutes, headings, path, series, prev, next, related = [] } = Astro.props;
+const cat = CATEGORIES[category];
+const toc = headings.filter((h) => h.depth <= 3);
+---
+
+<Base title={title} description={summary} path={path} ogType="article" active={category === 'project' ? 'projects' : 'writing'}>
+  <meta slot="head" property="article:published_time" content={date} />
+  <div data-progress class="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left scale-x-0 bg-gradient-to-r from-nebula via-star to-rose"></div>
+
+  <header class="shell relative pt-[calc(var(--header-h)+56px)] pb-12 sm:pt-[calc(var(--header-h)+88px)]">
+    <nav aria-label="Breadcrumb" class="eyebrow flex flex-wrap items-center gap-2" data-reveal>
+      <a href={url('/')} class="hover:text-ink">Home</a>
+      <span aria-hidden="true" class="text-dim">/</span>
+      <a href={cat.href} class="flex items-center gap-2 hover:text-ink" style={`color:${cat.color}`}><span class="dot size-1.5"></span>{cat.plural}</a>
+    </nav>
+    <h1
+      class="mt-6 max-w-5xl text-[clamp(2.3rem,1.4rem+3.6vw,4.6rem)] font-medium leading-[1.02] tracking-[-0.045em] text-balance"
+      style={`view-transition-name: t-${hash(id)}`}
+    >
+      {title}
+    </h1>
+    {summary && <p class="mt-6 max-w-3xl text-lg leading-relaxed text-mist sm:text-xl" data-reveal style="--i:1">{summary}</p>}
+    <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 font-mono text-xs text-dim" data-reveal style="--i:2">
+      <time datetime={date}>{formatDate(date, 'long')}</time>
+      <span>{minutes} min read</span>
+      {
+        tags.length > 0 && (
+          <ul class="flex flex-wrap gap-1.5">
+            {tags.map((t) => (
+              <li>
+                <a class="chip" href={tagHref(t)}>
+                  #{t}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </header>
+
+  {
+    series && (
+      <nav aria-label="Series" class="shell mb-12">
+        <div class="glass flex flex-col gap-3 rounded-3xl p-4 sm:p-5">
+          <span class="eyebrow px-2">Series · {series.length} parts</span>
+          <ol class="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            {series.map((s) => (
+              <li>
+                <a
+                  href={s.href}
+                  aria-current={s.current ? 'page' : undefined}
+                  class="flex h-full flex-col gap-1 rounded-2xl border border-line px-4 py-3 text-sm text-mist transition-colors hover:border-line-strong hover:text-ink aria-[current=page]:border-star/50 aria-[current=page]:bg-star/[0.07] aria-[current=page]:text-ink"
+                >
+                  <span class="font-mono text-[11px] text-dim">Part {s.n}</span>
+                  <span class="line-clamp-2">{s.title}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </nav>
+    )
+  }
+
+  <div class="shell grid gap-12 pb-24 xl:grid-cols-[minmax(0,1fr)_260px]">
+    <article id="markdownRoot" class="prose-galaxy" data-article>
+      <slot />
+    </article>
+
+    {
+      toc.length > 2 && (
+        <aside class="hidden xl:block" aria-label="On this page">
+          <nav class="sticky top-[calc(var(--header-h)+24px)] max-h-[calc(100svh-var(--header-h)-48px)] overflow-y-auto pr-2">
+            <p class="eyebrow mb-4">On this page</p>
+            <ol class="flex flex-col border-l border-line text-sm" data-toc>
+              {toc.map((h) => (
+                <li>
+                  <a
+                    href={`#${h.id}`}
+                    data-toc-link={h.id}
+                    class:list={[
+                      '-ml-px block border-l border-transparent py-1.5 leading-snug text-dim transition-colors hover:text-ink data-[active]:border-star data-[active]:text-ink',
+                      h.depth === 2 ? 'pl-4' : 'pl-7 text-[13px]',
+                    ]}
+                  >
+                    {h.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        </aside>
+      )
+    }
+  </div>
+
+  <section class="shell pb-24" aria-label="Keep reading">
+    {
+      (prev || next) && (
+        <nav aria-label="Previous and next" class="grid gap-4 border-t border-line pt-10 md:grid-cols-2">
+          {prev ? (
+            <a href={prev.href} class="glass group flex flex-col gap-2 rounded-3xl p-6 transition-colors hover:border-line-strong">
+              <span class="eyebrow">← Newer</span>
+              <span class="text-lg font-medium leading-snug tracking-[-0.02em]">{prev.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          {next && (
+            <a href={next.href} class="glass group flex flex-col gap-2 rounded-3xl p-6 text-right transition-colors hover:border-line-strong">
+              <span class="eyebrow">Older →</span>
+              <span class="text-lg font-medium leading-snug tracking-[-0.02em]">{next.title}</span>
+            </a>
+          )}
+        </nav>
+      )
+    }
+    {
+      related.length > 0 && (
+        <div class="mt-16">
+          <h2 class="eyebrow">Nearby stars</h2>
+          <ul class="mt-4 grid gap-3 md:grid-cols-3">
+            {related.map((r) => (
+              <li>
+                <a href={r.href} class="flex h-full flex-col gap-3 rounded-3xl border border-line p-5 transition-colors hover:border-line-strong hover:bg-white/[0.02]">
+                  <span class="flex items-center gap-2 font-mono text-[11px] uppercase text-dim" style={`color:${CATEGORIES[r.category].color}`}>
+                    <span class="dot size-1.5" />
+                    {CATEGORIES[r.category].label}
+                  </span>
+                  <span class="font-medium leading-snug">{r.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </section>
+
+  <dialog data-lightbox class="m-auto max-h-[92vh] max-w-[94vw] overflow-hidden rounded-2xl border border-line-strong bg-void p-0 backdrop:bg-void/90 backdrop:backdrop-blur">
+    <img alt="" class="max-h-[92vh] w-auto object-contain" />
+  </dialog>
+  <script>
+    import '../scripts/article';
+  </script>
+</Base>

@@ -1,0 +1,58 @@
+---
+import { render } from 'astro:content';
+import Article from '../../layouts/Article.astro';
+import { getPosts, getSummaries, seriesOf, toSummary, type Post } from '../../lib/posts';
+import { cleanTitle, postHref } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props as { post: Post };
+const { Content } = await render(post);
+const all = await getPosts();
+const summaries = await getSummaries();
+
+const sameCategory = summaries.filter((p) => p.category === post.data.category);
+const at = sameCategory.findIndex((p) => p.id === post.id);
+const prev = at > 0 ? sameCategory[at - 1] : null;
+const next = at >= 0 && at < sameCategory.length - 1 ? sameCategory[at + 1] : null;
+
+const parts = seriesOf(post, all);
+const series = parts?.map((p, i) => ({
+  n: i + 1,
+  href: postHref(p.id),
+  current: p.id === post.id,
+  title: cleanTitle(p.data.title.replace(/^.*?—\s*/, '')),
+}));
+
+const tagSet = new Set(post.data.tags);
+const related = summaries
+  .filter((p) => p.id !== post.id && p.id !== prev?.id && p.id !== next?.id && !parts?.some((s) => s.id === p.id))
+  .map((p) => ({ p, score: p.tags.filter((t) => tagSet.has(t)).length * 2 + (p.category === post.data.category ? 1 : 0) }))
+  .filter((x) => x.score > 0)
+  .sort((a, b) => b.score - a.score || b.p.date.localeCompare(a.p.date))
+  .slice(0, 3)
+  .map((x) => x.p);
+
+const s = toSummary(post);
+---
+
+<Article
+  id={post.id}
+  title={post.data.title}
+  summary={post.data.summary}
+  date={post.data.date}
+  category={post.data.category}
+  tags={post.data.tags}
+  minutes={post.data.minutes}
+  headings={post.data.headings}
+  path={s.href}
+  series={series}
+  prev={prev}
+  next={next}
+  related={related}
+>
+  <Content />
+</Article>

@@ -1,0 +1,36 @@
+---
+/** A static, build-time starfield for pages that don't run the WebGL galaxy. */
+import { kelvinToRgb, rng } from '../scripts/galaxy/model';
+
+const R = rng(42);
+const W = 1600;
+const H = 1000;
+const stars = Array.from({ length: 260 }, () => {
+  const k = Math.exp(Math.log(3000) + (Math.log(14000) - Math.log(3000)) * R.next());
+  const [r, g, b] = kelvinToRgb(k).map((v) => Math.round(Math.pow(v, 1 / 2.2) * 255));
+  const big = R.next() < 0.06;
+  return {
+    x: (R.next() * W).toFixed(1),
+    y: (R.next() * H).toFixed(1),
+    r: (big ? 1.1 + R.next() * 0.8 : 0.35 + R.next() * 0.6).toFixed(2),
+    o: (0.25 + Math.pow(R.next(), 2) * 0.75).toFixed(2),
+    c: `rgb(${r},${g},${b})`,
+  };
+});
+---
+
+<div aria-hidden="true" class="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-void">
+  <div
+    class="absolute inset-0"
+    style="background: radial-gradient(70% 55% at 85% -10%, rgb(68 76 150 / 0.22), transparent 70%), radial-gradient(55% 45% at -5% 20%, rgb(255 170 120 / 0.08), transparent 70%), radial-gradient(60% 60% at 50% 120%, rgb(120 90 190 / 0.12), transparent 70%);"
+  >
+  </div>
+  <svg class="absolute inset-0 size-full" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <filter id="star-glow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="1.4"></feGaussianBlur></filter>
+    </defs>
+    {stars.map((s) => <circle cx={s.x} cy={s.y} r={s.r} fill={s.c} opacity={s.o} />)}
+    {stars.filter((s) => Number(s.r) > 1).map((s) => <circle cx={s.x} cy={s.y} r={Number(s.r) * 2.6} fill={s.c} opacity="0.25" filter="url(#star-glow)" />)}
+  </svg>
+  <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-void to-transparent"></div>
+</div>

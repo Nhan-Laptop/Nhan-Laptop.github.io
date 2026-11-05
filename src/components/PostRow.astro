@@ -1,0 +1,54 @@
+---
+import { CATEGORIES, formatDate, hash, tagHref } from '../lib/site';
+import type { PostSummary } from '../lib/posts';
+
+interface Props {
+  post: PostSummary;
+  index?: number;
+  showSummary?: boolean;
+  showTags?: boolean;
+}
+const { post, index = 0, showSummary = true, showTags = false } = Astro.props;
+const cat = CATEGORIES[post.category];
+---
+
+<article
+  class="post-row group border-b border-line py-6"
+  data-reveal
+  style={`--i:${Math.min(index, 8)}`}
+  data-post
+  data-category={post.category}
+  data-tags={post.tags.join(' ')}
+>
+  <div class="grid gap-x-8 gap-y-2 md:grid-cols-[140px_minmax(0,1fr)_auto] md:items-baseline">
+    <div class="flex items-center gap-3 font-mono text-xs text-dim md:flex-col md:items-start md:gap-1.5">
+      <span class="flex items-center gap-2 uppercase tracking-[0.08em]" style={`color:${cat.color}`}>
+        <span class="dot size-1.5"></span>{cat.label}
+      </span>
+      <time datetime={post.date}>{formatDate(post.date)}</time>
+    </div>
+    <div class="min-w-0">
+      <h3 class="text-xl font-medium leading-snug tracking-[-0.02em] text-ink sm:text-[22px]">
+        <a href={post.href} class="after:absolute after:inset-0" style={`view-transition-name: t-${hash(post.id)}`}>{post.title}</a>
+      </h3>
+      {showSummary && post.summary && <p class="mt-2 line-clamp-2 max-w-3xl text-[15px] leading-relaxed text-mist">{post.summary}</p>}
+      {
+        showTags && post.tags.length > 0 && (
+          <ul class="relative z-10 mt-3 flex flex-wrap gap-1.5">
+            {post.tags.map((t) => (
+              <li>
+                <a class="chip" href={tagHref(t)}>
+                  #{t}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+    <span class="hidden items-center gap-2 font-mono text-xs text-dim md:flex">
+      {post.minutes} min
+      <svg class="arrow" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+    </span>
+  </div>
+</article>

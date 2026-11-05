@@ -1,0 +1,112 @@
+/* highlight.js theme tuned to the galaxy palette. */
+.prose-galaxy pre {
+  position: relative;
+  max-width: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--color-line);
+  background: linear-gradient(180deg, #0b0e1a, #080a13);
+  overflow: hidden;
+}
+.prose-galaxy pre > code {
+  display: block;
+  overflow-x: auto;
+  padding: 1.15em 1.3em;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  line-height: 1.7;
+  color: #cfd5e6;
+  tab-size: 4;
+}
+.code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px 6px 16px;
+  border-bottom: 1px solid var(--color-line);
+  background: rgb(255 255 255 / 0.02);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+.code-copy {
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-line);
+  color: var(--color-mist);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.code-copy:hover {
+  color: var(--color-ink);
+  border-color: var(--color-line-strong);
+}
+.code-copy[data-copied] {
+  color: var(--color-aurora);
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #6b7390;
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-type {
+  color: #b9a8ff;
+}
+.hljs-built_in,
+.hljs-title.class_,
+.hljs-class .hljs-title {
+  color: #8fd3ff;
+}
+.hljs-title,
+.hljs-title.function_,
+.hljs-section {
+  color: #8ef0c4;
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta .hljs-string {
+  color: #ffc98b;
+}
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-variable.constant_ {
+  color: #ff9fb8;
+}
+.hljs-variable,
+.hljs-template-variable,
+.hljs-params {
+  color: #e6e9f3;
+}
+.hljs-meta,
+.hljs-meta .hljs-keyword {
+  color: #7fb6ff;
+}
+.hljs-attr,
+.hljs-name,
+.hljs-tag,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #8fd3ff;
+}
+.hljs-deletion {
+  color: #ff8a9a;
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 600;
+}
