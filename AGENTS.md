@@ -1,96 +1,61 @@
 # AGENTS.md
 
-This repository is a static personal blog served at `https://nhan-laptop.github.io`.
-It uses plain HTML/CSS/JS and a custom Node Markdown build, not a framework.
+Personal site of Nguyen Trong Nhan, served at `https://nhan-laptop.github.io`.
+Built with **Astro 7**, **Tailwind CSS 4** and a custom **Three.js** galaxy. Deployed by GitHub Actions.
 
 ## Content layout
 
-Published Markdown and its generated HTML live together under topic folders:
+Markdown sources live in topic folders under `posts/` (sources only, no generated HTML):
 
 ```text
 posts/
   cryptography/       # Ciphers, lattices, NTT, HE, IBE/HIBE, PKEET, PRNG notes
   ctf/                # Competition writeups
-  malware-binary/     # Windows memory, PE, loading, shellcode, malware overview; five separate parts
+  malware-binary/     # Five-part Malware for Beginners series
   security-protocols/ # mTLS and onion routing
   tools/              # Z3 and other analysis tooling notes
   projects/           # Research prototypes and pi-ctf-solver
-  life/               # Travel, personal logs, and the HTML-only semester log
+  life/               # Travel and personal logs
   manifest.json       # Protected draft exclusions
 ```
 
-- `build.js` recursively discovers `posts/**/*.md` and writes `.html` beside each source.
-- Keep supporting source files, such as `learning-PKEET.tex`, with the corresponding post.
-- Keep media in `assets/`, not beside Markdown. A post one folder below `posts/` references it as `../../assets/...`.
-- Keep `posts/` free of root-level HTML. All published articles belong inside topic folders; legacy URL redirect stubs were intentionally removed at the user's request.
-- The removed merged malware article is not a source anymore. The current malware series has five separate articles.
-- `posts/life-the-first-viasm-with-crypto.md` is an unfinished, untracked draft. Do not alter, move, or publish it without explicit approval.
+- Keep supporting files (e.g. `learning-PKEET.tex`) beside the post.
+- Media lives in `public/assets/`. A post one folder below `posts/` references it as `../../assets/...` (that resolves to `/assets/...` at the post's URL).
+- `posts/life-the-first-viasm-with-crypto.md` is an unfinished draft excluded via `manifest.json`. Do not alter, move, or publish it without explicit approval.
+- Publishable Markdown must be inside a topic folder; the build fails on loose files in `posts/`.
 
-## Build and templates
+## URLs (must stay stable)
 
-The normal build is:
+`build.format: 'preserve'` keeps the historical URLs:
 
-```bash
-npm run build:n1ctf
-```
+- `posts/<topic>/<basename>.html` for every Markdown post
+- `posts/life/daily-semester-log.html` (hand-written page, `src/pages/posts/life/daily-semester-log.astro`)
+- `categories/{index,writeup,learning,project,life}.html`, `tags/index.html`, `universe.html`, `rss.xml`
 
-This builds the universe background bundle, then `build.js`:
-
-1. Loads `posts/manifest.json` and recursively discovers Markdown.
-2. Excludes `manifest.drafts` and any additional `BLOG_SKIP_POSTS` entries.
-3. Parses metadata, strips it from the article, and preprocesses HackMD syntax.
-4. Renders with `marked`, `highlight.js`, and KaTeX.
-5. Injects content into `templates/writeup-template.html`, with navigation, asset paths and canonical URLs calculated for the post's nesting depth.
-6. Adds local image dimensions and lazy-loading attributes.
-7. Writes HTML beside Markdown.
-8. Regenerates all four category listings and the tags index.
-9. Copies vendor styles and fonts into `assets/vendor/`.
-
-Relevant files:
-
-- `build.js`: rendering, article metadata, category and tag generation.
-- `scripts/post-paths.js`: recursive discovery, URL encoding, and nesting depth.
-- `scripts/image-dimensions.js`: local PNG/WebP dimensions, resolved from each article's directory.
-- `templates/writeup-template.html`: article shell. `{{ROOT_PREFIX}}` is replaced with `../`, `../../`, etc.
-- `templates/category-template.html` and `templates/tags-template.html`: generated archive layouts.
-- `posts/manifest.json`: `drafts` exclusions, matched by basename or path relative to `posts/`.
-
-Exclusions match either a Markdown basename or a complete relative path. Manifest exclusions apply even without an environment variable; `BLOG_SKIP_POSTS` is additive:
+## Build
 
 ```bash
-BLOG_SKIP_POSTS=learning-unfinished.md,tools/learning-experiment.md npm run build:n1ctf
+npm install
+npm run dev        # http://localhost:4321
+npm run build      # -> dist/
+npm test           # checks dist/ (run build first)
+npm run check      # build + test
 ```
 
-Publishable Markdown must be placed in a topic folder. Old flat article URLs are no longer supported; do not reintroduce root-level redirect stubs.
+Pipeline:
 
-## Automatic vs manual
+1. `src/content.config.ts` — a custom content loader reads `posts/**/*.md`, skips `manifest.drafts` and `BLOG_SKIP_POSTS` (comma-separated basenames or paths relative to `posts/`), and infers the category from the basename prefix.
+2. `src/lib/markdown.ts` — metadata (frontmatter first, legacy inline `Date:`/`Tags:`/`Summary:` second), HackMD preprocessing (`:::spoiler`, `:::info|success|warning|danger`, LaTeX normalisation), `marked` + highlight.js + KaTeX (`nonStandard` math), heading ids/TOC, table wrappers, local image `width`/`height` + lazy loading.
+3. Undated posts fall back to their first git commit date (CI checks out full history for this).
+4. Pages in `src/pages/` render articles, archives, tags, the universe map, RSS and the sitemap.
 
-Generated:
+## Categories
 
-- `posts/**/*.html` backed by Markdown
-- `categories/writeup.html`, `categories/learning.html`, `categories/project.html`, `categories/life.html`
-- `tags/index.html`
-- Vendor assets and `assets/js/universe-background.bundle.js`
+Keep the prefix on the **basename**, regardless of topic folder:
 
-Manual:
+- `writeup-*.md` → Writeup · `learning-*.md` → Learning · `project-*.md` → Project · `life-*.md` / `daily-*.md` → Life
 
-- `index.html`, including **Fresh from the notebook** / Latest Posts
-- `categories/index.html`
-- `posts/life/daily-semester-log.html` (no Markdown source)
-- Shared templates, styling, and client-side behavior
-
-Adding a Markdown source updates archives, but not the homepage. Add or update its homepage card manually if appropriate, using the grouped public URL.
-
-## Authoring
-
-Keep the category prefix on the **basename**, regardless of its topic folder:
-
-- `writeup-*.md` → Writeup
-- `learning-*.md` → Learning
-- `project-*.md` → Project
-- `life-*.md` or `daily-*.md` → Life
-
-Frontmatter supports `date`, `summary`, and `tags`; it takes priority over legacy inline `Date:`, `Summary:`, and `Tags:` metadata.
+Frontmatter supports `date`, `summary`, `tags`:
 
 ```md
 ---
@@ -104,30 +69,51 @@ tags:
 # Article title
 ```
 
-- Prefer `$$ ... $$` for display math and explicit code-fence languages.
-- Do not assume prose math with `\\(...\\)` is as reliable as block math.
-- Source-relative links between posts in the same topic folder can use the filename alone.
-- Preserve author wording and code when a request is organizational/formatting-only. Do not restore passages the user deleted.
+A leading `[Label] ` in the H1 (e.g. `[Project]`) is hidden in the displayed title; the category is shown separately.
+Multi-part posts named `*-part-N.md` in the same folder get a series navigator automatically.
 
-## Frontend and media
+## Generated vs manual
 
-- Load `assets/css/redesign.css` after `common.css`; it contains the responsive layouts and reading styles.
-- `assets/js/common.js` progressively adds mobile navigation, article TOC/code-copy controls, and tag filtering.
-- `npm run optimize:images` uses ImageMagick (`magick`) to create WebP copies while retaining PNG originals. Register new media folders in `scripts/optimize-images.js`.
-- Use `controls playsinline preload="metadata"` for self-hosted video. Metadata preload can download some data before playback.
+Everything is generated from Markdown at build time: articles, category pages, tags, RSS, sitemap, the homepage lists, the ⌘K search index and the universe map. Nothing generated is committed.
+
+Manual:
+
+- Homepage copy and chapter layout: `src/pages/index.astro` (the `/now` list is hand-written).
+- `src/pages/posts/life/daily-semester-log.astro` and its entry in `src/lib/posts.ts` (`SEMESTER_LOG`).
+- Category labels/colours/blurbs: `src/lib/site.ts`.
+
+## Frontend
+
+- `src/styles/global.css` — Tailwind theme tokens (`--color-*`, fonts), components (`.btn`, `.chip`, `.glass`, reveals), universe markers. `prose.css` (article typography), `code.css` (highlight.js theme).
+- `src/layouts/Base.astro` (shell, SEO, header/footer, ⌘K palette), `Article.astro` (reading layout, TOC, series, prev/next).
+- `src/scripts/ui.ts` (header, mobile menu, ⌘K, reveal-on-scroll), `article.ts` (progress, TOC spy, code copy, lightbox), `home.ts` (scroll-driven camera, Lenis, HUD), `universe.ts` (post markers on the arms).
+- `src/scripts/galaxy/` — the WebGL galaxy:
+  - `model.ts`: procedural barred spiral (bulge, bar, 2 major + 2 minor log-spiral arms, flared disk, halo/globulars), black-body star colours, HII regions, dust filaments.
+  - `shaders.ts`: point sprites (energy-conserving sub-pixel stars), diffuse disk light + dust lanes, core glow.
+  - `engine.ts`: renderer, bloom (UnrealBloom + ACES), quality tiers (`high`/`medium`/`low` by device), adaptive DPR, camera poses + drag/zoom/focus, pause when hidden, reduced-motion single frames.
+- Fonts are self-hosted via Fontsource (Inter Tight, JetBrains Mono, Newsreader italic — all with Vietnamese subsets).
+- Respect `prefers-reduced-motion`; everything must work without JavaScript (the poster image and plain lists stand in).
+- Self-hosted video: `controls playsinline preload="metadata"`.
+
+### Poster and social image
+
+`public/galaxy-poster.webp` (first paint / no-WebGL fallback) and `public/og.jpg` are rendered from the real engine. After changing the galaxy's look, regenerate them:
+
+```bash
+npm run dev &
+node scripts/render-poster.cjs http://localhost:4321   # needs Playwright + ImageMagick
+```
+
+`npm run optimize:images` creates WebP copies of PNGs (ImageMagick); register new media folders in `scripts/optimize-images.cjs`.
 
 ## Safety and verification
 
-The worktree may be dirty. Never revert unrelated edits, alter the protected life draft, or undo user deletions to make a build pass.
+The worktree may be dirty. Never revert unrelated edits, alter the protected draft, or change author wording/maths to make a build pass (known source-level LaTeX errors are allow-listed in `tests/site.test.mjs`).
 
 After content or build changes:
 
-1. `node --check build.js`
-2. `npm run build:n1ctf`
-3. `npm test` (nested paths, clean posts root, draft exclusion, companion HTML, local links and malware-series checks)
-4. Inspect generated diffs for accidental content changes.
-5. Verify new posts appear in their category and tags listings.
-6. Update the manual homepage when appropriate.
-7. Check desktop/mobile layout, media loading, and that rebuilding leaves no root-level article HTML.
+1. `npm run build` and `npm test`.
+2. Inspect the rendered pages for accidental content changes.
+3. Check desktop and mobile layout, and the homepage galaxy.
 
-Local changes are not live until committed, pushed to `origin/main`, and published by GitHub Pages. Do not claim deployment from a local build alone.
+Deployment: `.github/workflows/deploy.yml` builds, tests and publishes `dist/` on every push to `main`. The repository's Pages source must be set to **GitHub Actions**. Do not claim deployment from a local build alone.

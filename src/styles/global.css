@@ -1,0 +1,375 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter-tight';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/newsreader/wght-italic.css';
+@import './prose.css';
+@import './code.css';
+
+@theme {
+  --color-void: #020309;
+  --color-deep: #070912;
+  --color-panel: #0b0e19;
+  --color-ink: #edeff5;
+  --color-mist: #a3aabd;
+  --color-dim: #7d849a;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-strong: rgb(255 255 255 / 0.16);
+  --color-star: #ffc98b;
+  --color-nebula: #a9b8ff;
+  --color-aurora: #8ef0c4;
+  --color-rose: #ff9fb8;
+
+  --font-sans: 'Inter Tight Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+  --font-serif: 'Newsreader Variable', ui-serif, Georgia, serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --header-h: 72px;
+  }
+  html {
+    background: var(--color-void);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: calc(var(--header-h) + 16px);
+  }
+  body {
+    min-height: 100svh;
+    /* No background here: the fixed -z-10 galaxy/starfield layers must paint above the root background. */
+    overflow-x: clip;
+  }
+  ::selection {
+    background: rgb(255 201 139 / 0.32);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-star);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Cross-document view transitions: list titles morph into article titles. */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+::view-transition-group(*) {
+  animation-duration: 520ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: clamp(16px, 4vw, 40px);
+  }
+
+  .glass {
+    background: linear-gradient(180deg, rgb(13 16 28 / 0.72), rgb(7 9 18 / 0.6));
+    border: 1px solid var(--color-line);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-mist);
+  }
+
+  .accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 22px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 500;
+    transition:
+      transform 0.4s var(--ease-out-expo),
+      background-color 0.3s,
+      border-color 0.3s,
+      color 0.3s;
+    will-change: transform;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: var(--color-ink);
+    color: var(--color-void);
+  }
+  .btn-primary:hover {
+    background: #fff;
+  }
+  .btn-ghost {
+    border: 1px solid var(--color-line-strong);
+    color: var(--color-ink);
+  }
+  .btn-ghost:hover {
+    border-color: rgb(255 255 255 / 0.4);
+    background: rgb(255 255 255 / 0.04);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--color-line);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-mist);
+    transition:
+      color 0.25s,
+      border-color 0.25s,
+      background-color 0.25s;
+  }
+  a.chip:hover,
+  button.chip:hover {
+    color: var(--color-ink);
+    border-color: var(--color-line-strong);
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--color-ink);
+    color: var(--color-void);
+    border-color: var(--color-ink);
+  }
+
+  .chip-toggle,
+  .chip-toggle[aria-pressed='true'] {
+    background: rgb(2 3 9 / 0.55);
+    color: var(--color-ink);
+    border-color: var(--color-line-strong);
+  }
+  .chip-toggle[aria-pressed='false'] {
+    color: var(--color-dim);
+    border-color: var(--color-line);
+    text-decoration: line-through;
+    text-decoration-color: rgb(255 255 255 / 0.3);
+  }
+  .chip-toggle[aria-pressed='false'] .dot {
+    opacity: 0.3;
+    box-shadow: none;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    flex: none;
+    box-shadow: 0 0 12px currentColor;
+    background: currentColor;
+  }
+
+  /* Reveal-on-scroll; JS adds .is-in. Without JS everything is visible. */
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+    transition:
+      opacity 1s var(--ease-out-expo),
+      transform 1.2s var(--ease-out-expo);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+  .js [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
+  .js .split-word {
+    display: inline-block;
+    overflow: clip;
+    vertical-align: bottom;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+  .js .split-word > span {
+    display: inline-block;
+    transform: translate3d(0, 105%, 0);
+    transition: transform 1.3s var(--ease-out-expo);
+    transition-delay: calc(var(--w, 0) * 55ms + 120ms);
+  }
+  .js .is-in .split-word > span,
+  .js .split-word.is-in > span {
+    transform: none;
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.5s var(--ease-out-expo);
+  }
+  .link-underline:hover {
+    background-size: 100% 1px;
+  }
+
+  .post-row {
+    position: relative;
+    isolation: isolate;
+  }
+  .post-row::before {
+    content: '';
+    position: absolute;
+    inset: 0 -16px;
+    border-radius: 16px;
+    background: rgb(255 255 255 / 0.035);
+    opacity: 0;
+    transform: scaleY(0.85);
+    transition:
+      opacity 0.35s,
+      transform 0.5s var(--ease-out-expo);
+    z-index: -1;
+  }
+  .post-row:hover::before,
+  .post-row:focus-visible::before {
+    opacity: 1;
+    transform: none;
+  }
+  .post-row .arrow {
+    transition: transform 0.5s var(--ease-out-expo);
+  }
+  .post-row:hover .arrow {
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .js [data-reveal],
+  .js .split-word > span {
+    opacity: 1;
+    transform: none;
+  }
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* Universe map markers */
+.star-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: pointer;
+  will-change: transform;
+}
+.star-marker::before,
+.star-marker::after {
+  content: '';
+  position: absolute;
+  inset: 50%;
+  border-radius: 50%;
+}
+.star-marker::before {
+  width: 8px;
+  height: 8px;
+  margin: -4px;
+  background: #fff;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--c) 70%, transparent),
+    0 0 18px 4px var(--c);
+}
+.star-marker::after {
+  width: 26px;
+  height: 26px;
+  margin: -13px;
+  border: 1px solid color-mix(in srgb, var(--c) 60%, transparent);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.3s,
+    transform 0.5s var(--ease-out-expo);
+}
+.star-marker:hover::after,
+.star-marker:focus-visible::after,
+.star-marker[data-selected]::after {
+  opacity: 1;
+  transform: none;
+}
+.star-marker[data-selected]::after {
+  animation: marker-pulse 2.2s ease-in-out infinite;
+}
+@keyframes marker-pulse {
+  50% {
+    transform: scale(1.35);
+    opacity: 0.4;
+  }
+}
+.star-label {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  translate: 0 -50%;
+  white-space: nowrap;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgb(2 3 9 / 0.72);
+  border: 1px solid var(--color-line);
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  color: var(--color-ink);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.25s,
+    transform 0.4s var(--ease-out-expo);
+  pointer-events: none;
+}
+.star-marker:hover .star-label,
+.star-marker:focus-visible .star-label,
+.star-marker[data-selected] .star-label {
+  opacity: 1;
+  transform: none;
+}
