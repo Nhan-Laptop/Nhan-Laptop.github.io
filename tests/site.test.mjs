@@ -9,6 +9,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const postsDir = path.join(root, 'posts');
 const origin = 'https://nhan-laptop.github.io';
+// Same SITE_BASE the build used ('' for the root site, e.g. '/Nhan-Laptop.github.io' for a fork preview).
+const base = (process.env.SITE_BASE || '/').replace(/\/$/, '');
 
 async function walk(dir, ext) {
   const out = [];
@@ -44,14 +46,15 @@ test('every local link, asset and poster in the built site resolves', async (t) 
   let checked = 0;
   for (const file of pages) {
     const html = await fs.readFile(file, 'utf8');
-    const base = `${origin}/${encode(rel(file, dist))}`;
+    const pageUrl = `${origin}${base}/${encode(rel(file, dist))}`;
     for (const tag of html.matchAll(/<(?:a|img|link|script|source|video)\b[^>]*>/gi)) {
       for (const attr of tag[0].matchAll(/\b(?:href|src|poster)=["']([^"']+)["']/gi)) {
         const value = attr[1].replace(/&amp;/g, '&');
         if (value.startsWith('#') || value.startsWith('data:') || value.startsWith('mailto:')) continue;
-        const url = new URL(value, base);
+        const url = new URL(value, pageUrl);
         if (url.origin !== origin) continue;
-        let target = path.join(dist, decodeURIComponent(url.pathname));
+        const pathname = base && url.pathname.startsWith(`${base}/`) ? url.pathname.slice(base.length) : url.pathname;
+        let target = path.join(dist, decodeURIComponent(pathname));
         checked++;
         try {
           if ((await fs.stat(target)).isDirectory()) target = path.join(target, 'index.html');
@@ -74,7 +77,7 @@ test('every publishable Markdown file builds at its historical URL with a canoni
   for (const f of files) {
     const out = `posts/${f.replace(/\.md$/, '.html')}`;
     const html = await read(out);
-    assert.ok(html.includes(`<link rel="canonical" href="${origin}/${encode(out)}"`), `${out} canonical`);
+    assert.ok(html.includes(`<link rel="canonical" href="${origin}${base}/${encode(out)}"`), `${out} canonical`);
     assert.ok(html.includes('id="markdownRoot"'), out);
     const errors = (html.match(/class="katex-error"/g) || []).length;
     assert.ok(errors <= (KNOWN_KATEX_ERRORS[f] || 0), `${out} has ${errors} KaTeX error(s)`);
@@ -118,7 +121,7 @@ test('every post appears in its category listing, the tag index, the universe ma
   const rss = await read('rss.xml');
   const prefixes = { writeup: 'writeup', learning: 'learning', project: 'project', life: 'life', daily: 'life' };
   for (const f of files) {
-    const href = `/posts/${encode(f.replace(/\.md$/, '.html'))}`;
+    const href = `${base}/posts/${encode(f.replace(/\.md$/, '.html'))}`;
     const cat = prefixes[path.basename(f).split('-')[0].toLowerCase()];
     assert.ok((await read(`categories/${cat}.html`)).includes(`href="${href}"`), `${href} missing from ${cat}`);
     assert.ok(tags.includes(`href="${href}"`), `${href} missing from tags`);

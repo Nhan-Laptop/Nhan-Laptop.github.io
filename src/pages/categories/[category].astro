@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import PostRow from '../../components/PostRow.astro';
 import SplitText from '../../components/SplitText.astro';
 import { getSummaries } from '../../lib/posts';
-import { CATEGORIES, CATEGORY_ORDER, type CategoryKey } from '../../lib/site';
+import { tagHref, url, CATEGORIES, CATEGORY_ORDER, type CategoryKey } from '../../lib/site';
 
 export function getStaticPaths() {
   return CATEGORY_ORDER.map((category) => ({ params: { category } }));
@@ -46,7 +46,7 @@ const tags = [...new Set(posts.flatMap((p) => p.tags))].sort();
           <ul class="mt-4 flex flex-wrap gap-2">
             {tags.map((t) => (
               <li>
-                <a class="chip" href={`/tags/index.html#${encodeURIComponent(t)}`}>
+                <a class="chip" href={tagHref(t)}>
                   #{t}
                 </a>
               </li>

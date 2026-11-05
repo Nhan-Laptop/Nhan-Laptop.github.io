@@ -8,9 +8,10 @@ const posts = await getSummaries();
 const counts = new Map<string, number>();
 for (const p of posts) for (const t of p.tags) counts.set(t, (counts.get(t) || 0) + 1);
 const tags = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+import { url } from '../../lib/site';
 ---
 
-<Base title="Tags" description="Browse every post by tag." path="/tags/index.html" active="tags">
+<Base title="Tags" description="Browse every post by tag." path={url('/tags/index.html')} active="tags">
   <section class="shell pt-[calc(var(--header-h)+64px)] pb-10 sm:pt-[calc(var(--header-h)+104px)]">
     <p class="eyebrow" data-reveal>{tags.length} tags</p>
     <h1 class="mt-5 text-[clamp(3rem,2rem+5vw,6.5rem)] font-medium leading-[0.95] tracking-[-0.055em]">

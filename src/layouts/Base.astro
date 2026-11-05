@@ -4,7 +4,7 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import Starfield from '../components/Starfield.astro';
-import { SITE } from '../lib/site';
+import { url, SITE } from '../lib/site';
 
 interface Props {
   title?: string;
@@ -25,7 +25,7 @@ const {
   description = SITE.description,
   path = Astro.url.pathname,
   ogType = 'website',
-  ogImage = '/og.jpg',
+  ogImage = url('/og.jpg'),
   starfield = true,
   footer = true,
   active,
@@ -56,9 +56,9 @@ const image = new URL(ogImage, SITE.url).href;
     <meta property="og:site_name" content={SITE.name} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content={image} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="alternate" type="application/rss+xml" title={SITE.name} href="/rss.xml" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE.name} href={url('/rss.xml')} />
+    <link rel="sitemap" href={url('/sitemap-index.xml')} />
     <script is:inline>document.documentElement.classList.add('js');</script>
     <slot name="head" />
   </head>

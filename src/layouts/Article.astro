@@ -1,7 +1,7 @@
 ---
 import 'katex/dist/katex.min.css';
 import Base from './Base.astro';
-import { CATEGORIES, formatDate, hash, tagHref, type CategoryKey } from '../lib/site';
+import { url, CATEGORIES, formatDate, hash, tagHref, type CategoryKey } from '../lib/site';
 import type { PostSummary } from '../lib/posts';
 
 interface Heading {
@@ -35,7 +35,7 @@ const toc = headings.filter((h) => h.depth <= 3);
 
   <header class="shell relative pt-[calc(var(--header-h)+56px)] pb-12 sm:pt-[calc(var(--header-h)+88px)]">
     <nav aria-label="Breadcrumb" class="eyebrow flex flex-wrap items-center gap-2" data-reveal>
-      <a href="/" class="hover:text-ink">Home</a>
+      <a href={url('/')} class="hover:text-ink">Home</a>
       <span aria-hidden="true" class="text-dim">/</span>
       <a href={cat.href} class="flex items-center gap-2 hover:text-ink" style={`color:${cat.color}`}><span class="dot size-1.5"></span>{cat.plural}</a>
     </nav>
