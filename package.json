@@ -2,29 +2,33 @@
   "name": "nhan-security-log",
   "version": "1.0.0",
   "private": true,
-  "description": "Static build pipeline for markdown writeups",
+  "description": "Personal site of Nguyen Trong Nhan — Astro + Tailwind + Three.js",
   "scripts": {
-    "build:universe": "esbuild src/universe/index.js --bundle --format=iife --global-name=NhanUniverse --target=es2020 --minify --outfile=assets/js/universe-background.bundle.js",
-    "build:n1ctf": "npm run build:universe && npm run build:landing && node build.js",
-    "test": "node --test",
-    "optimize:images": "node scripts/optimize-images.js",
-    "build:landing": "esbuild src/landing/main.jsx --bundle --format=iife --target=es2020 --jsx=automatic --minify --define:process.env.NODE_ENV='\"production\"' --outfile=assets/js/landing.bundle.js && tailwindcss -i src/landing/landing.css -o assets/css/landing.css --minify"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "node --test tests/*.test.mjs",
+    "check": "astro build && node --test tests/*.test.mjs",
+    "optimize:images": "node scripts/optimize-images.cjs"
   },
   "dependencies": {
-    "framer-motion": "^14.9.0",
-    "gsap": "^3.15.0",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/inter-tight": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "astro": "^7.4.5",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.22",
+    "lenis": "^1.3.27",
     "marked": "^15.0.12",
     "marked-highlight": "^2.2.1",
     "marked-katex-extension": "^5.1.5",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1",
     "three": "^0.185.1"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.3.3",
-    "esbuild": "^0.28.1",
-    "tailwindcss": "^4.3.3"
-  }
+    "@tailwindcss/vite": "^4.3.4",
+    "tailwindcss": "^4.3.4"
+  },
+  "type": "module"
 }

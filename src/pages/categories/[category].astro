@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostRow from '../../components/PostRow.astro';
+import SplitText from '../../components/SplitText.astro';
+import { getSummaries } from '../../lib/posts';
+import { CATEGORIES, CATEGORY_ORDER, type CategoryKey } from '../../lib/site';
+
+export function getStaticPaths() {
+  return CATEGORY_ORDER.map((category) => ({ params: { category } }));
+}
+
+const key = Astro.params.category as CategoryKey;
+const cat = CATEGORIES[key];
+const posts = (await getSummaries()).filter((p) => p.category === key);
+const tags = [...new Set(posts.flatMap((p) => p.tags))].sort();
+---
+
+<Base title={cat.plural} description={cat.blurb} path={cat.href} active={key === 'project' ? 'projects' : 'writing'}>
+  <section class="shell pt-[calc(var(--header-h)+64px)] pb-10 sm:pt-[calc(var(--header-h)+104px)]">
+    <p class="eyebrow flex items-center gap-2" style={`color:${cat.color}`} data-reveal>
+      <span class="dot"></span>{posts.length} {posts.length === 1 ? 'entry' : 'entries'}
+    </p>
+    <h1 class="mt-5 text-[clamp(3.2rem,2rem+6vw,7.5rem)] font-medium leading-[0.92] tracking-[-0.055em]">
+      <SplitText text={cat.plural} />
+    </h1>
+    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-mist sm:text-xl" data-reveal style="--i:2">{cat.blurb}</p>
+    <nav aria-label="Other categories" class="mt-8 flex flex-wrap gap-2" data-reveal style="--i:3">
+      {
+        CATEGORY_ORDER.map((k) => (
+          <a class="chip" href={CATEGORIES[k].href} aria-current={k === key ? 'page' : undefined} aria-pressed={k === key ? 'true' : undefined}>
+            {CATEGORIES[k].plural}
+          </a>
+        ))
+      }
+    </nav>
+  </section>
+
+  <section class="shell pb-24" aria-label={`${cat.plural} list`}>
+    <div class="border-t border-line">
+      {posts.map((post, i) => <PostRow post={post} index={i} showTags />)}
+    </div>
+    {
+      tags.length > 0 && (
+        <div class="mt-14">
+          <p class="eyebrow">Tags in {cat.plural.toLowerCase()}</p>
+          <ul class="mt-4 flex flex-wrap gap-2">
+            {tags.map((t) => (
+              <li>
+                <a class="chip" href={`/tags/index.html#${encodeURIComponent(t)}`}>
+                  #{t}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </section>
+</Base>

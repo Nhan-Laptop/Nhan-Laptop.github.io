@@ -1,0 +1,20 @@
+---
+/** Wraps each word so it can slide up from a mask. Screen readers read the plain text once. */
+interface Props {
+  text: string;
+  class?: string;
+  offset?: number;
+}
+const { text, class: className = '', offset = 0 } = Astro.props;
+const words = text.split(/\s+/).filter(Boolean);
+---
+
+<span class={className}><span class="sr-only">{text} </span><span aria-hidden="true">{
+    words.map((w, i) => (
+      <>
+        <span class="split-word" style={`--w:${i + offset}`}>
+          <span>{w}</span>
+        </span>{' '}
+      </>
+    ))
+  }</span></span>
