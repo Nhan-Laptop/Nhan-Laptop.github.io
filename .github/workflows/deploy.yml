@@ -17,6 +17,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # nhan-laptop.github.io serves from the root; a fork's Pages preview lives under /<repo>.
+      SITE_BASE: ${{ github.repository_owner == 'Nhan-Laptop' && '/' || format('/{0}', github.event.repository.name) }}
     steps:
       - uses: actions/checkout@v4
         with:

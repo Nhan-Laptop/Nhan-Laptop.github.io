@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import SplitText from '../components/SplitText.astro';
 import { countByCategory, getSummaries } from '../lib/posts';
-import { CATEGORIES, SITE, formatDate, hash } from '../lib/site';
+import { url, CATEGORIES, SITE, formatDate, hash } from '../lib/site';
 
 const posts = await getSummaries();
 const counts = countByCategory(posts);
@@ -29,13 +29,13 @@ const chapters = [
 ];
 ---
 
-<Base starfield={false} bodyClass="home" description={SITE.description} path="/">
-  <link slot="head" rel="preload" as="image" href="/galaxy-poster.webp" fetchpriority="high" />
+<Base starfield={false} bodyClass="home" description={SITE.description} path={url('/')}>
+  <link slot="head" rel="preload" as="image" href={url('/galaxy-poster.webp')} fetchpriority="high" />
 
   <!-- The galaxy: a fixed WebGL stage behind every chapter. -->
   <div class="fixed inset-0 -z-10 bg-void" aria-hidden="true">
     <img
-      src="/galaxy-poster.webp"
+      src={url('/galaxy-poster.webp')}
       alt=""
       width="1920"
       height="1080"
@@ -79,7 +79,7 @@ const chapters = [
     <div class="shell pb-[8svh] pt-[calc(var(--header-h)+56px)]">
       <div class="pointer-events-auto flex max-w-[720px] flex-col gap-7">
         <a
-          href={pi?.href ?? '/categories/project.html'}
+          href={pi?.href ?? url('/categories/project.html')}
           class="flex w-fit items-center gap-2.5 rounded-full border border-line bg-void/50 py-2 pl-3 pr-4 font-mono text-xs text-mist backdrop-blur-md transition-colors hover:border-line-strong hover:text-ink"
           data-reveal
         >
@@ -102,7 +102,7 @@ const chapters = [
         </p>
         <div class="flex flex-wrap gap-3" data-reveal style="--i:5">
           <a class="btn btn-primary" href="#latest">Read my notes</a>
-          <a class="btn btn-ghost bg-void/30 backdrop-blur-md" href="/universe.html">
+          <a class="btn btn-ghost bg-void/30 backdrop-blur-md" href={url('/universe.html')}>
             Explore the universe
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"></circle><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-20 12 12)"></ellipse></svg>
           </a>
@@ -156,7 +156,7 @@ const chapters = [
             ))
           }
         </ul>
-        <a href="/categories/index.html" class="btn btn-ghost mt-6">All {posts.length} entries →</a>
+        <a href={url('/categories/index.html')} class="btn btn-ghost mt-6">All {posts.length} entries →</a>
       </div>
     </div>
   </section>
@@ -184,7 +184,7 @@ const chapters = [
                   <span class="mt-auto font-mono text-xs text-dim">pi package · agents · {formatDate(pi.date)}</span>
                 </div>
                 <div class="relative min-h-48 overflow-hidden border-t border-line sm:border-l sm:border-t-0">
-                  <img src="/assets/pi-ctf/dashboard.webp" alt="pi-ctf-solver live dashboard" loading="lazy" class="absolute inset-0 size-full object-cover object-left-top transition-transform duration-[1200ms] ease-[var(--ease-out-expo)] group-hover:scale-105" />
+                  <img src={url('/assets/pi-ctf/dashboard.webp')} alt="pi-ctf-solver live dashboard" loading="lazy" class="absolute inset-0 size-full object-cover object-left-top transition-transform duration-[1200ms] ease-[var(--ease-out-expo)] group-hover:scale-105" />
                 </div>
               </a>
             )
@@ -272,7 +272,7 @@ const chapters = [
             ))
           }
         </ul>
-        <a href="/categories/learning.html" class="btn btn-ghost mt-6 bg-void/30 backdrop-blur-md">All learning notes →</a>
+        <a href={url('/categories/learning.html')} class="btn btn-ghost mt-6 bg-void/30 backdrop-blur-md">All learning notes →</a>
       </div>
     </div>
   </section>
@@ -299,8 +299,8 @@ const chapters = [
           <p class="text-[28px] font-medium leading-tight tracking-[-0.03em]">Say hi, or follow along as new notes land.</p>
           <div class="flex flex-wrap gap-3">
             <a class="btn btn-primary" href={SITE.github} rel="noopener">GitHub ↗</a>
-            <a class="btn btn-ghost" href="/rss.xml">RSS feed</a>
-            <a class="btn btn-ghost" href="/universe.html">Universe map</a>
+            <a class="btn btn-ghost" href={url('/rss.xml')}>RSS feed</a>
+            <a class="btn btn-ghost" href={url('/universe.html')}>Universe map</a>
           </div>
         </div>
       </div>

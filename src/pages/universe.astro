@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getSummaries } from '../lib/posts';
-import { CATEGORIES, CATEGORY_ORDER, formatDate } from '../lib/site';
+import { url, CATEGORIES, CATEGORY_ORDER, formatDate } from '../lib/site';
 
 const posts = await getSummaries();
 const data = posts.map((p) => ({ id: p.id, t: p.title, h: p.href, c: p.category, d: p.date, s: p.summary, g: p.tags, m: p.minutes }));
@@ -11,14 +11,14 @@ const colors = Object.fromEntries(CATEGORY_ORDER.map((k) => [k, CATEGORIES[k].co
 <Base
   title="Universe"
   description="Every post as a star in a procedurally generated Milky Way — drag, zoom and click to read."
-  path="/universe.html"
+  path={url('/universe.html')}
   starfield={false}
   footer={false}
   active="universe"
   bodyClass="overflow-hidden"
 >
   <div class="fixed inset-0 bg-void">
-    <img src="/galaxy-poster.webp" alt="" aria-hidden="true" class="absolute inset-0 size-full object-cover opacity-60" data-poster />
+    <img src={url('/galaxy-poster.webp')} alt="" aria-hidden="true" class="absolute inset-0 size-full object-cover opacity-60" data-poster />
     <canvas data-galaxy class="absolute inset-0 size-full opacity-0 transition-opacity duration-[1400ms] cursor-grab" aria-hidden="true"></canvas>
     <div data-markers class="pointer-events-none absolute inset-0 overflow-hidden"></div>
   </div>
@@ -67,7 +67,7 @@ const colors = Object.fromEntries(CATEGORY_ORDER.map((k) => [k, CATEGORIES[k].co
     <h2 class="mt-3 pr-8 text-2xl font-medium leading-tight tracking-[-0.03em]" data-card-title></h2>
     <p class="mt-3 text-[15px] leading-relaxed text-mist" data-card-summary></p>
     <p class="mt-4 font-mono text-xs text-dim" data-card-meta></p>
-    <a class="btn btn-primary mt-6" data-card-link href="/">Read →</a>
+    <a class="btn btn-primary mt-6" data-card-link href={url('/')}>Read →</a>
   </aside>
 
   <!-- Accessible list (also the no-JS view) -->

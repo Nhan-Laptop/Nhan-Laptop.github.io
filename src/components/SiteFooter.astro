@@ -1,5 +1,5 @@
 ---
-import { SITE } from '../lib/site';
+import { url, SITE } from '../lib/site';
 const year = new Date().getFullYear();
 ---
 
@@ -13,17 +13,17 @@ const year = new Date().getFullYear();
     </div>
     <nav aria-label="Footer" class="flex flex-col gap-2 text-sm">
       <span class="eyebrow mb-2">Explore</span>
-      <a class="link-underline w-fit text-mist hover:text-ink" href="/categories/learning.html">Learning</a>
-      <a class="link-underline w-fit text-mist hover:text-ink" href="/categories/writeup.html">Writeups</a>
-      <a class="link-underline w-fit text-mist hover:text-ink" href="/categories/project.html">Projects</a>
-      <a class="link-underline w-fit text-mist hover:text-ink" href="/categories/life.html">Life</a>
-      <a class="link-underline w-fit text-mist hover:text-ink" href="/universe.html">Universe map</a>
+      <a class="link-underline w-fit text-mist hover:text-ink" href={url('/categories/learning.html')}>Learning</a>
+      <a class="link-underline w-fit text-mist hover:text-ink" href={url('/categories/writeup.html')}>Writeups</a>
+      <a class="link-underline w-fit text-mist hover:text-ink" href={url('/categories/project.html')}>Projects</a>
+      <a class="link-underline w-fit text-mist hover:text-ink" href={url('/categories/life.html')}>Life</a>
+      <a class="link-underline w-fit text-mist hover:text-ink" href={url('/universe.html')}>Universe map</a>
     </nav>
     <div class="flex flex-col gap-2 text-sm">
       <span class="eyebrow mb-2">Elsewhere</span>
       <a class="link-underline w-fit text-mist hover:text-ink" href={SITE.github} rel="noopener">GitHub ↗</a>
-      <a class="link-underline w-fit text-mist hover:text-ink" href="/rss.xml">RSS feed</a>
-      <a class="link-underline w-fit text-mist hover:text-ink" href="/tags/index.html">All tags</a>
+      <a class="link-underline w-fit text-mist hover:text-ink" href={url('/rss.xml')}>RSS feed</a>
+      <a class="link-underline w-fit text-mist hover:text-ink" href={url('/tags/index.html')}>All tags</a>
     </div>
   </div>
 </footer>

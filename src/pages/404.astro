@@ -1,8 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
+import { url } from '../lib/site';
 ---
 
-<Base title="Lost in space" description="This page drifted out of the galaxy." path="/404.html">
+<Base title="Lost in space" description="This page drifted out of the galaxy." path={url('/404.html')}>
   <section class="shell grid min-h-[80svh] place-items-center pt-[var(--header-h)] text-center">
     <div class="flex flex-col items-center gap-6">
       <p class="eyebrow">Error 404 · signal lost</p>
@@ -11,7 +12,7 @@ import Base from '../layouts/Base.astro';
       </h1>
       <p class="max-w-md text-lg text-mist">That page drifted out of the galaxy — or never existed. Try search, or head back to the core.</p>
       <div class="flex flex-wrap justify-center gap-3">
-        <a class="btn btn-primary" href="/">Back home</a>
+        <a class="btn btn-primary" href={url('/')}>Back home</a>
         <button type="button" class="btn btn-ghost" data-cmdk-open>Search posts</button>
       </div>
     </div>

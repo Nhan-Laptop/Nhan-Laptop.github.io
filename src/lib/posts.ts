@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { CATEGORIES, postHref, type CategoryKey } from './site';
+import { CATEGORIES, postHref, url, type CategoryKey } from './site';
 
 export type Post = CollectionEntry<'posts'>;
 
@@ -43,7 +43,7 @@ export function toSummary(post: Post): PostSummary {
 /** The hand-written semester log has no Markdown source but belongs in the Life archive. */
 export const SEMESTER_LOG: PostSummary = {
   id: 'life/daily-semester-log',
-  href: '/posts/life/daily-semester-log.html',
+  href: url('/posts/life/daily-semester-log.html'),
   title: 'Semester Sprint: Balancing CTF and University',
   date: '2026-03-18',
   summary: 'Nhat ky thuc te ve cach phan bo thoi gian cho hoc tap, CTF, va viec viet note de khong bi roi nhip.',

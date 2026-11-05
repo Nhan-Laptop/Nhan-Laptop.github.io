@@ -3,13 +3,13 @@ import Base from '../../layouts/Base.astro';
 import SplitText from '../../components/SplitText.astro';
 import PostRow from '../../components/PostRow.astro';
 import { countByCategory, getSummaries } from '../../lib/posts';
-import { CATEGORIES, CATEGORY_ORDER } from '../../lib/site';
+import { url, CATEGORIES, CATEGORY_ORDER } from '../../lib/site';
 
 const posts = await getSummaries();
 const counts = countByCategory(posts);
 ---
 
-<Base title="Writing" description="Every note, writeup, project and life log — grouped by topic." path="/categories/index.html" active="writing">
+<Base title="Writing" description="Every note, writeup, project and life log — grouped by topic." path={url('/categories/index.html')} active="writing">
   <section class="shell pt-[calc(var(--header-h)+64px)] pb-12 sm:pt-[calc(var(--header-h)+104px)]">
     <p class="eyebrow" data-reveal>{posts.length} entries · 4 constellations</p>
     <h1 class="mt-5 max-w-4xl text-[clamp(3rem,2rem+5vw,6.5rem)] font-medium leading-[0.95] tracking-[-0.055em]">
