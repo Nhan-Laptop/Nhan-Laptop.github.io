@@ -108,10 +108,26 @@ test('the protected draft is not published or listed anywhere', async () => {
   for (const draft of drafts) {
     const name = path.basename(draft, '.md');
     for (const p of pages) assert.ok(!rel(p, dist).includes(name), `${name} was built`);
-    for (const listing of ['index.html', 'categories/life.html', 'categories/learning.html', 'tags/index.html', 'universe.html', 'rss.xml']) {
+    for (const listing of ['index.html', 'categories/life.html', 'categories/learning.html', 'tags/index.html', 'universe.html', 'rss.xml', 'search-index.json']) {
       assert.ok(!(await read(listing)).includes(name), `${name} listed in ${listing}`);
     }
   }
+});
+
+test('search-index.json covers all publishable posts, headings, categories, tags, and valid local URLs', async () => {
+  const files = await publishable();
+  const index = JSON.parse(await read('search-index.json'));
+  assert.equal(index.posts.length, files.length + 1, 'all markdown posts plus semester log');
+  assert.equal(index.categories.length, 4);
+  assert.ok(index.tags.length > 10);
+  let totalHeadings = 0;
+  for (const post of index.posts) {
+    assert.ok(post.title && post.date && post.category && post.href);
+    const pathname = base && post.href.startsWith(`${base}/`) ? post.href.slice(base.length) : post.href;
+    await fs.access(path.join(dist, decodeURIComponent(pathname)));
+    totalHeadings += (post.headings || []).length;
+  }
+  assert.ok(totalHeadings > 50, `expected >50 headings in search-index.json, got ${totalHeadings}`);
 });
 
 test('every post appears in its category listing, the tag index, the universe map and RSS', async () => {

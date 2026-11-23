@@ -1,37 +1,67 @@
 ---
-import { getSummaries } from '../lib/posts';
-import { CATEGORIES } from '../lib/site';
+import { SITE, url } from '../lib/site';
 
-const posts = (await getSummaries()).map((p) => ({
-  t: p.title,
-  h: p.href,
-  c: p.category,
-  d: p.date,
-  g: p.tags.join(' '),
-}));
-const colors = Object.fromEntries(Object.values(CATEGORIES).map((c) => [c.key, c.color]));
+const routes = {
+  home: url('/'),
+  categories: url('/categories/index.html'),
+  universe: url('/universe.html'),
+  tags: url('/tags/index.html'),
+  rss: url('/rss.xml'),
+  github: SITE.github,
+  email: 'nguyentrongnhan06cm@gmail.com',
+};
 ---
 
 <dialog
   data-cmdk
-  aria-label="Search posts"
-  class="m-0 mx-auto mt-[12vh] w-[min(640px,calc(100vw-32px))] max-w-none overflow-hidden rounded-3xl border border-line-strong bg-panel/95 p-0 text-ink shadow-[0_40px_120px_-20px_rgb(0_0_0/0.8)] backdrop-blur-2xl backdrop:bg-void/70 backdrop:backdrop-blur-sm"
+  data-index-url={url('/search-index.json')}
+  data-routes={JSON.stringify(routes)}
+  aria-label="Search Star Atlas"
+  class="cmd-palette"
 >
-  <form method="dialog" class="flex items-center gap-3 border-b border-line px-5">
-    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="text-dim"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-    <label for="cmdk-input" class="sr-only">Search posts</label>
-    <input
-      id="cmdk-input"
-      data-cmdk-input
-      type="search"
-      autocomplete="off"
-      spellcheck="false"
-      placeholder="Search notes, writeups, tags…"
-      class="h-16 flex-1 bg-transparent text-lg outline-none placeholder:text-dim"
-    />
-    <button class="rounded-full border border-line px-2.5 py-1 font-mono text-[11px] text-dim" value="close">ESC</button>
-  </form>
-  <ul data-cmdk-list role="listbox" aria-label="Results" class="max-h-[56vh] overflow-y-auto p-2"></ul>
-  <p data-cmdk-empty hidden class="px-6 py-10 text-center text-mist">No stars match that search.</p>
+  <div class="cmd-shell">
+    <div class="cmd-head">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="cmd-search-icon">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m20 20-3.5-3.5"></path>
+      </svg>
+      <label for="cmdk-input" class="sr-only">Search notes, sections, tags, or commands</label>
+      <input
+        id="cmdk-input"
+        data-cmdk-input
+        type="search"
+        role="combobox"
+        aria-expanded="true"
+        aria-autocomplete="list"
+        aria-controls="cmdk-list"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Search notes, sections, #tags, or >commands…"
+        class="cmd-input"
+      />
+      <button type="button" data-cmdk-clear class="cmd-clear" aria-label="Clear search" hidden>×</button>
+      <button type="button" data-cmdk-close class="cmd-esc" aria-label="Close search"><kbd>ESC</kbd></button>
+    </div>
+
+    <div class="cmd-scopes" role="tablist" aria-label="Search scope">
+      <button type="button" role="tab" class="cmd-scope is-active" data-cmdk-scope="all" aria-selected="true">All</button>
+      <button type="button" role="tab" class="cmd-scope" data-cmdk-scope="posts" aria-selected="false">Notes</button>
+      <button type="button" role="tab" class="cmd-scope" data-cmdk-scope="headings" aria-selected="false">Sections</button>
+      <button type="button" role="tab" class="cmd-scope" data-cmdk-scope="tags" aria-selected="false">Tags</button>
+      <button type="button" role="tab" class="cmd-scope" data-cmdk-scope="actions" aria-selected="false">Navigate</button>
+    </div>
+
+    <div id="cmdk-list" data-cmdk-list role="listbox" aria-label="Search results" class="cmd-results"></div>
+
+    <div class="cmd-foot">
+      <span class="cmd-hints" aria-hidden="true">
+        <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+        <span><kbd>↵</kbd> open</span>
+        <span><kbd>Tab</kbd> scope</span>
+        <span><kbd>#</kbd> tags</span>
+        <span><kbd>&gt;</kbd> commands</span>
+      </span>
+      <span data-cmdk-status class="cmd-status" role="status" aria-live="polite"></span>
+    </div>
+  </div>
 </dialog>
-<script type="application/json" data-cmdk-data set:html={JSON.stringify({ posts, colors })} />
