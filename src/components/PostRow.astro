@@ -28,7 +28,7 @@ const cat = CATEGORIES[post.category];
       <time datetime={post.date}>{formatDate(post.date)}</time>
     </div>
     <div class="min-w-0">
-      <h3 class="text-xl font-medium leading-snug tracking-[-0.02em] text-ink sm:text-[22px]">
+      <h3 class="text-xl font-medium leading-snug tracking-[-0.018em] text-ink sm:text-[21px]">
         <a href={post.href} class="after:absolute after:inset-0" style={`view-transition-name: t-${hash(post.id)}`}>{post.title}</a>
       </h3>
       {showSummary && post.summary && <p class="mt-2 line-clamp-2 max-w-3xl text-[15px] leading-relaxed text-mist">{post.summary}</p>}
@@ -46,9 +46,9 @@ const cat = CATEGORIES[post.category];
         )
       }
     </div>
-    <span class="hidden items-center gap-2 font-mono text-xs text-dim md:flex">
+    <span class="hidden items-center gap-2 font-mono text-xs text-mist md:flex">
       {post.minutes} min
-      <svg class="arrow" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      <svg class="arrow text-star/80" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
     </span>
   </div>
 </article>

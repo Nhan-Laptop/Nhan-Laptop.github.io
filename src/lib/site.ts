@@ -31,7 +31,7 @@ export const CATEGORIES: Record<CategoryKey, Category> = {
     label: 'Learning',
     plural: 'Learning notes',
     blurb: 'Long notes on lattices, homomorphic encryption, NTT, protocols and Windows internals.',
-    color: '#a9b8ff',
+    color: '#b0c0ff',
     href: url('/categories/learning.html'),
   },
   writeup: {
@@ -39,7 +39,7 @@ export const CATEGORIES: Record<CategoryKey, Category> = {
     label: 'Writeup',
     plural: 'Writeups',
     blurb: 'CTF challenges, solved step by step — analysis, exploit and verification.',
-    color: '#ffc98b',
+    color: '#ffd093',
     href: url('/categories/writeup.html'),
   },
   project: {
@@ -47,7 +47,7 @@ export const CATEGORIES: Record<CategoryKey, Category> = {
     label: 'Project',
     plural: 'Projects',
     blurb: 'Research prototypes and tools I build for CTF players.',
-    color: '#8ef0c4',
+    color: '#88f2c8',
     href: url('/categories/project.html'),
   },
   life: {
@@ -55,7 +55,7 @@ export const CATEGORIES: Record<CategoryKey, Category> = {
     label: 'Life',
     plural: 'Life',
     blurb: 'Competition travel, semesters and life beyond the terminal.',
-    color: '#ff9fb8',
+    color: '#ffa6c0',
     href: url('/categories/life.html'),
   },
 };

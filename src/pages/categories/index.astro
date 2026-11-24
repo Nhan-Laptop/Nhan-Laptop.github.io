@@ -10,14 +10,16 @@ const counts = countByCategory(posts);
 ---
 
 <Base title="Writing" description="Every note, writeup, project and life log — grouped by topic." path={url('/categories/index.html')} active="writing">
-  <section class="shell pt-[calc(var(--header-h)+64px)] pb-12 sm:pt-[calc(var(--header-h)+104px)]">
-    <p class="eyebrow" data-reveal>{posts.length} entries · 4 constellations</p>
-    <h1 class="mt-5 max-w-4xl text-[clamp(3rem,2rem+5vw,6.5rem)] font-medium leading-[0.95] tracking-[-0.055em]">
+  <section class="shell pt-[calc(var(--header-h)+48px)] pb-8 sm:pt-[calc(var(--header-h)+72px)] sm:pb-10">
+    <h1 class="max-w-4xl text-[clamp(2.5rem,1.6rem+3.8vw,4.9rem)] font-medium leading-[1.02] tracking-[-0.036em] text-ink">
       <SplitText text="Everything I've written down." />
     </h1>
+    <p class="mt-3 max-w-2xl text-base leading-relaxed text-mist sm:text-lg" data-reveal style="--i:2">
+      {posts.length} published notes, writeups, prototypes, and logs across 4 constellations.
+    </p>
   </section>
 
-  <section class="shell grid gap-4 pb-20 sm:grid-cols-2" aria-label="Categories">
+  <section class="shell grid gap-4 pb-14 sm:grid-cols-2" aria-label="Categories">
     {
       CATEGORY_ORDER.map((k, i) => {
         const c = CATEGORIES[k];
@@ -26,22 +28,24 @@ const counts = countByCategory(posts);
             href={c.href}
             data-reveal
             style={`--i:${i}`}
-            class="group relative flex min-h-[260px] flex-col justify-between overflow-hidden rounded-[28px] border border-line p-7 transition-colors duration-500 hover:border-line-strong"
+            class="glass glass-lift group relative flex min-h-[192px] flex-col justify-between overflow-hidden rounded-[26px] p-6"
           >
             <span
               aria-hidden="true"
-              class="absolute -right-16 -top-16 size-64 rounded-full opacity-40 blur-3xl transition-all duration-700 group-hover:scale-125 group-hover:opacity-70"
+              class="pointer-events-none absolute -right-14 -top-14 size-56 rounded-full opacity-35 blur-3xl transition-all duration-700 group-hover:scale-125 group-hover:opacity-60"
               style={`background: radial-gradient(circle, ${c.color}, transparent 65%)`}
             />
-            <span class="relative flex items-center justify-between font-mono text-xs text-dim">
-              <span class="flex items-center gap-2 uppercase tracking-[0.08em]" style={`color:${c.color}`}>
+            <span class="relative flex items-center justify-between font-mono text-xs">
+              <span class="flex items-center gap-2 uppercase tracking-[0.09em]" style={`color:${c.color}`}>
                 <span class="dot" />
-                0{i + 1}
+                {c.label}
               </span>
-              <span>{counts[k]} entries</span>
+              <span class="rounded-full border border-line bg-void/55 px-2.5 py-0.5 text-mist">
+                {counts[k]} {counts[k] === 1 ? 'entry' : 'entries'}
+              </span>
             </span>
-            <span class="relative flex flex-col gap-3">
-              <span class="text-5xl font-medium tracking-[-0.045em] sm:text-6xl">{c.plural}</span>
+            <span class="relative mt-6 flex flex-col gap-2">
+              <span class="text-3xl font-medium tracking-[-0.03em] text-ink sm:text-[2.5rem] sm:leading-[1.05]">{c.plural}</span>
               <span class="max-w-md text-[15px] leading-relaxed text-mist">{c.blurb}</span>
             </span>
           </a>
@@ -51,8 +55,11 @@ const counts = countByCategory(posts);
   </section>
 
   <section class="shell pb-24" aria-labelledby="all-title">
-    <h2 id="all-title" class="eyebrow">All entries, newest first</h2>
-    <div class="mt-4 border-t border-line">
+    <div class="flex items-baseline justify-between gap-4 pb-4">
+      <h2 id="all-title" class="text-xl font-medium tracking-[-0.02em] text-ink">All entries</h2>
+      <span class="font-mono text-xs uppercase tracking-[0.08em] text-dim">Newest first</span>
+    </div>
+    <div class="border-t border-line">
       {posts.map((post, i) => <PostRow post={post} index={i} showSummary={false} />)}
     </div>
   </section>

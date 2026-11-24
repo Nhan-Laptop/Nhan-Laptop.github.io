@@ -14,26 +14,26 @@ import { url } from '../lib/site';
 
 <header
   data-header
-  class="fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500 data-[scrolled]:border-b data-[scrolled]:border-line data-[scrolled]:bg-void/70 data-[scrolled]:backdrop-blur-xl"
+  class="fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500 data-[scrolled]:border-b data-[scrolled]:border-line data-[scrolled]:bg-void/85 data-[scrolled]:backdrop-blur-xl"
 >
   <div class="shell flex h-[var(--header-h)] items-center justify-between gap-3">
     <a href={url('/')} class="group flex items-center gap-3 rounded-full pr-2 text-[15px] font-medium" aria-label="Nhan — home">
-      <span class="relative grid size-9 place-items-center overflow-hidden rounded-full ring-1 ring-line-strong">
+      <span class="relative grid size-9 place-items-center overflow-hidden rounded-full ring-1 ring-line-strong shadow-[0_4px_14px_rgb(0_0_0/0.5)]">
         <img src={url('/self.webp')} alt="" width="36" height="36" class="size-full object-cover" />
       </span>
       <span class="flex flex-col leading-tight">
-        <span>nhan</span>
-        <span class="font-mono text-[11px] text-dim transition-colors group-hover:text-mist">security log</span>
+        <span class="text-ink">nhan</span>
+        <span class="font-mono text-[11px] text-mist transition-colors group-hover:text-ink">security log</span>
       </span>
     </a>
 
-    <nav aria-label="Primary" class="hidden items-center gap-1 rounded-full border border-line bg-void/40 p-1 backdrop-blur-md md:flex">
+    <nav aria-label="Primary" class="hidden items-center gap-1 rounded-full border border-line-strong/80 bg-panel/80 p-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.09),0_12px_32px_-10px_rgb(0_0_0/0.6)] backdrop-blur-xl md:flex">
       {
         links.map((l) => (
           <a
             href={l.href}
             aria-current={active === l.key ? 'page' : undefined}
-            class="rounded-full px-4 py-2.5 text-sm text-mist transition-colors hover:text-ink aria-[current=page]:bg-white/[0.08] aria-[current=page]:text-ink"
+            class="rounded-full px-4 py-2 text-sm text-mist transition-colors hover:bg-white/[0.06] hover:text-ink aria-[current=page]:bg-white/[0.11] aria-[current=page]:text-ink"
           >
             {l.label}
           </a>
@@ -45,19 +45,19 @@ import { url } from '../lib/site';
       <button
         type="button"
         data-cmdk-open
-        class="flex min-h-11 items-center gap-3 rounded-full border border-line bg-void/40 pl-4 pr-2 text-sm text-mist backdrop-blur-md transition-colors hover:border-line-strong hover:text-ink"
+        class="flex min-h-10 items-center gap-3 rounded-full border border-line-strong/80 bg-panel/80 pl-3.5 pr-2.5 text-sm text-mist shadow-[inset_0_1px_0_rgb(255_255_255/0.08)] backdrop-blur-xl transition-colors hover:border-line-strong hover:bg-panel-raised/90 hover:text-ink"
         aria-label="Search posts"
       >
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
         <span class="hidden sm:inline">Search</span>
-        <kbd class="hidden rounded-full border border-line px-2 py-0.5 font-mono text-[11px] sm:inline">⌘K</kbd>
+        <kbd class="hidden rounded-full border border-line-strong bg-void/65 px-2 py-0.5 font-mono text-[11px] text-mist sm:inline">⌘K</kbd>
       </button>
       <button
         type="button"
         data-menu-toggle
         aria-expanded="false"
         aria-controls="mobile-menu"
-        class="grid size-11 place-items-center rounded-full border border-line bg-void/40 backdrop-blur-md md:hidden"
+        class="grid size-10 place-items-center rounded-full border border-line-strong/80 bg-panel/80 text-ink backdrop-blur-xl md:hidden"
         aria-label="Open menu"
       >
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h16M4 16h16"></path></svg>

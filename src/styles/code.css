@@ -3,18 +3,21 @@
   position: relative;
   max-width: 100%;
   border-radius: 16px;
-  border: 1px solid var(--color-line);
-  background: linear-gradient(180deg, #0b0e1a, #080a13);
+  border: 1px solid var(--color-line-strong);
+  background: linear-gradient(180deg, #0d1120 0%, #070a14 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 20px 50px -18px rgb(0 0 0 / 0.72);
   overflow: hidden;
 }
 .prose-galaxy pre > code {
   display: block;
   overflow-x: auto;
-  padding: 1.15em 1.3em;
+  padding: 1.15em 1.35em;
   font-family: var(--font-mono);
-  font-size: 0.8em;
+  font-size: 0.82em;
   line-height: 1.7;
-  color: #cfd5e6;
+  color: #dfe5f5;
   tab-size: 4;
 }
 .code-bar {
@@ -22,38 +25,42 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 6px 8px 6px 16px;
+  padding: 7px 10px 7px 16px;
   border-bottom: 1px solid var(--color-line);
-  background: rgb(255 255 255 / 0.02);
+  background: rgb(255 255 255 / 0.035);
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-dim);
+  color: var(--color-mist);
 }
 .code-copy {
   min-height: 30px;
   padding: 0 12px;
   border-radius: 8px;
-  border: 1px solid var(--color-line);
-  color: var(--color-mist);
+  border: 1px solid var(--color-line-strong);
+  background: rgb(2 3 9 / 0.45);
+  color: var(--color-ink);
   font: inherit;
   cursor: pointer;
   transition:
     color 0.2s,
-    border-color 0.2s;
+    border-color 0.2s,
+    background-color 0.2s;
 }
 .code-copy:hover {
-  color: var(--color-ink);
-  border-color: var(--color-line-strong);
+  color: #fff;
+  border-color: rgb(255 255 255 / 0.36);
+  background: rgb(255 255 255 / 0.08);
 }
 .code-copy[data-copied] {
   color: var(--color-aurora);
+  border-color: rgb(136 242 200 / 0.45);
 }
 
 .hljs-comment,
 .hljs-quote {
-  color: #6b7390;
+  color: #8b95b3;
   font-style: italic;
 }
 .hljs-keyword,

@@ -64,10 +64,15 @@ article?.querySelectorAll('pre > code').forEach((code) => {
 
 /* Image lightbox */
 const box = document.querySelector<HTMLDialogElement>('[data-lightbox]');
-const boxImg = box?.querySelector('img');
 article?.addEventListener('click', (e) => {
   const img = (e.target as HTMLElement).closest('img');
-  if (!img || !box || !boxImg || img.closest('a')) return;
+  if (!img || !box || img.closest('a')) return;
+  let boxImg = box.querySelector('img');
+  if (!boxImg) {
+    boxImg = document.createElement('img');
+    boxImg.className = 'max-h-[92vh] w-auto object-contain';
+    box.append(boxImg);
+  }
   boxImg.src = img.currentSrc || img.src;
   boxImg.alt = img.alt;
   box.showModal();

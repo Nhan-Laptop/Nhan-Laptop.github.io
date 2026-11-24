@@ -12,17 +12,17 @@ import { url } from '../../lib/site';
 ---
 
 <Base title="Tags" description="Browse every post by tag." path={url('/tags/index.html')} active="tags">
-  <section class="shell pt-[calc(var(--header-h)+64px)] pb-10 sm:pt-[calc(var(--header-h)+104px)]">
-    <p class="eyebrow" data-reveal>{tags.length} tags</p>
-    <h1 class="mt-5 text-[clamp(3rem,2rem+5vw,6.5rem)] font-medium leading-[0.95] tracking-[-0.055em]">
+  <section class="shell pt-[calc(var(--header-h)+52px)] pb-10 sm:pt-[calc(var(--header-h)+80px)]">
+    <h1 class="max-w-4xl text-[clamp(2.75rem,1.8rem+4.2vw,5.2rem)] font-medium leading-[1.02] tracking-[-0.036em] text-ink">
       <SplitText text="Filter the sky." />
     </h1>
-    <div class="mt-10 flex flex-wrap gap-2" role="group" aria-label="Filter by tag" data-reveal style="--i:2">
-      <button type="button" class="chip" data-tag-filter="" aria-pressed="true">All <span class="text-dim">{posts.length}</span></button>
+    <p class="mt-3 text-base text-mist sm:text-lg" data-reveal style="--i:1">{tags.length} topics across {posts.length} published entries.</p>
+    <div class="mt-8 flex flex-wrap gap-2" role="group" aria-label="Filter by tag" data-reveal style="--i:2">
+      <button type="button" class="chip" data-tag-filter="" aria-pressed="true">All <span class="opacity-75">{posts.length}</span></button>
       {
         tags.map(([t, n]) => (
           <button type="button" class="chip" data-tag-filter={t} aria-pressed="false" id={`tag-${t}`}>
-            #{t} <span class="opacity-60">{n}</span>
+            #{t} <span class="opacity-75">{n}</span>
           </button>
         ))
       }

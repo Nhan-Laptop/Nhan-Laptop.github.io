@@ -1,20 +1,26 @@
 /* Long-form reading styles for rendered Markdown. */
 .prose-galaxy {
-  --prose-measure: 72ch;
+  --prose-measure: 70ch;
   font-size: 18px;
-  line-height: 1.75;
-  color: #d9dce6;
+  line-height: 1.76;
+  color: #e4e8f4;
   overflow-wrap: break-word;
   min-width: 0;
 }
 @media (max-width: 640px) {
   .prose-galaxy {
     font-size: 17px;
-    line-height: 1.7;
+    line-height: 1.72;
   }
 }
 .prose-galaxy > * {
   max-width: var(--prose-measure);
+}
+.prose-galaxy > pre,
+.prose-galaxy > .table-wrap,
+.prose-galaxy > figure,
+.prose-galaxy > .katex-display {
+  max-width: 100%;
 }
 .prose-galaxy > :first-child {
   margin-top: 0;

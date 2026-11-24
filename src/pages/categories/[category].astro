@@ -16,14 +16,14 @@ const tags = [...new Set(posts.flatMap((p) => p.tags))].sort();
 ---
 
 <Base title={cat.plural} description={cat.blurb} path={cat.href} active={key === 'project' ? 'projects' : 'writing'}>
-  <section class="shell pt-[calc(var(--header-h)+64px)] pb-10 sm:pt-[calc(var(--header-h)+104px)]">
+  <section class="shell pt-[calc(var(--header-h)+52px)] pb-10 sm:pt-[calc(var(--header-h)+80px)]">
     <p class="eyebrow flex items-center gap-2" style={`color:${cat.color}`} data-reveal>
       <span class="dot"></span>{posts.length} {posts.length === 1 ? 'entry' : 'entries'}
     </p>
-    <h1 class="mt-5 text-[clamp(3.2rem,2rem+6vw,7.5rem)] font-medium leading-[0.92] tracking-[-0.055em]">
+    <h1 class="mt-4 text-[clamp(2.75rem,1.8rem+4.5vw,5.4rem)] font-medium leading-[1.0] tracking-[-0.036em] text-ink">
       <SplitText text={cat.plural} />
     </h1>
-    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-mist sm:text-xl" data-reveal style="--i:2">{cat.blurb}</p>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-mist sm:text-xl" data-reveal style="--i:2">{cat.blurb}</p>
     <nav aria-label="Other categories" class="mt-8 flex flex-wrap gap-2" data-reveal style="--i:3">
       {
         CATEGORY_ORDER.map((k) => (
